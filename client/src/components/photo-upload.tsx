@@ -99,10 +99,12 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
     <div className="space-y-6">
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-2xl font-semibold mb-2">Identify Wildlife</h2>
-          <p className="text-muted-foreground mb-6">
-            Upload a photo to get instant AI-powered species identification and conservation status.
-          </p>
+          <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 p-4 rounded-lg mb-6">
+            <h2 className="text-2xl font-bold mb-2 text-foreground">🦌 Identify Wildlife</h2>
+            <p className="text-muted-foreground">
+              Upload a photo to get instant AI-powered species identification and conservation status.
+            </p>
+          </div>
           
           {!isProcessing ? (
             <div
@@ -113,18 +115,31 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
               data-testid="upload-area"
             >
               <input {...getInputProps()} data-testid="input-file-upload" />
-              <i className="fas fa-cloud-upload-alt text-4xl text-muted-foreground mb-4"></i>
-              <h3 className="text-lg font-medium mb-2">Drop your photo here</h3>
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2 text-foreground">Drop your photo here</h3>
               <p className="text-muted-foreground mb-4">or click to browse your files</p>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid="button-choose-photo">
-                <i className="fas fa-camera mr-2"></i>Choose Photo
+              <Button className="bg-gradient-to-r from-primary to-secondary text-white font-semibold px-6 py-2 rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105" data-testid="button-choose-photo">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Choose Photo
               </Button>
               <p className="text-xs text-muted-foreground mt-2">Supports JPG, PNG up to 10MB</p>
             </div>
           ) : (
             <div className="text-center py-8" data-testid="processing-state">
-              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Analyzing your photo with AI...</p>
+              <div className="relative w-16 h-16 mx-auto mb-4">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse"></div>
+                <div className="absolute inset-2 bg-background rounded-full"></div>
+                <div className="absolute inset-4 bg-gradient-to-r from-primary to-secondary rounded-full animate-spin"></div>
+              </div>
+              <p className="text-foreground font-medium">🔍 Analyzing your photo with AI...</p>
+              <p className="text-sm text-muted-foreground mt-1">This may take a few moments</p>
             </div>
           )}
 
