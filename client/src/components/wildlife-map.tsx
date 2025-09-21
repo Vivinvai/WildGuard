@@ -202,11 +202,19 @@ export function WildlifeMap() {
         </p>
       </div>
 
-      {/* Map Container - Improved */}
-      <Card className="overflow-hidden shadow-lg">
+      {/* Map Container - Fixed Scrolling Issues */}
+      <Card className="overflow-hidden shadow-lg bg-card/95 backdrop-blur-sm">
         <CardContent className="p-0">
-          <div className="relative h-80 md:h-96" data-testid="map-container">
-            <div ref={mapRef} className="w-full h-full rounded-t-lg" />
+          <div className="relative h-64 md:h-72 max-h-72" data-testid="map-container">
+            <div 
+              ref={mapRef} 
+              className="w-full h-full rounded-t-lg touch-pan-y" 
+              style={{ 
+                touchAction: 'pan-x pan-y',
+                zIndex: 1,
+                position: 'relative'
+              }}
+            />
             
             {isLoading && (
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-t-lg">
