@@ -78,12 +78,13 @@ export function AnimalSlideshow() {
   const currentAnimal = animalSlides[currentSlide];
 
   return (
-    <div 
-      className="relative w-full h-[300px] md:h-[350px] lg:h-[400px] overflow-hidden bg-gradient-to-br from-green-900 via-black to-orange-900 rounded-xl mx-4 my-6 shadow-2xl border border-green-400/20 slide-glow"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      data-testid="animal-slideshow"
-    >
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+      <div 
+        className="relative w-full h-[280px] md:h-[320px] lg:h-[360px] overflow-hidden bg-gradient-to-br from-green-900/95 via-black to-orange-900/95 rounded-2xl shadow-xl border border-green-400/10"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        data-testid="animal-slideshow"
+      >
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
@@ -95,7 +96,7 @@ export function AnimalSlideshow() {
       </div>
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent transition-opacity duration-300" />
 
       {/* Content Overlay */}
       <div className="absolute bottom-6 left-6">
@@ -151,6 +152,7 @@ export function AnimalSlideshow() {
         <span className="text-green-200">{currentSlide + 1}</span>
         <span className="text-white/70 mx-1">/</span>
         <span className="text-orange-200">{animalSlides.length}</span>
+      </div>
       </div>
     </div>
   );
