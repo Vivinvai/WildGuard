@@ -1,6 +1,21 @@
 # Overview
 
-WildlifeSave is an AI-powered wildlife conservation platform that helps users identify animals through photo analysis and connect with nearby wildlife conservation centers. The application uses OpenAI's GPT-5 model to analyze uploaded animal images and provide detailed species information including conservation status, habitat, and threats. It features an interactive map to locate nearby wildlife centers and offers emergency reporting functionality for wildlife-related incidents.
+WildGuard (formerly WildlifeSave) is an AI-powered wildlife conservation platform that helps users identify animals through photo analysis and connect with nearby wildlife conservation centers. The application uses OpenAI's GPT-5 model to analyze uploaded animal images and provide detailed species information including conservation status, habitat, and threats. It features an interactive map to locate nearby wildlife centers, offers emergency reporting functionality for wildlife-related incidents, and provides comprehensive educational resources about wildlife protection.
+
+# Recent Changes
+
+## Latest Platform Enhancements
+- **Multi-Page Navigation System**: Added dedicated pages for Discover, Centers, Learn, and About sections with proper routing using wouter
+- **Wildlife Protection Content**: Integrated comprehensive conservation information including threats to wildlife, protection methods, conservation success stories, and actionable guidance
+- **Enhanced Visual Design**: Replaced logo with Shield icon from Lucide React, added consistent shield iconography throughout the platform for visual cohesion
+- **Educational Resources**: Added detailed sections covering wildlife threats (habitat loss, poaching, pollution, climate change), conservation methods, and technology's role in wildlife protection
+- **Wildlife Center Directory**: Created comprehensive listing of Karnataka's major wildlife centers including Bandipur National Park, Nagarhole National Park, and Daroji Bear Sanctuary with contact information and specializations
+- **Conservation Success Stories**: Featured inspiring examples like Project Tiger success, whale conservation achievements, and sea turtle protection efforts
+- **How to Help Section**: Practical guidance for users on emergency reporting, ethical choices, volunteer opportunities, and social media awareness
+- **4-Tier AI Fallback System**: Implemented robust OpenAI → Anthropic Claude → Gemini → Local Knowledge Base fallback for maximum reliability
+- **Chat Interface Improvements**: Enhanced chat with proper containment, fixed responsive heights, and professional styling that stays within one frame
+- **Supported Animals Database**: Created comprehensive database with 50+ Karnataka/India species including tigers, elephants, leopards, and API with filtering capabilities
+- **Backend Robustness**: Added input validation with Zod schemas, rate limiting, error handling, and Anthropic integration for improved reliability
 
 # User Preferences
 
