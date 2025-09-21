@@ -1,0 +1,60 @@
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, real, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+});
+
+export const wildlifeCenters = pgTable("wildlife_centers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  latitude: real("latitude").notNull(),
+  longitude: real("longitude").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email"),
+  website: text("website"),
+  hours: text("hours").notNull(),
+  services: text("services").array().notNull(),
+  rating: real("rating").notNull(),
+  address: text("address").notNull(),
+  type: text("type").notNull(), // 'rescue', 'sanctuary', 'hospital', 'research'
+});
+
+export const animalIdentifications = pgTable("animal_identifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  speciesName: text("species_name").notNull(),
+  scientificName: text("scientific_name").notNull(),
+  conservationStatus: text("conservation_status").notNull(),
+  population: text("population"),
+  habitat: text("habitat").notNull(),
+  threats: text("threats").array().notNull(),
+  imageUrl: text("image_url").notNull(),
+  confidence: real("confidence").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true,
+});
+
+export const insertWildlifeCenterSchema = createInsertSchema(wildlifeCenters).omit({
+  id: true,
+});
+
+export const insertAnimalIdentificationSchema = createInsertSchema(animalIdentifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
+export type WildlifeCenter = typeof wildlifeCenters.$inferSelect;
+export type InsertWildlifeCenter = z.infer<typeof insertWildlifeCenterSchema>;
+export type AnimalIdentification = typeof animalIdentifications.$inferSelect;
+export type InsertAnimalIdentification = z.infer<typeof insertAnimalIdentificationSchema>;

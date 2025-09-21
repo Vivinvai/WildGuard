@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(60, 9%, 98%);
+  --foreground: hsl(211, 27%, 26%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(211, 27%, 26%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(211, 27%, 26%);
+  --primary: hsl(142, 76%, 36%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(84, 81%, 44%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(60, 4%, 96%);
+  --muted-foreground: hsl(215, 13%, 54%);
+  --accent: hsl(45, 93%, 47%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(356, 90%, 54%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  --ring: hsl(142, 76%, 36%);
+  --chart-1: hsl(142, 76%, 36%);
+  --chart-2: hsl(84, 81%, 44%);
+  --chart-3: hsl(45, 93%, 47%);
+  --chart-4: hsl(211, 27%, 26%);
+  --chart-5: hsl(215, 13%, 54%);
+  --sidebar: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(211, 27%, 26%);
+  --sidebar-primary: hsl(142, 76%, 36%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(60, 4%, 96%);
+  --sidebar-accent-foreground: hsl(142, 76%, 36%);
+  --sidebar-border: hsl(214, 32%, 91%);
+  --sidebar-ring: hsl(142, 76%, 36%);
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.75rem;
+  --shadow-2xs: 0px 2px 0px 0px hsl(142, 76%, 36%, 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(142, 76%, 36%, 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(142, 76%, 36%, 0.00), 0px 1px 2px -1px hsl(142, 76%, 36%, 0.00);
+  --shadow: 0px 2px 0px 0px hsl(142, 76%, 36%, 0.00), 0px 1px 2px -1px hsl(142, 76%, 36%, 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(142, 76%, 36%, 0.00), 0px 2px 4px -1px hsl(142, 76%, 36%, 0.00);
+  --shadow-lg: 0px 2px 0px 0px hsl(142, 76%, 36%, 0.00), 0px 4px 6px -1px hsl(142, 76%, 36%, 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(142, 76%, 36%, 0.00), 0px 8px 10px -1px hsl(142, 76%, 36%, 0.00);
+  --shadow-2xl: 0px 2px 0px 0px hsl(142, 76%, 36%, 0.00);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(200, 7%, 91%);
+  --card: hsl(228, 10%, 10%);
+  --card-foreground: hsl(0, 0%, 85%);
+  --popover: hsl(0, 0%, 0%);
+  --popover-foreground: hsl(200, 7%, 91%);
+  --primary: hsl(142, 76%, 36%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(84, 81%, 44%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(0, 0%, 9%);
+  --muted-foreground: hsl(210, 3%, 46%);
+  --accent: hsl(45, 93%, 47%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(356, 90%, 54%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 5%, 15%);
+  --input: hsl(207, 28%, 18%);
+  --ring: hsl(142, 76%, 36%);
+  --sidebar: hsl(228, 10%, 10%);
+  --sidebar-foreground: hsl(0, 0%, 85%);
+  --sidebar-primary: hsl(142, 76%, 36%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(205, 70%, 8%);
+  --sidebar-accent-foreground: hsl(142, 76%, 36%);
+  --sidebar-border: hsl(205, 16%, 26%);
+  --sidebar-ring: hsl(142, 76%, 36%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+.drag-over {
+  background-color: hsl(142, 76%, 36%, 0.1);
+  border-color: hsl(142, 76%, 36%);
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.conservation-critical { 
+  color: hsl(0, 84%, 60%); 
+}
+
+.conservation-endangered { 
+  color: hsl(25, 95%, 53%); 
+}
+
+.conservation-vulnerable { 
+  color: hsl(45, 93%, 47%); 
+}
+
+.conservation-stable { 
+  color: hsl(142, 76%, 36%); 
+}
+
+/* Leaflet map styles */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  border-radius: var(--radius);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 1rem;
+  min-width: 200px;
+}
+
+.leaflet-control-zoom {
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: hsl(var(--muted));
+}
