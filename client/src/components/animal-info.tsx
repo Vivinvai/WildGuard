@@ -1,5 +1,10 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Phone, Navigation, AlertTriangle, Shield } from "lucide-react";
+import { useNearestCenter } from "@/hooks/use-nearest-center";
 import type { AnimalIdentification } from "@shared/schema";
 
 interface AnimalInfoProps {
@@ -7,6 +12,12 @@ interface AnimalInfoProps {
 }
 
 export function AnimalInfo({ identification }: AnimalInfoProps) {
+  const [showRescueCenter, setShowRescueCenter] = useState(false);
+  const { nearestRescueCenter, isLoading, error, getUserLocation } = useNearestCenter();
+
+  const isEndangered = identification.conservationStatus.toLowerCase().includes('endangered') || 
+                      identification.conservationStatus.toLowerCase().includes('critical');
+
   const getConservationStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'critically endangered':
@@ -113,6 +124,99 @@ export function AnimalInfo({ identification }: AnimalInfoProps) {
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Emergency/Rescue Center Section for Endangered Animals */}
+          {isEndangered && (
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 p-4 rounded-xl border border-orange-200 dark:border-orange-800 mb-4">
+              <div className="flex items-center mb-3">
+                <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
+                <h4 className="font-semibold text-orange-800 dark:text-orange-200">Endangered Species Alert</h4>
+              </div>
+              <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
+                This species is {identification.conservationStatus.toLowerCase()}. If you've encountered an injured or distressed animal, find the nearest rescue center.
+              </p>
+              
+              {!showRescueCenter ? (
+                <Button
+                  onClick={async () => {
+                    try {
+                      await getUserLocation();
+                      setShowRescueCenter(true);
+                    } catch (err) {
+                      console.error('Location error:', err);
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                  data-testid="button-find-rescue-center"
+                >
+                  <Navigation className="w-4 h-4 mr-2" />
+                  {isLoading ? 'Getting location...' : 'Find Nearest Rescue Center'}
+                </Button>
+              ) : (
+                <div className="space-y-3">
+                  {error && (
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {nearestRescueCenter ? (
+                    <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h5 className="font-semibold text-gray-800 dark:text-gray-200">{nearestRescueCenter.center.name}</h5>
+                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              <MapPin className="w-3 h-3 mr-1" />
+                              <span>{nearestRescueCenter.center.address}</span>
+                            </div>
+                          </div>
+                          <Badge variant="secondary" className="text-xs" data-testid="text-distance-km">
+                            {nearestRescueCenter.distance} km away
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">{nearestRescueCenter.center.description}</p>
+                        
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => window.open(`tel:${nearestRescueCenter.center.phone}`, '_self')}
+                            data-testid="button-call"
+                          >
+                            <Phone className="w-3 h-3 mr-1" />
+                            Call Now
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const url = `https://www.google.com/maps/dir/?api=1&destination=${nearestRescueCenter.center.latitude},${nearestRescueCenter.center.longitude}`;
+                              window.open(url, '_blank');
+                            }}
+                            data-testid="button-directions"
+                          >
+                            <Navigation className="w-3 h-3 mr-1" />
+                            Navigate
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Alert>
+                      <Shield className="h-4 w-4" />
+                      <AlertDescription>
+                        No rescue centers found in your area. Contact local wildlife authorities or check our centers page for more options.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
