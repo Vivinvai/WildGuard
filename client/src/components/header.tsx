@@ -24,6 +24,17 @@ export function Header() {
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
             <Link 
+              href="/" 
+              className={`transition-colors font-medium ${
+                location === "/" 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-primary"
+              }`}
+              data-testid="link-home"
+            >
+              Home
+            </Link>
+            <Link 
               href="/discover" 
               className={`transition-colors font-medium ${
                 location === "/discover" 
