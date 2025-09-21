@@ -4,6 +4,7 @@ import multer from "multer";
 import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { analyzeAnimalImage } from "./services/openai";
+import { generateChatResponse } from "./services/chat";
 import { insertAnimalIdentificationSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -256,6 +257,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting wildlife center:", error);
       res.status(500).json({ error: "Failed to get wildlife center" });
+    }
+  });
+
+  // Chat with AI about endangered animals
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      // Use the same AI service for chat
+      const response = await generateChatResponse(message.trim());
+      
+      res.json({ response });
+    } catch (error) {
+      console.error("Error generating chat response:", error);
+      res.status(500).json({ 
+        error: "I apologize, but I'm having trouble responding right now. Please try asking about endangered animals or wildlife conservation again."
+      });
     }
   });
 

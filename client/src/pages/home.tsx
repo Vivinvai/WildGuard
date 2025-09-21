@@ -4,6 +4,7 @@ import { PhotoUpload } from "@/components/photo-upload";
 import { AnimalInfo } from "@/components/animal-info";
 import { WildlifeMap } from "@/components/wildlife-map";
 import { QuickActions } from "@/components/quick-actions";
+import { AIChat } from "@/components/ai-chat";
 import type { AnimalIdentification } from "@shared/schema";
 
 export default function Home() {
@@ -30,7 +31,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Photo Upload Section */}
-          <div className="xl:col-span-5 space-y-6">
+          <div className="xl:col-span-4 space-y-6">
             <PhotoUpload onIdentificationResult={handleIdentificationResult} />
             
             {/* Animal Info Card - shown after identification */}
@@ -39,8 +40,13 @@ export default function Home() {
             )}
           </div>
 
+          {/* Chat Section */}
+          <div className="xl:col-span-4 space-y-6">
+            <AIChat />
+          </div>
+
           {/* Map Section */}
-          <div className="xl:col-span-7">
+          <div className="xl:col-span-4">
             <WildlifeMap />
           </div>
         </div>
