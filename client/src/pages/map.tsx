@@ -6,9 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Shield, MapPin, Phone, Search, ExternalLink } from "lucide-react";
+import { wildlifeCentersData } from "@shared/schema";
 
 // Import Leaflet CSS
 import "leaflet/dist/leaflet.css";
+
+// Type for Leaflet objects
+type LeafletMap = any;
+type LeafletMarker = any;
+type LeafletFeatureGroup = any;
+type Leaflet = any;
 
 interface WildlifeCenter {
   id: number;
@@ -24,70 +31,24 @@ interface WildlifeCenter {
 
 export default function WildlifeMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<Map<number, any>>(new Map());
+  const mapInstanceRef = useRef<LeafletMap>(null);
+  const markersRef = useRef<Map<number, LeafletMarker>>(new Map());
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCenter, setSelectedCenter] = useState<WildlifeCenter | null>(null);
   const [mapInitialized, setMapInitialized] = useState(false);
 
-  // Mock data for wildlife centers with coordinates
-  const wildlifeCenters: WildlifeCenter[] = [
-    {
-      id: 1,
-      name: "Bandipur National Park",
-      latitude: 11.7401,
-      longitude: 76.5026,
-      type: "National Park",
-      specialization: ["Tiger Conservation", "Elephant Protection"],
-      contact: "+91 8229 236043",
-      description: "One of India's premier tiger reserves, home to the largest population of tigers in Karnataka.",
-      address: "Chamarajanagar District, Karnataka"
-    },
-    {
-      id: 2,
-      name: "Nagarhole National Park",
-      latitude: 12.0015,
-      longitude: 76.0711,
-      type: "National Park", 
-      specialization: ["Wildlife Safari", "Bird Watching"],
-      contact: "+91 8272 258901",
-      description: "Rich biodiversity with elephants, tigers, leopards, and over 270 bird species.",
-      address: "Kodagu & Mysore Districts, Karnataka"
-    },
-    {
-      id: 3,
-      name: "Daroji Bear Sanctuary",
-      latitude: 15.2993,
-      longitude: 76.8880,
-      type: "Wildlife Sanctuary",
-      specialization: ["Sloth Bear Conservation"],
-      contact: "+91 8533 290123",
-      description: "Dedicated sanctuary for sloth bears with excellent viewing opportunities.",
-      address: "Ballari District, Karnataka"
-    },
-    {
-      id: 4,
-      name: "Bhadra Wildlife Sanctuary",
-      latitude: 13.4700,
-      longitude: 75.6535,
-      type: "Wildlife Sanctuary",
-      specialization: ["Tiger Conservation", "River Ecosystem"],
-      contact: "+91 8762 278901",
-      description: "Important tiger habitat with pristine river ecosystem and diverse wildlife.",
-      address: "Chikkamagaluru District, Karnataka"
-    },
-    {
-      id: 5,
-      name: "Kudremukh National Park",
-      latitude: 13.1544,
-      longitude: 75.5044,
-      type: "National Park",
-      specialization: ["Shola Forests", "Endemic Species"],
-      contact: "+91 8266 267890",
-      description: "Western Ghats biodiversity hotspot with unique shola forests and endemic species.",
-      address: "Chikkamagaluru District, Karnataka"
-    }
-  ];
+  // Map the shared data to the format expected by this component
+  const wildlifeCenters: WildlifeCenter[] = wildlifeCentersData.map((center, index) => ({
+    id: index + 1,
+    name: center.name,
+    latitude: center.latitude,
+    longitude: center.longitude,
+    type: center.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    specialization: center.services,
+    contact: center.phone,
+    description: center.description,
+    address: center.address
+  }));
 
   const filteredCenters = wildlifeCenters.filter(center =>
     center.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -174,7 +135,7 @@ export default function WildlifeMap() {
             .filter(marker => marker && mapInstanceRef.current.hasLayer(marker));
           
           if (visibleMarkers.length > 0) {
-            const group = new L.featureGroup(visibleMarkers);
+            const group = new (L as any).featureGroup(visibleMarkers);
             mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1));
           }
         });
@@ -193,7 +154,7 @@ export default function WildlifeMap() {
             .filter(marker => marker && mapInstanceRef.current.hasLayer(marker));
           
           if (visibleMarkers.length > 0) {
-            const group = new L.featureGroup(visibleMarkers);
+            const group = new (L as any).featureGroup(visibleMarkers);
             mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1));
           }
         } catch (error) {
