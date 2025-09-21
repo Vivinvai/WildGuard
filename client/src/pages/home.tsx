@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/header";
+import { AnimalSlideshow } from "@/components/animal-slideshow";
 import { PhotoUpload } from "@/components/photo-upload";
 import { AnimalInfo } from "@/components/animal-info";
 import { WildlifeMap } from "@/components/wildlife-map";
@@ -16,6 +17,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Animal Slideshow - Front and center */}
+      <AnimalSlideshow />
+      
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
