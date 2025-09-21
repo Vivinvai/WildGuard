@@ -99,16 +99,69 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
       (error as any).type === 'insufficient_quota' ||
       (error as any).code === 'insufficient_quota'
     )) {
-      console.log("OpenAI quota exceeded, using mock identification data");
-      return {
-        speciesName: "Red Fox",
-        scientificName: "Vulpes vulpes",
-        conservationStatus: "Least Concern",
-        population: "Several million worldwide",
-        habitat: "Diverse habitats including forests, grasslands, mountains, and deserts. Highly adaptable to urban and rural environments.",
-        threats: ["Habitat Fragmentation", "Hunting Pressure", "Disease"],
-        confidence: 0.78,
-      };
+      console.log("OpenAI quota exceeded, using random mock identification data");
+      
+      // Provide variety in mock responses to make testing more realistic
+      const mockAnimals = [
+        {
+          speciesName: "Red Fox",
+          scientificName: "Vulpes vulpes",
+          conservationStatus: "Least Concern",
+          population: "Several million worldwide",
+          habitat: "Diverse habitats including forests, grasslands, mountains, and deserts. Highly adaptable to urban and rural environments.",
+          threats: ["Habitat Fragmentation", "Hunting Pressure", "Disease"],
+          confidence: 0.78,
+        },
+        {
+          speciesName: "African Elephant",
+          scientificName: "Loxodonta africana",
+          conservationStatus: "Endangered",
+          population: "415,000 individuals",
+          habitat: "Savannas, grasslands, forests, and semi-desert regions across sub-Saharan Africa.",
+          threats: ["Poaching", "Habitat Loss", "Human-Elephant Conflict"],
+          confidence: 0.92,
+        },
+        {
+          speciesName: "Bald Eagle",
+          scientificName: "Haliaeetus leucocephalus",
+          conservationStatus: "Least Concern",
+          population: "316,000 individuals",
+          habitat: "Near large bodies of water including coasts, rivers, and lakes across North America.",
+          threats: ["Lead Poisoning", "Habitat Destruction", "Climate Change"],
+          confidence: 0.89,
+        },
+        {
+          speciesName: "Giant Panda",
+          scientificName: "Ailuropoda melanoleuca",
+          conservationStatus: "Vulnerable",
+          population: "1,864 individuals",
+          habitat: "Temperate bamboo forests in the mountains of central China.",
+          threats: ["Habitat Loss", "Bamboo Die-offs", "Low Reproduction Rate"],
+          confidence: 0.95,
+        },
+        {
+          speciesName: "Monarch Butterfly",
+          scientificName: "Danaus plexippus",
+          conservationStatus: "Endangered",
+          population: "30 million individuals",
+          habitat: "Open areas including meadows, fields, and gardens across North America during migration.",
+          threats: ["Pesticide Use", "Habitat Loss", "Climate Change"],
+          confidence: 0.73,
+        },
+        {
+          speciesName: "Gray Wolf",
+          scientificName: "Canis lupus",
+          conservationStatus: "Least Concern",
+          population: "200,000-250,000 worldwide",
+          habitat: "Forests, tundra, mountains, and grasslands across northern regions.",
+          threats: ["Human Persecution", "Habitat Fragmentation", "Prey Depletion"],
+          confidence: 0.87,
+        }
+      ];
+      
+      // Randomly select one of the mock animals
+      const randomAnimal = mockAnimals[Math.floor(Math.random() * mockAnimals.length)];
+      return randomAnimal;
     }
     
     throw new Error("Failed to analyze the uploaded image. Please try again.");
