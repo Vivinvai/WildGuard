@@ -1,5 +1,5 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, real, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { sql, relations } from "drizzle-orm";
+import { pgTable, text, varchar, real, jsonb, timestamp, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -27,6 +27,7 @@ export const wildlifeCenters = pgTable("wildlife_centers", {
 
 export const animalIdentifications = pgTable("animal_identifications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
   speciesName: text("species_name").notNull(),
   scientificName: text("scientific_name").notNull(),
   conservationStatus: text("conservation_status").notNull(),
@@ -36,7 +37,10 @@ export const animalIdentifications = pgTable("animal_identifications", {
   imageUrl: text("image_url").notNull(),
   confidence: real("confidence").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  userIdCreatedAtIdx: index("animal_identifications_user_id_created_at_idx").on(table.userId, table.createdAt),
+  createdAtIdx: index("animal_identifications_created_at_idx").on(table.createdAt),
+}));
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -51,6 +55,18 @@ export const insertAnimalIdentificationSchema = createInsertSchema(animalIdentif
   id: true,
   createdAt: true,
 });
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  animalIdentifications: many(animalIdentifications),
+}));
+
+export const animalIdentificationsRelations = relations(animalIdentifications, ({ one }) => ({
+  user: one(users, {
+    fields: [animalIdentifications.userId],
+    references: [users.id],
+  }),
+}));
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

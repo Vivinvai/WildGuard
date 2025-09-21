@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { analyzeAnimalImage } from "./services/openai";
-import { insertAnimalIdentificationSchema } from "@shared/schema";
+import { insertAnimalIdentificationSchema, insertUserSchema } from "@shared/schema";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -20,6 +20,56 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // User Registration
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const userData = insertUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(userData.username);
+      if (existingUser) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+
+      const user = await storage.createUser(userData);
+      
+      // Don't return password in response
+      const { password, ...userResponse } = user;
+      res.status(201).json(userResponse);
+    } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to register user"
+      });
+    }
+  });
+
+  // User Login
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+      }
+
+      const user = await storage.verifyPassword(username, password);
+      if (!user) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+
+      // Store user session (simplified - you might want to use express-session)
+      // Don't return password in response
+      const { password: _, ...userResponse } = user;
+      res.json(userResponse);
+    } catch (error) {
+      console.error("Error logging in user:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to login"
+      });
+    }
+  });
+
   // Upload and analyze animal photo
   app.post("/api/identify-animal", upload.single('image'), async (req, res) => {
     try {

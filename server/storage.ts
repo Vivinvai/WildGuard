@@ -1,37 +1,39 @@
-import { type User, type InsertUser, type WildlifeCenter, type InsertWildlifeCenter, type AnimalIdentification, type InsertAnimalIdentification } from "@shared/schema";
+import { type User, type InsertUser, type WildlifeCenter, type InsertWildlifeCenter, type AnimalIdentification, type InsertAnimalIdentification, users, wildlifeCenters, animalIdentifications } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import bcrypt from "bcryptjs";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  verifyPassword(username: string, password: string): Promise<User | null>;
   
   getWildlifeCenters(): Promise<WildlifeCenter[]>;
   getWildlifeCenterById(id: string): Promise<WildlifeCenter | undefined>;
   getNearbyWildlifeCenters(latitude: number, longitude: number, radiusKm?: number): Promise<WildlifeCenter[]>;
   
-  createAnimalIdentification(identification: InsertAnimalIdentification): Promise<AnimalIdentification>;
+  createAnimalIdentification(identification: InsertAnimalIdentification, userId?: string): Promise<AnimalIdentification>;
   getRecentAnimalIdentifications(limit?: number): Promise<AnimalIdentification[]>;
+  getUserAnimalIdentifications(userId: string, limit?: number): Promise<AnimalIdentification[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private wildlifeCenters: Map<string, WildlifeCenter>;
-  private animalIdentifications: Map<string, AnimalIdentification>;
+export class DatabaseStorage implements IStorage {
+  private isInitialized = false;
 
-  constructor() {
-    this.users = new Map();
-    this.wildlifeCenters = new Map();
-    this.animalIdentifications = new Map();
+  async initializeWildlifeCenters() {
+    if (this.isInitialized) return;
     
-    // Initialize with sample wildlife centers
-    this.initializeWildlifeCenters();
-  }
+    // Check if wildlife centers already exist
+    const existingCenters = await db.select().from(wildlifeCenters).limit(1);
+    if (existingCenters.length > 0) {
+      this.isInitialized = true;
+      return;
+    }
 
-  private initializeWildlifeCenters() {
-    const centers: WildlifeCenter[] = [
+    const centers: InsertWildlifeCenter[] = [
       {
-        id: randomUUID(),
         name: "Pacific Wildlife Rescue Center",
         description: "Specialized in marine and forest animal rehabilitation",
         latitude: 37.7749,
@@ -46,7 +48,6 @@ export class MemStorage implements IStorage {
         type: "rescue",
       },
       {
-        id: randomUUID(),
         name: "Green Valley Conservation Sanctuary",
         description: "Large-scale wildlife preservation and breeding programs",
         latitude: 37.7849,
@@ -61,7 +62,6 @@ export class MemStorage implements IStorage {
         type: "sanctuary",
       },
       {
-        id: randomUUID(),
         name: "Urban Animal Hospital & Wildlife Care",
         description: "Veterinary services for wild and domestic animals",
         latitude: 37.7649,
@@ -77,38 +77,60 @@ export class MemStorage implements IStorage {
       },
     ];
 
-    centers.forEach(center => {
-      this.wildlifeCenters.set(center.id, center);
-    });
+    await db.insert(wildlifeCenters).values(centers);
+    this.isInitialized = true;
   }
 
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    // Hash the password before storing
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(insertUser.password, saltRounds);
+    
+    const userWithHashedPassword = {
+      ...insertUser,
+      password: hashedPassword
+    };
+    
+    const [user] = await db.insert(users).values(userWithHashedPassword).returning();
     return user;
   }
 
+  async verifyPassword(username: string, password: string): Promise<User | null> {
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      return null;
+    }
+
+    const isValid = await bcrypt.compare(password, user.password);
+    return isValid ? user : null;
+  }
+
   async getWildlifeCenters(): Promise<WildlifeCenter[]> {
-    return Array.from(this.wildlifeCenters.values());
+    await this.initializeWildlifeCenters();
+    return await db.select().from(wildlifeCenters);
   }
 
   async getWildlifeCenterById(id: string): Promise<WildlifeCenter | undefined> {
-    return this.wildlifeCenters.get(id);
+    const [center] = await db.select().from(wildlifeCenters).where(eq(wildlifeCenters.id, id));
+    return center || undefined;
   }
 
   async getNearbyWildlifeCenters(latitude: number, longitude: number, radiusKm = 50): Promise<WildlifeCenter[]> {
-    const centers = Array.from(this.wildlifeCenters.values());
+    await this.initializeWildlifeCenters();
+    
+    // For simplicity, we'll get all centers and filter in memory
+    // In production, you'd use PostGIS or similar for spatial queries
+    const centers = await db.select().from(wildlifeCenters);
     
     return centers.filter(center => {
       const distance = this.calculateDistance(latitude, longitude, center.latitude, center.longitude);
@@ -136,24 +158,31 @@ export class MemStorage implements IStorage {
     return deg * (Math.PI/180);
   }
 
-  async createAnimalIdentification(identification: InsertAnimalIdentification): Promise<AnimalIdentification> {
-    const id = randomUUID();
-    const animalIdentification: AnimalIdentification = {
+  async createAnimalIdentification(identification: InsertAnimalIdentification, userId?: string): Promise<AnimalIdentification> {
+    const insertData = {
       ...identification,
-      id,
+      userId: userId || null,
       population: identification.population || null,
-      createdAt: new Date(),
     };
-    this.animalIdentifications.set(id, animalIdentification);
-    return animalIdentification;
+    
+    const [result] = await db.insert(animalIdentifications).values(insertData).returning();
+    return result;
   }
 
   async getRecentAnimalIdentifications(limit = 10): Promise<AnimalIdentification[]> {
-    const identifications = Array.from(this.animalIdentifications.values());
-    return identifications
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .slice(0, limit);
+    return await db.select()
+      .from(animalIdentifications)
+      .orderBy(desc(animalIdentifications.createdAt))
+      .limit(limit);
+  }
+
+  async getUserAnimalIdentifications(userId: string, limit = 10): Promise<AnimalIdentification[]> {
+    return await db.select()
+      .from(animalIdentifications)
+      .where(eq(animalIdentifications.userId, userId))
+      .orderBy(desc(animalIdentifications.createdAt))
+      .limit(limit);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
