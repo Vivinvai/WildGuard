@@ -36,6 +36,36 @@ export default function Centers() {
       contact: "+91 8533 290123",
       hours: "6:30 AM - 6:00 PM",
       description: "Dedicated sanctuary for sloth bears with excellent viewing opportunities."
+    },
+    {
+      id: 4,
+      name: "Wildlife Rescue & Rehabilitation Centre",
+      location: "Bannerghatta, Bengaluru",
+      type: "Rescue Center",
+      specialization: ["Small Animal Rescue", "Rehabilitation"],
+      contact: "+91 80 2847 3454",
+      hours: "9:00 AM - 5:00 PM",
+      description: "Dedicated to rescuing, treating, and rehabilitating small wild animals including birds, squirrels, and reptiles."
+    },
+    {
+      id: 5,
+      name: "Compassionate Animal Care",
+      location: "Jayanagar, Bengaluru",
+      type: "Animal Protection",
+      specialization: ["Wildlife First Aid", "Animal Welfare"],
+      contact: "+91 98450 78912",
+      hours: "24/7 Emergency",
+      description: "Provides emergency care and protection for small wildlife in urban areas. Specializes in bird rescue and monkey conflicts."
+    },
+    {
+      id: 6,
+      name: "Bangalore Wildlife Welfare Society",
+      location: "Whitefield, Bengaluru",
+      type: "Wildlife Welfare",
+      specialization: ["Snake Rescue", "Urban Wildlife"],
+      contact: "+91 99160 45678",
+      hours: "8:00 AM - 8:00 PM",
+      description: "Community-based organization focused on protecting small animals and resolving human-wildlife conflicts in urban Bengaluru."
     }
   ];
 
