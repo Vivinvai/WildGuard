@@ -128,13 +128,13 @@ export default function Home() {
           <p className="text-lg mb-6 opacity-90">Every identification, every photo, every action matters. Help us protect Karnataka's incredible wildlife for future generations.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/identify">
-              <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100">
+              <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100" data-testid="button-cta-identify">
                 <Camera className="w-5 h-5 mr-2" />
                 Start Identifying Animals
               </Button>
             </Link>
             <Link href="/learn">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" data-testid="button-cta-learn">
                 Learn More About Conservation
               </Button>
             </Link>

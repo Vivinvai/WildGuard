@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { Camera, MapPin, AlertTriangle, BookOpen } from "lucide-react";
 
 export function QuickActions() {
   const handleEmergencyReport = () => {
@@ -17,7 +18,7 @@ export function QuickActions() {
               className="flex flex-col items-center space-y-1 text-green-600 hover:text-green-700 hover:bg-green-100/50 transition-all duration-200 p-3 rounded-2xl group"
               data-testid="button-quick-snap"
             >
-              <i className="fas fa-camera text-lg group-hover:scale-110 transition-transform"></i>
+              <Camera className="w-5 h-5 group-hover:scale-110 transition-transform" />
               <span className="hidden sm:inline text-xs font-medium">Quick Snap</span>
             </Button>
           </Link>
@@ -27,7 +28,7 @@ export function QuickActions() {
               className="flex flex-col items-center space-y-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100/50 transition-all duration-200 p-3 rounded-2xl group"
               data-testid="button-find-centers"
             >
-              <i className="fas fa-map-marked-alt text-lg group-hover:scale-110 transition-transform"></i>
+              <MapPin className="w-5 h-5 group-hover:scale-110 transition-transform" />
               <span className="hidden sm:inline text-xs font-medium">Find Centers</span>
             </Button>
           </Link>
@@ -37,7 +38,7 @@ export function QuickActions() {
             onClick={handleEmergencyReport}
             data-testid="button-report-emergency"
           >
-            <i className="fas fa-exclamation-triangle text-lg group-hover:scale-110 transition-transform"></i>
+            <AlertTriangle className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span className="hidden sm:inline text-xs font-medium">Emergency</span>
           </Button>
           <Link href="/learn">
@@ -46,7 +47,7 @@ export function QuickActions() {
               className="flex flex-col items-center space-y-1 text-orange-600 hover:text-orange-700 hover:bg-orange-100/50 transition-all duration-200 p-3 rounded-2xl group"
               data-testid="button-learn"
             >
-              <i className="fas fa-book-open text-lg group-hover:scale-110 transition-transform"></i>
+              <BookOpen className="w-5 h-5 group-hover:scale-110 transition-transform" />
               <span className="hidden sm:inline text-xs font-medium">Learn</span>
             </Button>
           </Link>
