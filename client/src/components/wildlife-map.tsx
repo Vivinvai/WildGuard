@@ -193,41 +193,39 @@ export function WildlifeMap() {
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-0">
-        <div className="p-6 border-b border-border">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold">Nearby Wildlife Centers</h2>
-              <p className="text-muted-foreground mt-1">
-                Conservation centers and rescue facilities in your area
-              </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" data-testid="button-filter">
-                <i className="fas fa-filter"></i>
-              </Button>
-              <Button variant="ghost" size="sm" data-testid="button-search">
-                <i className="fas fa-search"></i>
-              </Button>
-            </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 p-6 rounded-xl">
+        <h2 className="text-2xl font-bold mb-2 text-foreground">🗺️ Wildlife Centers Near You</h2>
+        <p className="text-muted-foreground">
+          Find conservation centers and rescue facilities in your area
+        </p>
+      </div>
+
+      {/* Map Container - Improved */}
+      <Card className="overflow-hidden shadow-lg">
+        <CardContent className="p-0">
+          <div className="relative h-80 md:h-96" data-testid="map-container">
+            <div ref={mapRef} className="w-full h-full rounded-t-lg" />
+            
+            {isLoading && (
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-t-lg">
+                <div className="text-center">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse"></div>
+                  <p className="text-foreground font-medium">Loading wildlife centers...</p>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Map Container */}
-        <div className="relative h-96" data-testid="map-container">
-          <div ref={mapRef} className="w-full h-full" />
-          
-          {isLoading && (
-            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
-              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
-            </div>
-          )}
-        </div>
-
-        {/* Center List */}
-        <div className="max-h-64 overflow-y-auto">
-          <div className="p-4 space-y-4">
+      {/* Center List - Simplified */}
+      {wildlifeCenters && wildlifeCenters.length > 0 && (
+        <Card className="shadow-lg">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-4 text-foreground">Available Centers</h3>
+            <div className="grid gap-4 md:grid-cols-2">
             {wildlifeCenters?.map((center) => (
               <div
                 key={center.id}
@@ -290,9 +288,10 @@ export function WildlifeMap() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

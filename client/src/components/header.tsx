@@ -14,14 +14,14 @@ export function Header() {
             <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
               <img 
                 src="/favicon.png" 
-                alt="WildlifeSave"
+                alt="WildGuard"
                 className="w-8 h-8 filter brightness-0 invert"
                 data-testid="img-logo"
               />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">WildlifeSave</h1>
-              <p className="text-xs text-muted-foreground">AI Conservation Platform</p>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">WildGuard</h1>
+              <p className="text-xs text-muted-foreground">AI Wildlife Protection Platform</p>
             </div>
           </div>
           <nav className="hidden md:flex items-center space-x-6">
@@ -42,11 +42,11 @@ export function Header() {
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold text-center mb-4">About WildlifeSave</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold text-center mb-4">About WildGuard</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <p className="text-muted-foreground text-center">
-                    An AI-powered wildlife conservation platform that helps identify animals through photo analysis and connects users with nearby conservation centers.
+                    An AI-powered wildlife protection platform that helps identify animals through advanced photo analysis and connects users with nearby wildlife conservation centers.
                   </p>
                   <div className="border-t pt-4">
                     <h3 className="font-semibold text-lg mb-3 text-center">Created by</h3>

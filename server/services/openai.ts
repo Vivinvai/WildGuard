@@ -92,16 +92,27 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
   } catch (error) {
     console.error("Failed to analyze animal image:", error);
     
-    // If OpenAI fails (quota exceeded, network issue, etc.), fall back to AI database
+    // Try Gemini AI as first fallback when OpenAI fails
+    console.log("OpenAI failed, attempting Gemini AI fallback...");
+    try {
+      const { analyzeAnimalWithGemini } = await import("./gemini");
+      const geminiResult = await analyzeAnimalWithGemini(base64Image);
+      console.log(`Gemini identified: ${geminiResult.speciesName}`);
+      return geminiResult;
+    } catch (geminiError) {
+      console.log("Gemini AI also failed, falling back to AI database variety");
+    }
+
+    // If both OpenAI and Gemini fail, fall back to AI database
     if (error instanceof Error && (
       error.message.includes('insufficient_quota') || 
       error.message.includes('RateLimitError') ||
       (error as any).type === 'insufficient_quota' ||
       (error as any).code === 'insufficient_quota'
     )) {
-      console.log("OpenAI quota exceeded, using variety from AI database");
+      console.log("Using variety from AI database as final fallback");
       
-      // First try to get variety from previous AI identifications in the database
+      // Try to get variety from previous AI identifications in the database
       try {
         const { storage } = await import("../storage");
         const recentIdentifications = await storage.getRecentAnimalIdentifications(20);
