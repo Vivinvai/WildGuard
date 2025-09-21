@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export interface AnimalAnalysisResult {
   speciesName: string;
@@ -13,7 +13,7 @@ export interface AnimalAnalysisResult {
 // DON'T DELETE THIS COMMENT - Based on javascript_gemini blueprint
 // Using Gemini 2.5 Flash for animal identification
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function analyzeAnimalWithGemini(imageBase64: string): Promise<AnimalAnalysisResult> {
   try {
@@ -21,7 +21,7 @@ export async function analyzeAnimalWithGemini(imageBase64: string): Promise<Anim
       throw new Error("GEMINI_API_KEY not configured");
     }
 
-    const model = ai.generativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     const prompt = `You are a wildlife identification expert. Analyze this image and identify the animal species.
 
@@ -38,25 +38,15 @@ IMPORTANT: You must respond with a valid JSON object in exactly this format:
 
 Be as accurate as possible in your identification. If you cannot clearly identify the species, provide your best estimate and lower the confidence score. Always include realistic conservation data for the identified species.`;
 
-    const genResult = await model.generateContent({
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: prompt },
-            { 
-              inlineData: { 
-                data: imageBase64, 
-                mimeType: 'image/jpeg' 
-              } 
-            }
-          ]
-        }
-      ],
-      generationConfig: {
-        responseMimeType: 'application/json'
-      }
-    });
+    const genResult = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: imageBase64,
+          mimeType: "image/jpeg",
+        },
+      },
+    ]);
 
     const responseText = genResult.response.text();
     if (!responseText) {
