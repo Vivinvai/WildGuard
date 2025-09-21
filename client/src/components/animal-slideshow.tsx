@@ -98,16 +98,14 @@ export function AnimalSlideshow() {
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent transition-opacity duration-300" />
 
       {/* Content Overlay */}
-      <div className="absolute inset-0 flex items-center justify-start">
-        <div className="text-left text-white px-8 max-w-md">
-          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border-l-4 border-green-400">
-            <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-1 text-shadow-lg text-green-100">
-              {currentAnimal.title}
-            </h2>
-            <p className="text-xs md:text-sm lg:text-base font-medium opacity-90 text-shadow leading-relaxed">
-              {currentAnimal.description}
-            </p>
-          </div>
+      <div className="absolute bottom-6 left-6">
+        <div className="text-left text-white max-w-xs">
+          <h2 className="text-sm md:text-base font-bold mb-1 text-shadow-lg text-white">
+            {currentAnimal.title}
+          </h2>
+          <p className="text-xs font-medium opacity-80 text-shadow leading-tight text-gray-200">
+            {currentAnimal.description}
+          </p>
         </div>
       </div>
 
