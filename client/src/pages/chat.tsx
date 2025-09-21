@@ -1,4 +1,5 @@
 import { Header } from "@/components/header";
+import { BackButton } from "@/components/back-button";
 import { AIChat } from "@/components/ai-chat";
 import { QuickActions } from "@/components/quick-actions";
 
@@ -8,6 +9,7 @@ export default function Chat() {
       <Header />
       
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <BackButton />
         {/* Hero Section */}
         <div className="text-center py-8 bg-gradient-to-r from-blue-50 to-sky-50 rounded-2xl border border-blue-100">
           <h1 className="text-3xl md:text-4xl font-bold text-blue-800 mb-4">

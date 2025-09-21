@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/header";
+import { BackButton } from "@/components/back-button";
 import { PhotoUpload } from "@/components/photo-upload";
 import { AnimalInfo } from "@/components/animal-info";
 import { QuickActions } from "@/components/quick-actions";
@@ -17,6 +18,7 @@ export default function Identify() {
       <Header />
       
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <BackButton />
         {/* Hero Section */}
         <div className="text-center py-8 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100">
           <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">

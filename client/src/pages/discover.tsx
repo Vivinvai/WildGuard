@@ -1,4 +1,5 @@
 import { Header } from "@/components/header";
+import { BackButton } from "@/components/back-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Binoculars, Map, Search } from "lucide-react";
 
@@ -7,6 +8,7 @@ export default function Discover() {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-8">
+        <BackButton />
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <Shield className="w-8 h-8 text-primary mr-3" />

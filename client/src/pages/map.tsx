@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Header } from "@/components/header";
+import { BackButton } from "@/components/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -216,6 +217,7 @@ export default function WildlifeMap() {
         {/* Sidebar */}
         <div className="w-80 bg-card border-r border-border overflow-y-auto">
           <div className="p-4">
+            <BackButton />
             <div className="flex items-center mb-4">
               <Shield className="w-6 h-6 text-primary mr-2" />
               <h1 className="text-xl font-bold">Wildlife Centers Map</h1>
