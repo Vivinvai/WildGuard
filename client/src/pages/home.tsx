@@ -158,18 +158,18 @@ export default function Home() {
         </div>
 
         {/* Call to Action */}
-        <div className="bg-gradient-to-r from-primary/90 to-secondary/90 backdrop-blur-sm p-8 rounded-2xl text-white text-center border border-primary/20">
+        <div className="bg-gradient-to-br from-green-900 via-black to-orange-900 backdrop-blur-sm p-8 rounded-2xl text-white text-center border border-green-400/20">
           <h2 className="text-2xl font-bold mb-4">Join the Conservation Movement</h2>
           <p className="text-lg mb-6 opacity-90">Every identification, every photo, every action matters. Help us protect Karnataka's incredible wildlife for future generations.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/identify">
-              <Button size="lg" variant="secondary" className="bg-white/90 text-primary hover:bg-white backdrop-blur-sm" data-testid="button-cta-identify">
+              <Button size="lg" variant="secondary" className="bg-green-600 text-white hover:bg-green-700 backdrop-blur-sm border border-green-400/20" data-testid="button-cta-identify">
                 <Camera className="w-5 h-5 mr-2" />
                 Start Identifying Animals
               </Button>
             </Link>
             <Link href="/learn">
-              <Button size="lg" variant="outline" className="border-white/70 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm" data-testid="button-cta-learn">
+              <Button size="lg" variant="outline" className="border-orange-400/70 bg-orange-600/20 text-white hover:bg-orange-600/30 backdrop-blur-sm" data-testid="button-cta-learn">
                 Learn More About Conservation
               </Button>
             </Link>
