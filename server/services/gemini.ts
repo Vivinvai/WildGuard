@@ -21,14 +21,9 @@ export async function analyzeAnimalWithGemini(imageBase64: string): Promise<Anim
       throw new Error("GEMINI_API_KEY not configured");
     }
 
-    const contents = [
-      {
-        inlineData: {
-          data: imageBase64,
-          mimeType: "image/jpeg",
-        },
-      },
-      `You are a wildlife identification expert. Analyze this image and identify the animal species.
+    const model = ai.generativeModel({ model: "gemini-2.5-flash" });
+
+    const prompt = `You are a wildlife identification expert. Analyze this image and identify the animal species.
 
 IMPORTANT: You must respond with a valid JSON object in exactly this format:
 {
@@ -41,36 +36,36 @@ IMPORTANT: You must respond with a valid JSON object in exactly this format:
   "confidence": 0.85
 }
 
-Be as accurate as possible in your identification. If you cannot clearly identify the species, provide your best estimate and lower the confidence score. Always include realistic conservation data for the identified species.`,
-    ];
+Be as accurate as possible in your identification. If you cannot clearly identify the species, provide your best estimate and lower the confidence score. Always include realistic conservation data for the identified species.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "object",
-          properties: {
-            speciesName: { type: "string" },
-            scientificName: { type: "string" },
-            conservationStatus: { type: "string" },
-            population: { type: "string" },
-            habitat: { type: "string" },
-            threats: { type: "array", items: { type: "string" } },
-            confidence: { type: "number" }
-          },
-          required: ["speciesName", "scientificName", "conservationStatus", "habitat", "threats", "confidence"]
+    const genResult = await model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: prompt },
+            { 
+              inlineData: { 
+                data: imageBase64, 
+                mimeType: 'image/jpeg' 
+              } 
+            }
+          ]
         }
-      },
-      contents: contents,
+      ],
+      generationConfig: {
+        responseMimeType: 'application/json'
+      }
     });
 
-    const responseText = response.text;
+    const responseText = genResult.response.text();
     if (!responseText) {
       throw new Error("Empty response from Gemini");
     }
 
-    const result = JSON.parse(responseText);
+    // Strip code fences if present and parse JSON
+    const cleanedText = responseText.replace(/```json\n?|\n?```/g, '').trim();
+    const result = JSON.parse(cleanedText);
     
     // Validate the response structure
     if (!result.speciesName || !result.scientificName || !result.conservationStatus) {

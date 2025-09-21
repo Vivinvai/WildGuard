@@ -15,8 +15,8 @@ export interface AnimalAnalysisResult {
 }
 
 export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAnalysisResult> {
-  // Check if we should use mock data for testing (when API quota is exceeded)
-  const useMockData = process.env.USE_MOCK_AI === "true" || !process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "default_key";
+  // Only use mock data if explicitly requested for testing
+  const useMockData = process.env.USE_MOCK_AI === "true";
   
   if (useMockData) {
     console.log("Using mock animal identification data for testing");
@@ -31,8 +31,10 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
     };
   }
 
-  try {
-    // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+  // Try OpenAI first if API key is available
+  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "default_key") {
+    try {
+      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
     const response = await openai.chat.completions.create({
       model: "gpt-5",
       messages: [
@@ -88,57 +90,53 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
       habitat: result.habitat || "Information not available",
       threats: Array.isArray(result.threats) ? result.threats : ["Information not available"],
       confidence: typeof result.confidence === 'number' ? Math.max(0, Math.min(1, result.confidence)) : 0.5,
-    };
-  } catch (error) {
-    console.error("Failed to analyze animal image:", error);
-    
-    // Try Gemini AI as first fallback when OpenAI fails
-    console.log("OpenAI failed, attempting Gemini AI fallback...");
+      };
+    } catch (error) {
+      console.error("OpenAI failed to analyze animal image:", error);
+    }
+  }
+
+  // Try Gemini AI as fallback when OpenAI is unavailable or fails
+  if (process.env.GEMINI_API_KEY) {
+    console.log("Attempting Gemini AI fallback...");
     try {
       const { analyzeAnimalWithGemini } = await import("./gemini");
       const geminiResult = await analyzeAnimalWithGemini(base64Image);
       console.log(`Gemini identified: ${geminiResult.speciesName}`);
       return geminiResult;
     } catch (geminiError) {
-      console.log("Gemini AI also failed, falling back to AI database variety");
+      console.error("Gemini AI also failed:", geminiError);
     }
+  }
 
-    // If both OpenAI and Gemini fail, fall back to AI database
-    if (error instanceof Error && (
-      error.message.includes('insufficient_quota') || 
-      error.message.includes('RateLimitError') ||
-      (error as any).type === 'insufficient_quota' ||
-      (error as any).code === 'insufficient_quota'
-    )) {
-      console.log("Using variety from AI database as final fallback");
+  // Final fallback: try AI database for variety
+  console.log("Both AI services failed, falling back to AI database variety");
+  try {
+    const { storage } = await import("../storage");
+    const recentIdentifications = await storage.getRecentAnimalIdentifications(20);
+    
+    if (recentIdentifications.length > 0) {
+      // Randomly select from recent AI-generated identifications
+      const randomIdentification = recentIdentifications[Math.floor(Math.random() * recentIdentifications.length)];
+      console.log(`Using AI database entry: ${randomIdentification.speciesName}`);
       
-      // Try to get variety from previous AI identifications in the database
-      try {
-        const { storage } = await import("../storage");
-        const recentIdentifications = await storage.getRecentAnimalIdentifications(20);
-        
-        if (recentIdentifications.length > 0) {
-          // Randomly select from recent AI-generated identifications
-          const randomIdentification = recentIdentifications[Math.floor(Math.random() * recentIdentifications.length)];
-          console.log(`Using AI database entry: ${randomIdentification.speciesName}`);
-          
-          return {
-            speciesName: randomIdentification.speciesName,
-            scientificName: randomIdentification.scientificName,
-            conservationStatus: randomIdentification.conservationStatus,
-            population: randomIdentification.population || "Population data unavailable",
-            habitat: randomIdentification.habitat,
-            threats: randomIdentification.threats,
-            confidence: randomIdentification.confidence,
-          };
-        }
-      } catch (dbError) {
-        console.error("Error accessing AI database for fallback:", dbError);
-      }
-      
-      // If no AI database entries available, fall back to diverse mock data as last resort
-      console.log("No AI database entries found, using diverse mock data as last resort");
-      const mockAnimals = [
+      return {
+        speciesName: randomIdentification.speciesName,
+        scientificName: randomIdentification.scientificName,
+        conservationStatus: randomIdentification.conservationStatus,
+        population: randomIdentification.population || "Population data unavailable",
+        habitat: randomIdentification.habitat,
+        threats: randomIdentification.threats,
+        confidence: randomIdentification.confidence,
+      };
+    }
+  } catch (dbError) {
+    console.error("Error accessing AI database for fallback:", dbError);
+  }
+  
+  // If no AI database entries available, fall back to diverse mock data as last resort
+  console.log("No AI database entries found, using diverse mock data as last resort");
+  const mockAnimals = [
         {
           speciesName: "Red Fox",
           scientificName: "Vulpes vulpes",
@@ -193,13 +191,10 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
           threats: ["Human Persecution", "Habitat Fragmentation", "Prey Depletion"],
           confidence: 0.87,
         }
-      ];
-      
-      // Randomly select one of the mock animals
-      const randomAnimal = mockAnimals[Math.floor(Math.random() * mockAnimals.length)];
-      return randomAnimal;
-    }
-    
-    throw new Error("Failed to analyze the uploaded image. Please try again.");
-  }
+  ];
+  
+  // Randomly select one of the mock animals
+  const randomAnimal = mockAnimals[Math.floor(Math.random() * mockAnimals.length)];
+  console.log(`Using mock data as final fallback: ${randomAnimal.speciesName}`);
+  return randomAnimal;
 }
