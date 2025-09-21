@@ -55,12 +55,12 @@ export function AnimalSlideshow() {
 
   // Auto-advance slides
   useEffect(() => {
-    if (!isHovered) {
-      const interval = setInterval(() => {
+    const interval = setInterval(() => {
+      if (!isHovered) {
         setCurrentSlide((prev) => (prev + 1) % animalSlides.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
+      }
+    }, 5000);
+    return () => clearInterval(interval);
   }, [isHovered]);
 
   const nextSlide = () => {
@@ -79,7 +79,7 @@ export function AnimalSlideshow() {
 
   return (
     <div 
-      className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden bg-black"
+      className="relative w-full h-[300px] md:h-[350px] lg:h-[400px] overflow-hidden bg-black rounded-lg mx-4 my-6 shadow-xl"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       data-testid="animal-slideshow"
@@ -99,11 +99,11 @@ export function AnimalSlideshow() {
 
       {/* Content Overlay */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center text-white px-6 max-w-4xl">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 text-shadow-lg">
+        <div className="text-center text-white px-6 max-w-3xl">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-shadow-lg">
             {currentAnimal.title}
-          </h1>
-          <p className="text-lg md:text-xl lg:text-2xl font-medium opacity-90 max-w-3xl mx-auto text-shadow">
+          </h2>
+          <p className="text-sm md:text-base lg:text-lg font-medium opacity-90 max-w-2xl mx-auto text-shadow">
             {currentAnimal.description}
           </p>
         </div>
@@ -114,29 +114,29 @@ export function AnimalSlideshow() {
         variant="ghost"
         size="icon"
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12 md:h-16 md:w-16"
+        className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-8 w-8 md:h-10 md:w-10"
         data-testid="button-prev-slide"
       >
-        <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
+        <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
       </Button>
 
       <Button
         variant="ghost"
         size="icon"
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12 md:h-16 md:w-16"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-8 w-8 md:h-10 md:w-10"
         data-testid="button-next-slide"
       >
-        <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
+        <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
       </Button>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5">
         {animalSlides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-200 ${
+            className={`w-2 h-2 rounded-full transition-all duration-200 ${
               index === currentSlide
                 ? "bg-white scale-125"
                 : "bg-white/50 hover:bg-white/75"
@@ -147,7 +147,7 @@ export function AnimalSlideshow() {
       </div>
 
       {/* Slide Counter */}
-      <div className="absolute top-6 right-6 bg-black/50 text-white px-3 py-1 rounded-lg text-sm font-medium">
+      <div className="absolute top-3 right-3 bg-black/50 text-white px-2 py-1 rounded text-xs font-medium">
         {currentSlide + 1} / {animalSlides.length}
       </div>
     </div>

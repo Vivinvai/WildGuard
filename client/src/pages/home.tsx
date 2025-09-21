@@ -17,10 +17,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Animal Slideshow - Front and center */}
-      <AnimalSlideshow />
-      
       <Header />
+      
+      {/* Animal Slideshow - Below WildGuard heading */}
+      <AnimalSlideshow />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Hero Section */}
