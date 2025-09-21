@@ -8,6 +8,7 @@ import Discover from "@/pages/discover";
 import Centers from "@/pages/centers";
 import Learn from "@/pages/learn";
 import About from "@/pages/about";
+import WildlifeMap from "@/pages/map";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/centers" component={Centers} />
       <Route path="/learn" component={Learn} />
       <Route path="/about" component={About} />
+      <Route path="/map" component={WildlifeMap} />
       <Route component={NotFound} />
     </Switch>
   );

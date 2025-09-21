@@ -1,7 +1,9 @@
 import { Header } from "@/components/header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, MapPin, Phone, Clock, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import { Shield, MapPin, Phone, Clock, Heart, Map as MapIcon } from "lucide-react";
 
 export default function Centers() {
   const wildlifeCenters = [
@@ -48,9 +50,15 @@ export default function Centers() {
               Wildlife Centers
             </h1>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
             Discover wildlife conservation centers, national parks, and rescue facilities across Karnataka and India.
           </p>
+          <Link href="/map">
+            <Button size="lg" className="bg-primary hover:bg-primary/90" data-testid="button-view-map">
+              <MapIcon className="w-5 h-5 mr-2" />
+              View Interactive Map
+            </Button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
