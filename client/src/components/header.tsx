@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Shield } from "lucide-react";
+import { Shield, Camera, MessageCircle } from "lucide-react";
 
 export function Header() {
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -79,6 +79,32 @@ export function Header() {
               About
             </Link>
           </nav>
+          
+          {/* Action buttons */}
+          <div className="hidden md:flex items-center space-x-3">
+            <Link href="/identify">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center space-x-2 bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
+                data-testid="button-upload-header"
+              >
+                <Camera className="w-4 h-4" />
+                <span>Identify</span>
+              </Button>
+            </Link>
+            <Link href="/chat">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center space-x-2 bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700"
+                data-testid="button-chat-header"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Chat</span>
+              </Button>
+            </Link>
+          </div>
           <button className="md:hidden p-2 text-muted-foreground hover:text-foreground" data-testid="button-mobile-menu">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
