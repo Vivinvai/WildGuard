@@ -87,92 +87,94 @@ export function AIChat() {
   }, [messages]);
 
   return (
-    <Card className="h-96 flex flex-col shadow-lg bg-gradient-to-b from-card/95 to-card/90 backdrop-blur-sm">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Bot className="w-5 h-5 text-primary" />
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Chat with WildGuard AI
-          </span>
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Ask me about endangered animals, conservation efforts, and how to help protect wildlife
-        </p>
-      </CardHeader>
-      
-      <CardContent className="flex-1 flex flex-col p-4 pt-0">
-        <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {message.sender === 'ai' && (
+    <div className="w-full max-w-xl mx-auto" data-testid="chat-container">
+      <Card className="h-[380px] sm:h-[520px] flex flex-col shadow-lg bg-gradient-to-b from-card/95 to-card/90 backdrop-blur-sm overflow-hidden">
+        <CardHeader className="pb-3 flex-shrink-0">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Bot className="w-5 h-5 text-primary" />
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Chat with WildGuard AI
+            </span>
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Ask me about endangered animals, conservation efforts, and how to help protect wildlife
+          </p>
+        </CardHeader>
+        
+        <CardContent className="flex-1 flex flex-col p-4 pt-0 overflow-hidden">
+          <ScrollArea className="flex-1 pr-4 mb-4" ref={scrollAreaRef}>
+            <div className="space-y-4 pb-2">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {message.sender === 'ai' && (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  
+                  <div
+                    className={`max-w-[80%] px-4 py-2 rounded-lg ${
+                      message.sender === 'user'
+                        ? 'bg-primary text-primary-foreground ml-auto'
+                        : 'bg-muted text-foreground'
+                    }`}
+                    data-testid={`message-${message.sender}-${message.id}`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <span className="text-xs opacity-70 mt-1 block">
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+
+                  {message.sender === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                      <User className="w-4 h-4 text-accent-foreground" />
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {chatMutation.isPending && (
+                <div className="flex gap-3 justify-start">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center flex-shrink-0">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
-                )}
-                
-                <div
-                  className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                    message.sender === 'user'
-                      ? 'bg-primary text-primary-foreground ml-auto'
-                      : 'bg-muted text-foreground'
-                  }`}
-                  data-testid={`message-${message.sender}-${message.id}`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  <span className="text-xs opacity-70 mt-1 block">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-
-                {message.sender === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-                    <User className="w-4 h-4 text-accent-foreground" />
-                  </div>
-                )}
-              </div>
-            ))}
-            
-            {chatMutation.isPending && (
-              <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-white" />
-                </div>
-                <div className="bg-muted text-foreground px-4 py-2 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">WildGuard AI is thinking...</span>
+                  <div className="bg-muted text-foreground px-4 py-2 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-sm">WildGuard AI is thinking...</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          </ScrollArea>
+          
+          <div className="flex gap-2 flex-shrink-0 pb-[env(safe-area-inset-bottom)]">
+            <Input
+              ref={inputRef}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask about endangered animals, conservation efforts..."
+              className="flex-1"
+              disabled={chatMutation.isPending}
+              data-testid="input-chat-message"
+            />
+            <Button 
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || chatMutation.isPending}
+              size="icon"
+              data-testid="button-send-message"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
           </div>
-        </ScrollArea>
-        
-        <div className="flex gap-2 mt-4">
-          <Input
-            ref={inputRef}
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask about endangered animals, conservation efforts..."
-            className="flex-1"
-            disabled={chatMutation.isPending}
-            data-testid="input-chat-message"
-          />
-          <Button 
-            onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || chatMutation.isPending}
-            size="icon"
-            data-testid="button-send-message"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
