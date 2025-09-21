@@ -14,8 +14,22 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-              <Shield className="w-8 h-8 text-white" />
+            <div className="relative w-12 h-12">
+              {/* Combined Logo */}
+              <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-lg flex items-center justify-center">
+                <img 
+                  src="/attached_assets/icons8-guard-48_1758461926293.png" 
+                  alt="Guard Shield" 
+                  className="w-7 h-7 opacity-90"
+                />
+              </div>
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-md">
+                <img 
+                  src="/attached_assets/icons8-wildlife-64_1758461915368.png" 
+                  alt="Wildlife" 
+                  className="w-4 h-4"
+                />
+              </div>
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">WildGuard</h1>

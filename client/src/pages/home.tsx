@@ -18,7 +18,67 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Animal Slideshow - Below WildGuard heading */}
+      {/* WildGuard Brand Section */}
+      <section className="bg-gradient-to-br from-green-50 via-white to-orange-50 py-12 border-b border-green-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Combined Logo */}
+          <div className="flex justify-center mb-6">
+            <div className="relative w-20 h-20">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-green-700 rounded-2xl shadow-xl flex items-center justify-center">
+                <img 
+                  src="/attached_assets/icons8-guard-48_1758461926293.png" 
+                  alt="Guard Shield" 
+                  className="w-12 h-12 opacity-90"
+                  data-testid="logo-shield"
+                />
+              </div>
+              <div className="absolute -top-2 -right-2 w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                <img 
+                  src="/attached_assets/icons8-wildlife-64_1758461915368.png" 
+                  alt="Wildlife" 
+                  className="w-6 h-6"
+                  data-testid="logo-wildlife"
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Brand Title */}
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-green-700 via-green-600 to-orange-600 bg-clip-text text-transparent">
+              Wild
+            </span>
+            <span className="bg-gradient-to-r from-orange-600 via-orange-500 to-green-600 bg-clip-text text-transparent">
+              Guard
+            </span>
+          </h1>
+          
+          {/* Mission Statement */}
+          <p className="text-xl md:text-2xl text-gray-700 font-medium mb-6 max-w-4xl mx-auto leading-relaxed">
+            Protecting Karnataka's wildlife through <span className="text-green-600 font-semibold">AI-powered identification</span>, 
+            <span className="text-orange-600 font-semibold"> conservation education</span>, and 
+            <span className="text-green-600 font-semibold"> community action</span>
+          </p>
+          
+          {/* Key Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-green-200 shadow-md">
+              <div className="text-2xl font-bold text-green-700">500+</div>
+              <div className="text-sm text-gray-600">Tigers Protected</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200 shadow-md">
+              <div className="text-2xl font-bold text-orange-700">25</div>
+              <div className="text-sm text-gray-600">Wildlife Sanctuaries</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-green-200 shadow-md">
+              <div className="text-2xl font-bold text-green-700">400+</div>
+              <div className="text-sm text-gray-600">Bird Species</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Animal Slideshow - Below WildGuard section */}
       <AnimalSlideshow />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
