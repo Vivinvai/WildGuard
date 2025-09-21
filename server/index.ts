@@ -1,10 +1,44 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import { Pool } from "@neondatabase/serverless";
+import connectPgSimple from "connect-pg-simple";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Set up PostgreSQL session store
+const PgSession = connectPgSimple(session);
+const pgPool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+// Ensure session secret is configured
+if (!process.env.SESSION_SECRET) {
+  throw new Error('SESSION_SECRET environment variable is required');
+}
+
+// Trust proxy in production for secure cookies
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+app.use(session({
+  store: new PgSession({
+    pool: pgPool,
+    tableName: 'session',
+    createTableIfMissing: true,
+  }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'strict'
+  }
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();

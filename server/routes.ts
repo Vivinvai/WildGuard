@@ -1,9 +1,25 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
+import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { analyzeAnimalImage } from "./services/openai";
 import { insertAnimalIdentificationSchema, insertUserSchema } from "@shared/schema";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+// Rate limiting for authentication endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: { error: "Too many authentication attempts, try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -19,9 +35,17 @@ const upload = multer({
   },
 });
 
+// Authentication middleware
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // User Registration
-  app.post("/api/auth/register", async (req, res) => {
+  app.post("/api/auth/register", authLimiter, async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
       
@@ -37,6 +61,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password, ...userResponse } = user;
       res.status(201).json(userResponse);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
       console.error("Error registering user:", error);
       res.status(500).json({ 
         error: error instanceof Error ? error.message : "Failed to register user"
@@ -45,28 +72,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Login
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", authLimiter, async (req, res) => {
     try {
-      const { username, password } = req.body;
-      
-      if (!username || !password) {
-        return res.status(400).json({ error: "Username and password are required" });
-      }
+      const loginData = loginSchema.parse(req.body);
 
-      const user = await storage.verifyPassword(username, password);
+      const user = await storage.verifyPassword(loginData.username, loginData.password);
       if (!user) {
         return res.status(401).json({ error: "Invalid username or password" });
       }
 
-      // Store user session (simplified - you might want to use express-session)
-      // Don't return password in response
-      const { password: _, ...userResponse } = user;
-      res.json(userResponse);
+      // Regenerate session ID to prevent session fixation attacks
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error("Error regenerating session:", err);
+          return res.status(500).json({ error: "Failed to create session" });
+        }
+
+        // Store only minimal user data in session (no password hash)
+        req.session.user = {
+          id: user.id,
+          username: user.username
+        };
+
+        // Save session before responding
+        req.session.save((err) => {
+          if (err) {
+            console.error("Error saving session:", err);
+            return res.status(500).json({ error: "Failed to save session" });
+          }
+
+          // Don't return password in response
+          const { password: _, ...userResponse } = user;
+          res.json(userResponse);
+        });
+      });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
       console.error("Error logging in user:", error);
       res.status(500).json({ 
         error: error instanceof Error ? error.message : "Failed to login"
       });
+    }
+  });
+
+  // User Logout
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error logging out:", err);
+        return res.status(500).json({ error: "Failed to logout" });
+      }
+      
+      // Clear the session cookie
+      res.clearCookie('connect.sid', {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+      
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
+  // Get current user
+  app.get("/api/auth/me", async (req, res) => {
+    if (!req.session.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    
+    try {
+      const user = await storage.getUser(req.session.user.id);
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
+      }
+      
+      const { password: _, ...userResponse } = user;
+      res.json(userResponse);
+    } catch (error) {
+      console.error("Error getting current user:", error);
+      res.status(500).json({ error: "Failed to get user data" });
     }
   });
 
@@ -80,6 +167,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const base64Image = req.file.buffer.toString('base64');
       const analysisResult = await analyzeAnimalImage(base64Image);
 
+      // Get userId from session if authenticated
+      const userId = req.session.user?.id;
+
       // Store the identification result
       const identification = await storage.createAnimalIdentification({
         speciesName: analysisResult.speciesName,
@@ -90,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         threats: analysisResult.threats,
         imageUrl: `data:${req.file.mimetype};base64,${base64Image}`,
         confidence: analysisResult.confidence,
-      });
+      }, userId);
 
       res.json(identification);
     } catch (error) {
@@ -110,6 +200,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting recent identifications:", error);
       res.status(500).json({ error: "Failed to get recent identifications" });
+    }
+  });
+
+  // Get user's animal identifications (requires authentication)
+  app.get("/api/my-identifications", requireAuth, async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const identifications = await storage.getUserAnimalIdentifications(req.session.user!.id, limit);
+      res.json(identifications);
+    } catch (error) {
+      console.error("Error getting user identifications:", error);
+      res.status(500).json({ error: "Failed to get user identifications" });
     }
   });
 
