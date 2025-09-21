@@ -79,7 +79,7 @@ export function AnimalSlideshow() {
 
   return (
     <div 
-      className="relative w-full h-[300px] md:h-[350px] lg:h-[400px] overflow-hidden bg-black rounded-lg mx-4 my-6 shadow-xl"
+      className="relative w-full h-[300px] md:h-[350px] lg:h-[400px] overflow-hidden bg-gradient-to-br from-green-900 via-black to-orange-900 rounded-xl mx-4 my-6 shadow-2xl border border-green-400/20 slide-glow"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       data-testid="animal-slideshow"
@@ -94,18 +94,20 @@ export function AnimalSlideshow() {
         />
       </div>
 
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 transition-opacity duration-300" />
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent transition-opacity duration-300" />
 
       {/* Content Overlay */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center text-white px-6 max-w-3xl">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-shadow-lg">
-            {currentAnimal.title}
-          </h2>
-          <p className="text-sm md:text-base lg:text-lg font-medium opacity-90 max-w-2xl mx-auto text-shadow">
-            {currentAnimal.description}
-          </p>
+      <div className="absolute inset-0 flex items-center justify-start">
+        <div className="text-left text-white px-8 max-w-md">
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border-l-4 border-green-400">
+            <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-1 text-shadow-lg text-green-100">
+              {currentAnimal.title}
+            </h2>
+            <p className="text-xs md:text-sm lg:text-base font-medium opacity-90 text-shadow leading-relaxed">
+              {currentAnimal.description}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -114,7 +116,7 @@ export function AnimalSlideshow() {
         variant="ghost"
         size="icon"
         onClick={prevSlide}
-        className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-8 w-8 md:h-10 md:w-10"
+        className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-green-400/30 hover:text-green-200 h-8 w-8 md:h-10 md:w-10 rounded-full border border-white/20 backdrop-blur-sm transition-all duration-200"
         data-testid="button-prev-slide"
       >
         <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
@@ -124,22 +126,22 @@ export function AnimalSlideshow() {
         variant="ghost"
         size="icon"
         onClick={nextSlide}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-8 w-8 md:h-10 md:w-10"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-green-400/30 hover:text-green-200 h-8 w-8 md:h-10 md:w-10 rounded-full border border-white/20 backdrop-blur-sm transition-all duration-200"
         data-testid="button-next-slide"
       >
         <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
       </Button>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 bg-black/30 backdrop-blur-sm rounded-full px-3 py-2">
         {animalSlides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? "bg-white scale-125"
-                : "bg-white/50 hover:bg-white/75"
+                ? "bg-green-400 scale-150 shadow-lg shadow-green-400/50"
+                : "bg-white/50 hover:bg-green-200/75 hover:scale-125"
             }`}
             data-testid={`indicator-${index}`}
           />
@@ -147,8 +149,10 @@ export function AnimalSlideshow() {
       </div>
 
       {/* Slide Counter */}
-      <div className="absolute top-3 right-3 bg-black/50 text-white px-2 py-1 rounded text-xs font-medium">
-        {currentSlide + 1} / {animalSlides.length}
+      <div className="absolute top-3 right-3 bg-gradient-to-r from-green-600/80 to-orange-600/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium border border-white/20 shadow-lg">
+        <span className="text-green-200">{currentSlide + 1}</span>
+        <span className="text-white/70 mx-1">/</span>
+        <span className="text-orange-200">{animalSlides.length}</span>
       </div>
     </div>
   );
