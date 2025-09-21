@@ -5,70 +5,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Shield, MapPin, Phone, Clock, Heart, Map as MapIcon } from "lucide-react";
+import { wildlifeCentersData } from "@shared/schema";
 
 export default function Centers() {
-  const wildlifeCenters = [
-    {
-      id: 1,
-      name: "Bandipur National Park",
-      location: "Chamarajanagar District, Karnataka",
-      type: "National Park",
-      specialization: ["Tiger Conservation", "Elephant Protection"],
-      contact: "+91 8229 236043",
-      hours: "6:00 AM - 6:00 PM",
-      description: "One of India's premier tiger reserves, home to the largest population of tigers in Karnataka."
-    },
-    {
-      id: 2,
-      name: "Nagarhole National Park", 
-      location: "Kodagu & Mysore Districts, Karnataka",
-      type: "National Park",
-      specialization: ["Wildlife Safari", "Bird Watching"],
-      contact: "+91 8272 258901",
-      hours: "6:00 AM - 6:00 PM",
-      description: "Rich biodiversity with elephants, tigers, leopards, and over 270 bird species."
-    },
-    {
-      id: 3,
-      name: "Daroji Bear Sanctuary",
-      location: "Ballari District, Karnataka", 
-      type: "Wildlife Sanctuary",
-      specialization: ["Sloth Bear Conservation"],
-      contact: "+91 8533 290123",
-      hours: "6:30 AM - 6:00 PM",
-      description: "Dedicated sanctuary for sloth bears with excellent viewing opportunities."
-    },
-    {
-      id: 4,
-      name: "Wildlife Rescue & Rehabilitation Centre",
-      location: "Bannerghatta, Bengaluru",
-      type: "Rescue Center",
-      specialization: ["Small Animal Rescue", "Rehabilitation"],
-      contact: "+91 80 2847 3454",
-      hours: "9:00 AM - 5:00 PM",
-      description: "Dedicated to rescuing, treating, and rehabilitating small wild animals including birds, squirrels, and reptiles."
-    },
-    {
-      id: 5,
-      name: "Compassionate Animal Care",
-      location: "Jayanagar, Bengaluru",
-      type: "Animal Protection",
-      specialization: ["Wildlife First Aid", "Animal Welfare"],
-      contact: "+91 98450 78912",
-      hours: "24/7 Emergency",
-      description: "Provides emergency care and protection for small wildlife in urban areas. Specializes in bird rescue and monkey conflicts."
-    },
-    {
-      id: 6,
-      name: "Bangalore Wildlife Welfare Society",
-      location: "Whitefield, Bengaluru",
-      type: "Wildlife Welfare",
-      specialization: ["Snake Rescue", "Urban Wildlife"],
-      contact: "+91 99160 45678",
-      hours: "8:00 AM - 8:00 PM",
-      description: "Community-based organization focused on protecting small animals and resolving human-wildlife conflicts in urban Bengaluru."
-    }
-  ];
+  // Map the shared data to the format expected by this component
+  const wildlifeCenters = wildlifeCentersData.map((center, index) => ({
+    id: index + 1,
+    name: center.name,
+    location: center.address,
+    type: center.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    specialization: center.services,
+    contact: center.phone,
+    hours: center.hours,
+    description: center.description
+  }));
 
   return (
     <div className="min-h-screen bg-background">
