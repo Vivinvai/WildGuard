@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type WildlifeCenter, type InsertWildlifeCenter, type AnimalIdentification, type InsertAnimalIdentification, users, wildlifeCenters, animalIdentifications } from "@shared/schema";
+import { type User, type InsertUser, type WildlifeCenter, type InsertWildlifeCenter, type AnimalIdentification, type InsertAnimalIdentification, type SupportedAnimal, type InsertSupportedAnimal, users, wildlifeCenters, animalIdentifications, supportedAnimals } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -17,6 +17,10 @@ export interface IStorage {
   createAnimalIdentification(identification: InsertAnimalIdentification, userId?: string): Promise<AnimalIdentification>;
   getRecentAnimalIdentifications(limit?: number): Promise<AnimalIdentification[]>;
   getUserAnimalIdentifications(userId: string, limit?: number): Promise<AnimalIdentification[]>;
+  
+  getSupportedAnimals(filters?: { region?: string; category?: string; conservationStatus?: string }): Promise<SupportedAnimal[]>;
+  createSupportedAnimal(animal: InsertSupportedAnimal): Promise<SupportedAnimal>;
+  seedSupportedAnimals(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -182,6 +186,124 @@ export class DatabaseStorage implements IStorage {
       .where(eq(animalIdentifications.userId, userId))
       .orderBy(desc(animalIdentifications.createdAt))
       .limit(limit);
+  }
+
+  async getSupportedAnimals(filters?: { region?: string; category?: string; conservationStatus?: string }): Promise<SupportedAnimal[]> {
+    let query = db.select().from(supportedAnimals);
+    
+    const conditions = [];
+    if (filters?.region) {
+      conditions.push(eq(supportedAnimals.region, filters.region));
+    }
+    if (filters?.category) {
+      conditions.push(eq(supportedAnimals.category, filters.category));
+    }
+    if (filters?.conservationStatus) {
+      conditions.push(eq(supportedAnimals.conservationStatus, filters.conservationStatus));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(supportedAnimals.speciesName);
+  }
+
+  async createSupportedAnimal(animal: InsertSupportedAnimal): Promise<SupportedAnimal> {
+    const [created] = await db.insert(supportedAnimals).values(animal).returning();
+    return created;
+  }
+
+  async seedSupportedAnimals(): Promise<void> {
+    // Check if animals already exist
+    const existing = await db.select().from(supportedAnimals).limit(1);
+    if (existing.length > 0) return;
+
+    const animalsData: InsertSupportedAnimal[] = [
+      // Karnataka Wildlife
+      {
+        speciesName: "Bengal Tiger",
+        scientificName: "Panthera tigris tigris",
+        conservationStatus: "Endangered",
+        population: "2,500-3,000 individuals in India",
+        habitat: "Dense forests, grasslands, and mangrove swamps. Karnataka's Bandipur and Nagarhole National Parks.",
+        threats: ["Poaching", "Habitat Loss", "Human-Wildlife Conflict"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "The Royal Bengal Tiger is India's national animal and a apex predator. Karnataka's tiger reserves are crucial for their conservation."
+      },
+      {
+        speciesName: "Asian Elephant",
+        scientificName: "Elephas maximus",
+        conservationStatus: "Endangered",
+        population: "27,000-31,000 individuals in India",
+        habitat: "Tropical forests, grasslands, and cultivated areas. Large populations in Karnataka's Western Ghats.",
+        threats: ["Habitat Fragmentation", "Human-Elephant Conflict", "Poaching"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Asian elephants are highly intelligent and play crucial roles in forest ecosystems as seed dispersers."
+      },
+      {
+        speciesName: "Indian Leopard",
+        scientificName: "Panthera pardus fusca",
+        conservationStatus: "Vulnerable",
+        population: "12,000-14,000 individuals in India",
+        habitat: "Deciduous forests, grasslands, and rocky areas. Abundant in Karnataka's protected areas.",
+        threats: ["Retaliatory Killing", "Poaching", "Prey Depletion"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Indian leopards are remarkably adaptable big cats that can survive in various habitats near human settlements."
+      },
+      {
+        speciesName: "Sloth Bear",
+        scientificName: "Melursus ursinus",
+        conservationStatus: "Vulnerable",
+        population: "10,000-20,000 individuals in India",
+        habitat: "Dry deciduous forests, grasslands, and scrublands. Common in Karnataka's Daroji Bear Sanctuary.",
+        threats: ["Habitat Loss", "Human-Bear Conflict", "Poaching"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Sloth bears are the only bear species native to India, known for their excellent climbing abilities and insect diet."
+      },
+      {
+        speciesName: "Indian Wild Dog (Dhole)",
+        scientificName: "Cuon alpinus",
+        conservationStatus: "Endangered",
+        population: "2,500 individuals globally",
+        habitat: "Dense forests and protected areas. Small populations in Karnataka's Bandipur and Nagarhole.",
+        threats: ["Habitat Loss", "Competition with Larger Predators", "Disease"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Dholes are highly social pack hunters and one of the most endangered carnivores in India."
+      },
+      {
+        speciesName: "Great Indian Hornbill",
+        scientificName: "Buceros bicornis",
+        conservationStatus: "Near Threatened",
+        population: "13,000-27,000 individuals globally",
+        habitat: "Tropical evergreen forests of Western Ghats.",
+        threats: ["Deforestation", "Hunting", "Nest Tree Loss"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "The Great Indian Hornbill is a keystone species and important seed disperser in forest ecosystems."
+      },
+      {
+        speciesName: "King Cobra",
+        scientificName: "Ophiophagus hannah",
+        conservationStatus: "Vulnerable",
+        population: "Unknown, declining",
+        habitat: "Dense forests and bamboo thickets. Present in Karnataka's Western Ghats.",
+        threats: ["Habitat Loss", "Human Persecution", "Illegal Trade"],
+        region: "Karnataka",
+        category: "Reptile",
+        description: "The world's longest venomous snake, King Cobras are apex predators that help control rodent populations."
+      }
+    ];
+
+    // Insert animals in batches to avoid overwhelming the database
+    for (const animal of animalsData) {
+      await this.createSupportedAnimal(animal);
+    }
   }
 }
 

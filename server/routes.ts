@@ -13,6 +13,10 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+const chatSchema = z.object({
+  message: z.string().min(1, "Message is required").max(1000, "Message too long"),
+});
+
 // Rate limiting for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -260,20 +264,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Chat with AI about endangered animals
+  // Get all supported animals
+  app.get("/api/supported-animals", async (req, res) => {
+    try {
+      const { region, category, conservationStatus } = req.query;
+      
+      const filters = {
+        region: region as string,
+        category: category as string,
+        conservationStatus: conservationStatus as string
+      };
+      
+      // Remove undefined filters
+      Object.keys(filters).forEach(key => {
+        if (!filters[key as keyof typeof filters]) {
+          delete filters[key as keyof typeof filters];
+        }
+      });
+      
+      const animals = await storage.getSupportedAnimals(Object.keys(filters).length > 0 ? filters : undefined);
+      res.json(animals);
+    } catch (error) {
+      console.error("Error getting supported animals:", error);
+      res.status(500).json({ error: "Failed to get supported animals" });
+    }
+  });
+
+  // Seed supported animals database
+  app.post("/api/supported-animals/seed", async (req, res) => {
+    try {
+      await storage.seedSupportedAnimals();
+      res.json({ message: "Supported animals database seeded successfully" });
+    } catch (error) {
+      console.error("Error seeding supported animals:", error);
+      res.status(500).json({ error: "Failed to seed supported animals" });
+    }
+  });
+
+  // Chat with AI about endangered animals  
   app.post("/api/chat", async (req, res) => {
     try {
-      const { message } = req.body;
-      
-      if (!message || typeof message !== 'string') {
-        return res.status(400).json({ error: "Message is required" });
-      }
+      const { message } = chatSchema.parse(req.body);
 
       // Use the same AI service for chat
       const response = await generateChatResponse(message.trim());
       
       res.json({ response });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
       console.error("Error generating chat response:", error);
       res.status(500).json({ 
         error: "I apologize, but I'm having trouble responding right now. Please try asking about endangered animals or wildlife conservation again."

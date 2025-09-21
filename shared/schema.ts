@@ -42,6 +42,24 @@ export const animalIdentifications = pgTable("animal_identifications", {
   createdAtIdx: index("animal_identifications_created_at_idx").on(table.createdAt),
 }));
 
+export const supportedAnimals = pgTable("supported_animals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  speciesName: text("species_name").notNull().unique(),
+  scientificName: text("scientific_name").notNull(),
+  conservationStatus: text("conservation_status").notNull(),
+  population: text("population"),
+  habitat: text("habitat").notNull(),
+  threats: text("threats").array().notNull(),
+  region: text("region").notNull(), // 'Karnataka', 'India', 'Global'
+  category: text("category").notNull(), // 'Mammal', 'Bird', 'Reptile', 'Amphibian', 'Fish'
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  regionIdx: index("supported_animals_region_idx").on(table.region),
+  categoryIdx: index("supported_animals_category_idx").on(table.category),
+  conservationStatusIdx: index("supported_animals_conservation_status_idx").on(table.conservationStatus),
+}));
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -52,6 +70,11 @@ export const insertWildlifeCenterSchema = createInsertSchema(wildlifeCenters).om
 });
 
 export const insertAnimalIdentificationSchema = createInsertSchema(animalIdentifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSupportedAnimalSchema = createInsertSchema(supportedAnimals).omit({
   id: true,
   createdAt: true,
 });
@@ -74,3 +97,5 @@ export type WildlifeCenter = typeof wildlifeCenters.$inferSelect;
 export type InsertWildlifeCenter = z.infer<typeof insertWildlifeCenterSchema>;
 export type AnimalIdentification = typeof animalIdentifications.$inferSelect;
 export type InsertAnimalIdentification = z.infer<typeof insertAnimalIdentificationSchema>;
+export type SupportedAnimal = typeof supportedAnimals.$inferSelect;
+export type InsertSupportedAnimal = z.infer<typeof insertSupportedAnimalSchema>;
