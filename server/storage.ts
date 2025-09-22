@@ -1,6 +1,4 @@
-import { type User, type InsertUser, type WildlifeCenter, type InsertWildlifeCenter, type AnimalIdentification, type InsertAnimalIdentification, type SupportedAnimal, type InsertSupportedAnimal, users, wildlifeCenters, animalIdentifications, supportedAnimals } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { type User, type InsertUser, type WildlifeCenter, type InsertWildlifeCenter, type AnimalIdentification, type InsertAnimalIdentification, type SupportedAnimal, type InsertSupportedAnimal, wildlifeCentersData } from "@shared/schema";
 import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 
@@ -23,89 +21,61 @@ export interface IStorage {
   seedSupportedAnimals(): Promise<void>;
 }
 
-export class DatabaseStorage implements IStorage {
+// DatabaseStorage temporarily disabled to avoid database connection issues
+
+export class MemStorage implements IStorage {
+  private users: Map<string, User> = new Map();
+  private wildlifeCenters: Map<string, WildlifeCenter> = new Map();
+  private animalIdentifications: Map<string, AnimalIdentification> = new Map();
+  private supportedAnimals: Map<string, SupportedAnimal> = new Map();
   private isInitialized = false;
 
-  async initializeWildlifeCenters() {
+  constructor() {
+    this.initializeWildlifeCenters();
+  }
+
+  private initializeWildlifeCenters() {
     if (this.isInitialized) return;
     
-    // Check if wildlife centers already exist
-    const existingCenters = await db.select().from(wildlifeCenters).limit(1);
-    if (existingCenters.length > 0) {
-      this.isInitialized = true;
-      return;
-    }
-
-    const centers: InsertWildlifeCenter[] = [
-      {
-        name: "Pacific Wildlife Rescue Center",
-        description: "Specialized in marine and forest animal rehabilitation",
-        latitude: 37.7749,
-        longitude: -122.4194,
-        phone: "(555) 123-4567",
-        email: "contact@pacificwildlife.org",
-        website: "https://pacificwildlife.org",
-        hours: "Open 24/7",
-        services: ["Emergency Care", "Rehabilitation"],
-        rating: 4.8,
-        address: "123 Forest Ave, San Francisco, CA 94102",
-        type: "rescue",
-      },
-      {
-        name: "Green Valley Conservation Sanctuary",
-        description: "Large-scale wildlife preservation and breeding programs",
-        latitude: 37.7849,
-        longitude: -122.4094,
-        phone: "(555) 987-6543",
-        email: "info@greenvalley.org",
-        website: "https://greenvalley.org",
-        hours: "9 AM - 6 PM",
-        services: ["Research", "Education"],
-        rating: 4.6,
-        address: "456 Conservation Blvd, San Francisco, CA 94103",
-        type: "sanctuary",
-      },
-      {
-        name: "Urban Animal Hospital & Wildlife Care",
-        description: "Veterinary services for wild and domestic animals",
-        latitude: 37.7649,
-        longitude: -122.4294,
-        phone: "(555) 456-7890",
-        email: "emergency@urbananimal.com",
-        website: "https://urbananimal.com",
-        hours: "Open 24/7",
-        services: ["Veterinary", "Surgery"],
-        rating: 4.9,
-        address: "789 Medical Center Dr, San Francisco, CA 94104",
-        type: "hospital",
-      },
-    ];
-
-    await db.insert(wildlifeCenters).values(centers);
+    // Seed wildlife centers from shared data
+    wildlifeCentersData.forEach(center => {
+      const id = randomUUID();
+      const wildlifeCenter: WildlifeCenter = {
+        id,
+        ...center,
+        email: center.email || null,
+        website: center.website || null
+      };
+      this.wildlifeCenters.set(id, wildlifeCenter);
+    });
+    
     this.isInitialized = true;
   }
 
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
+    return this.users.get(id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user || undefined;
+    for (const user of Array.from(this.users.values())) {
+      if (user.username === username) {
+        return user;
+      }
+    }
+    return undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    // Hash the password before storing
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(insertUser.password, saltRounds);
     
-    const userWithHashedPassword = {
-      ...insertUser,
+    const user: User = {
+      id: randomUUID(),
+      username: insertUser.username,
       password: hashedPassword
     };
     
-    const [user] = await db.insert(users).values(userWithHashedPassword).returning();
+    this.users.set(user.id, user);
     return user;
   }
 
@@ -120,21 +90,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWildlifeCenters(): Promise<WildlifeCenter[]> {
-    await this.initializeWildlifeCenters();
-    return await db.select().from(wildlifeCenters);
+    return Array.from(this.wildlifeCenters.values());
   }
 
   async getWildlifeCenterById(id: string): Promise<WildlifeCenter | undefined> {
-    const [center] = await db.select().from(wildlifeCenters).where(eq(wildlifeCenters.id, id));
-    return center || undefined;
+    return this.wildlifeCenters.get(id);
   }
 
   async getNearbyWildlifeCenters(latitude: number, longitude: number, radiusKm = 50): Promise<WildlifeCenter[]> {
-    await this.initializeWildlifeCenters();
-    
-    // For simplicity, we'll get all centers and filter in memory
-    // In production, you'd use PostGIS or similar for spatial queries
-    const centers = await db.select().from(wildlifeCenters);
+    const centers = Array.from(this.wildlifeCenters.values());
     
     return centers.filter(center => {
       const distance = this.calculateDistance(latitude, longitude, center.latitude, center.longitude);
@@ -163,64 +127,72 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createAnimalIdentification(identification: InsertAnimalIdentification, userId?: string): Promise<AnimalIdentification> {
-    const insertData = {
-      ...identification,
+    const result: AnimalIdentification = {
+      id: randomUUID(),
       userId: userId || null,
+      speciesName: identification.speciesName,
+      scientificName: identification.scientificName,
+      conservationStatus: identification.conservationStatus,
       population: identification.population || null,
+      habitat: identification.habitat,
+      threats: identification.threats,
+      imageUrl: identification.imageUrl,
+      confidence: identification.confidence,
+      createdAt: new Date()
     };
     
-    const [result] = await db.insert(animalIdentifications).values(insertData).returning();
+    this.animalIdentifications.set(result.id, result);
     return result;
   }
 
   async getRecentAnimalIdentifications(limit = 10): Promise<AnimalIdentification[]> {
-    return await db.select()
-      .from(animalIdentifications)
-      .orderBy(desc(animalIdentifications.createdAt))
-      .limit(limit);
+    const identifications = Array.from(this.animalIdentifications.values());
+    return identifications
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
   }
 
   async getUserAnimalIdentifications(userId: string, limit = 10): Promise<AnimalIdentification[]> {
-    return await db.select()
-      .from(animalIdentifications)
-      .where(eq(animalIdentifications.userId, userId))
-      .orderBy(desc(animalIdentifications.createdAt))
-      .limit(limit);
+    const identifications = Array.from(this.animalIdentifications.values());
+    return identifications
+      .filter(id => id.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
   }
 
   async getSupportedAnimals(filters?: { region?: string; category?: string; conservationStatus?: string }): Promise<SupportedAnimal[]> {
-    let query = db.select().from(supportedAnimals);
+    let animals = Array.from(this.supportedAnimals.values());
     
-    const conditions = [];
     if (filters?.region) {
-      conditions.push(eq(supportedAnimals.region, filters.region));
+      animals = animals.filter(animal => animal.region === filters.region);
     }
     if (filters?.category) {
-      conditions.push(eq(supportedAnimals.category, filters.category));
+      animals = animals.filter(animal => animal.category === filters.category);
     }
     if (filters?.conservationStatus) {
-      conditions.push(eq(supportedAnimals.conservationStatus, filters.conservationStatus));
+      animals = animals.filter(animal => animal.conservationStatus === filters.conservationStatus);
     }
     
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-    
-    return await query.orderBy(supportedAnimals.speciesName);
+    return animals.sort((a, b) => a.speciesName.localeCompare(b.speciesName));
   }
 
   async createSupportedAnimal(animal: InsertSupportedAnimal): Promise<SupportedAnimal> {
-    const [created] = await db.insert(supportedAnimals).values(animal).returning();
-    return created;
+    const result: SupportedAnimal = {
+      id: randomUUID(),
+      ...animal,
+      population: animal.population || null,
+      createdAt: new Date()
+    };
+    
+    this.supportedAnimals.set(result.id, result);
+    return result;
   }
 
   async seedSupportedAnimals(): Promise<void> {
-    // Check if animals already exist
-    const existing = await db.select().from(supportedAnimals).limit(1);
-    if (existing.length > 0) return;
+    // Only seed if no animals exist
+    if (this.supportedAnimals.size > 0) return;
 
     const animalsData: InsertSupportedAnimal[] = [
-      // Karnataka Wildlife
       {
         speciesName: "Bengal Tiger",
         scientificName: "Panthera tigris tigris",
@@ -264,47 +236,14 @@ export class DatabaseStorage implements IStorage {
         region: "Karnataka",
         category: "Mammal",
         description: "Sloth bears are the only bear species native to India, known for their excellent climbing abilities and insect diet."
-      },
-      {
-        speciesName: "Indian Wild Dog (Dhole)",
-        scientificName: "Cuon alpinus",
-        conservationStatus: "Endangered",
-        population: "2,500 individuals globally",
-        habitat: "Dense forests and protected areas. Small populations in Karnataka's Bandipur and Nagarhole.",
-        threats: ["Habitat Loss", "Competition with Larger Predators", "Disease"],
-        region: "Karnataka",
-        category: "Mammal",
-        description: "Dholes are highly social pack hunters and one of the most endangered carnivores in India."
-      },
-      {
-        speciesName: "Great Indian Hornbill",
-        scientificName: "Buceros bicornis",
-        conservationStatus: "Near Threatened",
-        population: "13,000-27,000 individuals globally",
-        habitat: "Tropical evergreen forests of Western Ghats.",
-        threats: ["Deforestation", "Hunting", "Nest Tree Loss"],
-        region: "Karnataka",
-        category: "Bird",
-        description: "The Great Indian Hornbill is a keystone species and important seed disperser in forest ecosystems."
-      },
-      {
-        speciesName: "King Cobra",
-        scientificName: "Ophiophagus hannah",
-        conservationStatus: "Vulnerable",
-        population: "Unknown, declining",
-        habitat: "Dense forests and bamboo thickets. Present in Karnataka's Western Ghats.",
-        threats: ["Habitat Loss", "Human Persecution", "Illegal Trade"],
-        region: "Karnataka",
-        category: "Reptile",
-        description: "The world's longest venomous snake, King Cobras are apex predators that help control rodent populations."
       }
     ];
 
-    // Insert animals in batches to avoid overwhelming the database
     for (const animal of animalsData) {
       await this.createSupportedAnimal(animal);
     }
   }
 }
 
-export const storage = new DatabaseStorage();
+// Use in-memory storage by default to avoid database connection issues
+export const storage = new MemStorage();
