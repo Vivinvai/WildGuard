@@ -152,6 +152,7 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
                     key={identification.id}
                     className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
                     data-testid={`recent-identification-${identification.id}`}
+                    onClick={() => onIdentificationResult(identification)}
                   >
                     <img
                       src={identification.imageUrl}
