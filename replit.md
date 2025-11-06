@@ -4,7 +4,36 @@ WildGuard is a comprehensive AI-powered wildlife and flora conservation platform
 
 # Recent Changes
 
-## Latest Bug Fixes & Improvements (November 6, 2025)
+## Latest Platform Enhancements (November 6, 2025)
+
+### Navigation Reorganization
+- **Streamlined Header Navigation**: Reorganized navigation with main links (Home, Learn, Wildlife Centers, Botanical Gardens, Habitat, NGOs & Volunteer)
+- **Identify Dropdown Menu**: New icon button with dropdown menu offering "Identify Flora" and "Identify Fauna" options for quick access
+- **AI Chat Icon Button**: Direct access to AI chat functionality via header icon button
+- **Consistent Theme Toggle**: Theme switcher available across all pages with localStorage persistence
+
+### Habitat Loss Page Enhancements
+- **Comprehensive Visualizations**: Added recharts-based comparison charts showing deforestation before/after analysis
+- **Tabbed Interface**: Overview, Charts, Analytics, and Impact tabs for organized data presentation
+- **Flora & Fauna Impact Sections**: Detailed information about affected plant and animal species
+- **Interactive Analytics**: Severity filtering and statistical breakdowns of habitat loss data
+- **Dark Mode Support**: Full dark mode implementation with WCAG-compliant contrast ratios
+
+### NGOs & Volunteer Page Complete Overhaul
+- **Volunteer Application System**: Full-featured application forms with Zod validation and backend persistence
+- **Animal Adoption Portal**: Complete adoption system with 6 adoptable animals, monthly/yearly/lifetime sponsorship options
+- **NGO Directory**: Comprehensive listing of 4+ conservation organizations with contact details, focus areas, and volunteer buttons
+- **How to Help Section**: Educational content about volunteer opportunities and contribution methods
+- **Backend Integration**: New API endpoints (`/api/volunteer-applications`, `/api/animal-adoptions`) with proper schemas and storage
+
+### Backend Infrastructure Additions
+- **New Database Schemas**: Added `volunteerApplications` and `animalAdoptions` tables with full CRUD support
+- **Type-Safe Operations**: Insert schemas with Zod validation, select types, and proper TypeScript typing throughout
+- **Storage Layer**: Implemented in-memory storage methods for volunteer applications and animal adoptions
+- **API Routes**: RESTful endpoints with Zod validation for form submissions
+- **Status Tracking**: Application and adoption status management (pending, approved, active, rejected)
+
+## Previous Bug Fixes & Improvements (November 6, 2025)
 
 ### Critical Bug Fixes
 - **Theme Persistence Fix**: Resolved naming collision in ThemeProvider where `setTheme` parameter shadowed `useState` setter, preventing localStorage persistence. Theme preference now correctly saves to localStorage with key `wildguard-theme` and persists across all pages and browser sessions.
