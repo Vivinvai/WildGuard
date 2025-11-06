@@ -163,6 +163,57 @@ export class MemStorage implements IStorage {
     };
     this.adminUsers.set(adminId, defaultAdmin);
     
+    // Seed sample animal sightings for heatmap demo
+    const sampleSightings = [
+      { animal: 'Bengal Tiger', lat: 12.0141, lon: 76.0963, location: 'Bandipur National Park', habitat: 'forest' },
+      { animal: 'Bengal Tiger', lat: 12.0178, lon: 76.0984, location: 'Bandipur National Park', habitat: 'forest' },
+      { animal: 'Asian Elephant', lat: 11.9876, lon: 76.5772, location: 'Nagarahole National Park', habitat: 'grassland' },
+      { animal: 'Asian Elephant', lat: 11.9912, lon: 76.5801, location: 'Nagarahole National Park', habitat: 'forest' },
+      { animal: 'Asian Elephant', lat: 11.9845, lon: 76.5743, location: 'Nagarahole National Park', habitat: 'wetland' },
+      { animal: 'Indian Leopard', lat: 12.0205, lon: 76.0921, location: 'Bandipur National Park', habitat: 'rocky_terrain' },
+      { animal: 'Indian Gaur', lat: 12.0156, lon: 76.0995, location: 'Bandipur National Park', habitat: 'grassland' },
+      { animal: 'Indian Gaur', lat: 11.9934, lon: 76.5823, location: 'Nagarahole National Park', habitat: 'grassland' },
+      { animal: 'Sloth Bear', lat: 12.0189, lon: 76.0878, location: 'Bandipur National Park', habitat: 'forest' },
+      { animal: 'Wild Dog (Dhole)', lat: 12.0123, lon: 76.1012, location: 'Bandipur National Park', habitat: 'forest' },
+      { animal: 'Wild Dog (Dhole)', lat: 11.9901, lon: 76.5789, location: 'Nagarahole National Park', habitat: 'forest' },
+      { animal: 'Sambar Deer', lat: 12.0167, lon: 76.0945, location: 'Bandipur National Park', habitat: 'grassland' },
+      { animal: 'Sambar Deer', lat: 11.9889, lon: 76.5812, location: 'Nagarahole National Park', habitat: 'grassland' },
+      { animal: 'Spotted Deer', lat: 12.0134, lon: 76.1001, location: 'Bandipur National Park', habitat: 'grassland' },
+      { animal: 'Spotted Deer', lat: 11.9867, lon: 76.5756, location: 'Nagarahole National Park', habitat: 'forest' },
+      { animal: 'Indian Peafowl', lat: 12.0112, lon: 76.0934, location: 'Bandipur National Park', habitat: 'grassland' },
+      { animal: 'Indian Peafowl', lat: 11.9923, lon: 76.5834, location: 'Nagarahole National Park', habitat: 'grassland' },
+      { animal: 'King Cobra', lat: 12.0198, lon: 76.0967, location: 'Bandipur National Park', habitat: 'forest' },
+      { animal: 'Wild Boar', lat: 12.0145, lon: 76.0978, location: 'Bandipur National Park', habitat: 'grassland' },
+      { animal: 'Wild Boar', lat: 11.9895, lon: 76.5767, location: 'Nagarahole National Park', habitat: 'forest' },
+    ];
+
+    sampleSightings.forEach((sighting) => {
+      const sightingId = randomUUID();
+      const animalSighting: any = {
+        id: sightingId,
+        animalId: null,
+        reporterName: 'Wildlife Ranger',
+        reporterEmail: 'ranger@wildguard.gov.in',
+        reporterPhone: null,
+        latitude: sighting.lat,
+        longitude: sighting.lon,
+        location: sighting.location,
+        locationName: sighting.location,
+        habitatType: sighting.habitat,
+        animal: sighting.animal,
+        animalStatus: 'healthy',
+        emergencyStatus: 'none',
+        description: `Sighted ${sighting.animal} in ${sighting.location}`,
+        imageUrl: null,
+        certificateIssued: 'no',
+        verifiedBy: null,
+        verifiedAt: null,
+        sightedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random date within last 30 days
+        timestamp: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
+      };
+      this.animalSightings.set(sightingId, animalSighting);
+    });
+    
     this.isInitialized = true;
   }
 
@@ -838,7 +889,7 @@ export class MemStorage implements IStorage {
       speciesName: identification.speciesName,
       scientificName: identification.scientificName,
       conservationStatus: identification.conservationStatus,
-      isEndangered: identification.isEndangered,
+      isEndangered: identification.isEndangered ?? false,
       endangeredAlert: identification.endangeredAlert || null,
       habitat: identification.habitat,
       uses: identification.uses,
