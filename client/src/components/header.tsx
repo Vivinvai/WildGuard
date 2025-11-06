@@ -37,7 +37,7 @@ export function Header() {
               <p className="text-xs text-muted-foreground">AI Wildlife Protection Platform</p>
             </div>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-4 text-sm">
             <Link 
               href="/" 
               className={`transition-colors font-medium ${
@@ -50,15 +50,37 @@ export function Header() {
               Home
             </Link>
             <Link 
-              href="/discover" 
+              href="/identify" 
               className={`transition-colors font-medium ${
-                location === "/discover" 
+                location === "/identify" 
                   ? "text-primary" 
                   : "text-muted-foreground hover:text-primary"
               }`}
-              data-testid="link-discover"
+              data-testid="link-identify"
             >
-              Discover
+              Animals
+            </Link>
+            <Link 
+              href="/flora" 
+              className={`transition-colors font-medium ${
+                location === "/flora" 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-primary"
+              }`}
+              data-testid="link-flora"
+            >
+              Flora
+            </Link>
+            <Link 
+              href="/deforestation" 
+              className={`transition-colors font-medium ${
+                location === "/deforestation" 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-primary"
+              }`}
+              data-testid="link-deforestation"
+            >
+              Habitat
             </Link>
             <Link 
               href="/centers" 
@@ -72,6 +94,28 @@ export function Header() {
               Centers
             </Link>
             <Link 
+              href="/gardens" 
+              className={`transition-colors font-medium ${
+                location === "/gardens" 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-primary"
+              }`}
+              data-testid="link-gardens"
+            >
+              Gardens
+            </Link>
+            <Link 
+              href="/discover" 
+              className={`transition-colors font-medium ${
+                location === "/discover" 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-primary"
+              }`}
+              data-testid="link-discover"
+            >
+              NGOs
+            </Link>
+            <Link 
               href="/learn" 
               className={`transition-colors font-medium ${
                 location === "/learn" 
@@ -82,32 +126,10 @@ export function Header() {
             >
               Learn
             </Link>
-            <Link 
-              href="/about" 
-              className={`transition-colors font-medium ${
-                location === "/about" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
-              }`}
-              data-testid="link-about"
-            >
-              About
-            </Link>
           </nav>
           
           {/* Action buttons */}
-          <div className="hidden md:flex items-center space-x-3">
-            <Link href="/identify">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center space-x-2 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-700 dark:text-green-400"
-                data-testid="button-upload-header"
-              >
-                <Camera className="w-4 h-4" />
-                <span>Identify</span>
-              </Button>
-            </Link>
+          <div className="hidden lg:flex items-center space-x-2">
             <Link href="/chat">
               <Button 
                 variant="outline" 
@@ -121,7 +143,7 @@ export function Header() {
             </Link>
             <ThemeToggle />
           </div>
-          <button className="md:hidden p-2 text-muted-foreground hover:text-foreground" data-testid="button-mobile-menu">
+          <button className="lg:hidden p-2 text-muted-foreground hover:text-foreground" data-testid="button-mobile-menu">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>

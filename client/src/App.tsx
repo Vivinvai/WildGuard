@@ -10,6 +10,9 @@ import Centers from "@/pages/centers";
 import Learn from "@/pages/learn";
 import About from "@/pages/about";
 import Identify from "@/pages/identify";
+import Flora from "@/pages/flora";
+import Gardens from "@/pages/gardens";
+import Deforestation from "@/pages/deforestation";
 import Chat from "@/pages/chat";
 import WildlifeMap from "@/pages/map";
 import NotFound from "@/pages/not-found";
@@ -23,6 +26,9 @@ function Router() {
       <Route path="/learn" component={Learn} />
       <Route path="/about" component={About} />
       <Route path="/identify" component={Identify} />
+      <Route path="/flora" component={Flora} />
+      <Route path="/gardens" component={Gardens} />
+      <Route path="/deforestation" component={Deforestation} />
       <Route path="/chat" component={Chat} />
       <Route path="/map" component={WildlifeMap} />
       <Route component={NotFound} />
