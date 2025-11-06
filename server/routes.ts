@@ -42,10 +42,10 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('audio/')) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed'));
+      cb(new Error('Only image and audio files are allowed'));
     }
   },
 });
@@ -902,6 +902,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Sightings heatmap error:", error);
       res.status(500).json({ error: "Failed to generate sightings heatmap" });
+    }
+  });
+
+  // NEW AI CONSERVATION FEATURES
+
+  // Habitat Health Monitoring API
+  app.get("/api/features/habitat-monitoring", async (req, res) => {
+    try {
+      const { monitorHabitatHealth, getAllProtectedAreasStatus } = await import("./services/habitat-monitoring");
+      
+      if (req.query.all === "true") {
+        const results = await getAllProtectedAreasStatus();
+        return res.json(results);
+      }
+      
+      const location = req.query.location as string || "Karnataka Region";
+      const latitude = req.query.latitude ? parseFloat(req.query.latitude as string) : 12.9716;
+      const longitude = req.query.longitude ? parseFloat(req.query.longitude as string) : 77.5946;
+      const protectedArea = req.query.protectedArea as string;
+      
+      const result = await monitorHabitatHealth(location, latitude, longitude, protectedArea);
+      res.json(result);
+    } catch (error) {
+      console.error("Habitat monitoring error:", error);
+      res.status(500).json({ error: "Failed to monitor habitat health" });
+    }
+  });
+
+  // Wildlife Sound Detection API
+  app.post("/api/features/sound-detection", upload.single('audio'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Audio file required" });
+      }
+
+      const { analyzeBioacousticSound } = await import("./services/sound-detection");
+      const audioBase64 = req.file.buffer.toString('base64');
+      
+      const location = req.body.latitude && req.body.longitude ? {
+        latitude: parseFloat(req.body.latitude),
+        longitude: parseFloat(req.body.longitude),
+      } : undefined;
+
+      const result = await analyzeBioacousticSound(audioBase64, location);
+      res.json(result);
+    } catch (error) {
+      console.error("Sound detection error:", error);
+      res.status(500).json({ error: "Failed to analyze wildlife sound" });
+    }
+  });
+
+  // Footprint Recognition API
+  app.post("/api/features/footprint-recognition", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Image file required" });
+      }
+
+      const { recognizeFootprint } = await import("./services/footprint-recognition");
+      const imageBase64 = req.file.buffer.toString('base64');
+      
+      const result = await recognizeFootprint(imageBase64);
+      res.json(result);
+    } catch (error) {
+      console.error("Footprint recognition error:", error);
+      res.status(500).json({ error: "Failed to recognize footprint" });
+    }
+  });
+
+  // Partial Image Enhancement API
+  app.post("/api/features/partial-image-enhancement", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Image file required" });
+      }
+
+      const { enhanceAndIdentifyPartialImage } = await import("./services/partial-image-enhancement");
+      const imageBase64 = req.file.buffer.toString('base64');
+      
+      const result = await enhanceAndIdentifyPartialImage(imageBase64);
+      res.json(result);
+    } catch (error) {
+      console.error("Partial image enhancement error:", error);
+      res.status(500).json({ error: "Failed to enhance and identify partial image" });
+    }
+  });
+
+  // Wildlife Chatbot API
+  app.post("/api/features/chatbot", async (req, res) => {
+    try {
+      const { message } = req.body;
+      if (!message || typeof message !== "string") {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      const { getWildlifeChatbotResponse } = await import("./services/wildlife-chatbot");
+      const result = await getWildlifeChatbotResponse(message, storage);
+      res.json(result);
+    } catch (error) {
+      console.error("Chatbot error:", error);
+      res.status(500).json({ error: "Failed to get chatbot response" });
     }
   });
 
