@@ -3,11 +3,13 @@ import { Link, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Shield, Camera, MessageCircle } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Shield, Camera, MessageCircle, Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Header() {
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
 
   return (
@@ -143,11 +145,133 @@ export function Header() {
             </Link>
             <ThemeToggle />
           </div>
-          <button className="lg:hidden p-2 text-muted-foreground hover:text-foreground" data-testid="button-mobile-menu">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          
+          {/* Mobile Menu */}
+          <div className="lg:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <button className="p-2 text-muted-foreground hover:text-foreground" data-testid="button-mobile-menu">
+                  <Menu className="w-6 h-6" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] bg-card dark:bg-gray-950 border-border dark:border-gray-800">
+                <SheetHeader>
+                  <SheetTitle className="text-foreground dark:text-white">Navigation</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col space-y-4 mt-8">
+                  <Link 
+                    href="/" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-home"
+                  >
+                    Home
+                  </Link>
+                  <Link 
+                    href="/identify" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/identify" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-identify"
+                  >
+                    🐾 Animals
+                  </Link>
+                  <Link 
+                    href="/flora" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/flora" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-flora"
+                  >
+                    🌿 Flora
+                  </Link>
+                  <Link 
+                    href="/deforestation" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/deforestation" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-habitat"
+                  >
+                    🌲 Habitat Loss
+                  </Link>
+                  <Link 
+                    href="/centers" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/centers" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-centers"
+                  >
+                    🏛️ Wildlife Centers
+                  </Link>
+                  <Link 
+                    href="/gardens" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/gardens" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-gardens"
+                  >
+                    🌺 Botanical Gardens
+                  </Link>
+                  <Link 
+                    href="/discover" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/discover" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-discover"
+                  >
+                    🤝 NGOs & Volunteer
+                  </Link>
+                  <Link 
+                    href="/learn" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/learn" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-learn"
+                  >
+                    📚 Learn
+                  </Link>
+                  <Link 
+                    href="/chat" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/chat" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-chat"
+                  >
+                    💬 AI Chat
+                  </Link>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>

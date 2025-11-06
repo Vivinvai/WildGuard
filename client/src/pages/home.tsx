@@ -15,11 +15,11 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-black">
       <Header />
       
       {/* WildGuard Brand Section */}
-      <section className="bg-gradient-to-br from-green-50/50 via-white to-orange-50/50 py-8">
+      <section className="bg-gradient-to-br from-green-50/50 via-white to-orange-50/50 dark:from-green-950/30 dark:via-gray-950 dark:to-orange-950/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Combined Logo */}
           <div className="flex justify-center mb-4">
@@ -54,10 +54,10 @@ export default function Home() {
           </h1>
           
           {/* Mission Statement */}
-          <p className="text-lg text-gray-700 font-medium mb-4 max-w-3xl mx-auto">
-            Protecting Karnataka's wildlife through <span className="text-green-600 font-semibold">AI-powered identification</span>, 
-            <span className="text-orange-600 font-semibold"> conservation education</span>, and 
-            <span className="text-green-600 font-semibold"> community action</span>
+          <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4 max-w-3xl mx-auto">
+            Protecting Karnataka's wildlife through <span className="text-green-600 dark:text-green-400 font-semibold">AI-powered identification</span>, 
+            <span className="text-orange-600 dark:text-orange-400 font-semibold"> conservation education</span>, and 
+            <span className="text-green-600 dark:text-green-400 font-semibold"> community action</span>
           </p>
         </div>
       </section>
@@ -70,59 +70,59 @@ export default function Home() {
         {/* Platform Information */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* How WildGuard Works */}
-          <div className="bg-gradient-to-br from-green-50/70 to-emerald-50/70 p-8 rounded-2xl border border-green-100/50 backdrop-blur-sm">
-            <h2 className="text-2xl font-bold text-green-800 mb-6 flex items-center">
-              <Shield className="w-8 h-8 mr-3 text-green-600" />
+          <div className="bg-gradient-to-br from-green-50/70 to-emerald-50/70 dark:from-green-950/30 dark:to-emerald-950/30 p-8 rounded-2xl border border-green-100/50 dark:border-green-800/50 backdrop-blur-sm">
+            <h2 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-6 flex items-center">
+              <Shield className="w-8 h-8 mr-3 text-green-600 dark:text-green-400" />
               How WildGuard Works
             </h2>
-            <div className="space-y-4 text-gray-700">
-              <div className="flex items-start space-x-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-green-200/50">
-                <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-800 font-bold text-sm">1</div>
+            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+              <div className="flex items-start space-x-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl p-4 border border-green-200/50 dark:border-green-700/50">
+                <div className="w-8 h-8 bg-green-200 dark:bg-green-900 rounded-full flex items-center justify-center text-green-800 dark:text-green-300 font-bold text-sm">1</div>
                 <div>
-                  <h3 className="font-semibold text-green-800">Instant Animal Identification</h3>
-                  <p className="text-sm text-gray-600">Upload a photo and our AI instantly identifies the species using advanced machine learning</p>
+                  <h3 className="font-semibold text-green-800 dark:text-green-400">Instant Animal Identification</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Upload a photo and our AI instantly identifies the species using advanced machine learning</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-green-200/50">
-                <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-800 font-bold text-sm">2</div>
+              <div className="flex items-start space-x-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl p-4 border border-green-200/50 dark:border-green-700/50">
+                <div className="w-8 h-8 bg-green-200 dark:bg-green-900 rounded-full flex items-center justify-center text-green-800 dark:text-green-300 font-bold text-sm">2</div>
                 <div>
-                  <h3 className="font-semibold text-green-800">Conservation Insights</h3>
-                  <p className="text-sm text-gray-600">Learn about conservation status, habitat needs, and current threats facing each species</p>
+                  <h3 className="font-semibold text-green-800 dark:text-green-400">Conservation Insights</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Learn about conservation status, habitat needs, and current threats facing each species</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-green-200/50">
-                <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-800 font-bold text-sm">3</div>
+              <div className="flex items-start space-x-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl p-4 border border-green-200/50 dark:border-green-700/50">
+                <div className="w-8 h-8 bg-green-200 dark:bg-green-900 rounded-full flex items-center justify-center text-green-800 dark:text-green-300 font-bold text-sm">3</div>
                 <div>
-                  <h3 className="font-semibold text-green-800">Connect & Act</h3>
-                  <p className="text-sm text-gray-600">Find nearby wildlife centers and conservation organizations to support protection efforts</p>
+                  <h3 className="font-semibold text-green-800 dark:text-green-400">Connect & Act</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Find nearby wildlife centers and conservation organizations to support protection efforts</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Why Wildlife Conservation Matters */}
-          <div className="bg-gradient-to-br from-orange-50/70 to-amber-50/70 p-8 rounded-2xl border border-orange-100/50 backdrop-blur-sm">
-            <h2 className="text-2xl font-bold text-orange-800 mb-6">Why Wildlife Conservation Matters</h2>
-            <div className="space-y-4 text-gray-700">
-              <div className="flex items-start space-x-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200/50" data-testid="card-conservation-biodiversity">
-                <div className="w-2 h-2 bg-orange-400 rounded-full mt-2"></div>
+          <div className="bg-gradient-to-br from-orange-50/70 to-amber-50/70 dark:from-orange-950/30 dark:to-amber-950/30 p-8 rounded-2xl border border-orange-100/50 dark:border-orange-800/50 backdrop-blur-sm">
+            <h2 className="text-2xl font-bold text-orange-800 dark:text-orange-400 mb-6">Why Wildlife Conservation Matters</h2>
+            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+              <div className="flex items-start space-x-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200/50 dark:border-orange-700/50" data-testid="card-conservation-biodiversity">
+                <div className="w-2 h-2 bg-orange-400 dark:bg-orange-500 rounded-full mt-2"></div>
                 <div>
-                  <h3 className="font-semibold text-orange-800">Biodiversity Crisis</h3>
-                  <p className="text-sm text-gray-600">We're losing species 1000x faster than natural rates. Every species plays a crucial role in ecosystem balance.</p>
+                  <h3 className="font-semibold text-orange-800 dark:text-orange-400">Biodiversity Crisis</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">We're losing species 1000x faster than natural rates. Every species plays a crucial role in ecosystem balance.</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200/50" data-testid="card-conservation-ecosystem">
-                <div className="w-2 h-2 bg-orange-400 rounded-full mt-2"></div>
+              <div className="flex items-start space-x-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200/50 dark:border-orange-700/50" data-testid="card-conservation-ecosystem">
+                <div className="w-2 h-2 bg-orange-400 dark:bg-orange-500 rounded-full mt-2"></div>
                 <div>
-                  <h3 className="font-semibold text-orange-800">Ecosystem Services</h3>
-                  <p className="text-sm text-gray-600">Wildlife provides pollination, pest control, water purification, and climate regulation worth trillions globally.</p>
+                  <h3 className="font-semibold text-orange-800 dark:text-orange-400">Ecosystem Services</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Wildlife provides pollination, pest control, water purification, and climate regulation worth trillions globally.</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3 bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200/50" data-testid="card-conservation-future">
-                <div className="w-2 h-2 bg-orange-400 rounded-full mt-2"></div>
+              <div className="flex items-start space-x-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200/50 dark:border-orange-700/50" data-testid="card-conservation-future">
+                <div className="w-2 h-2 bg-orange-400 dark:bg-orange-500 rounded-full mt-2"></div>
                 <div>
-                  <h3 className="font-semibold text-orange-800">Future Generations</h3>
-                  <p className="text-sm text-gray-600">Protecting wildlife today ensures our children inherit a world rich in natural beauty and biodiversity.</p>
+                  <h3 className="font-semibold text-orange-800 dark:text-orange-400">Future Generations</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Protecting wildlife today ensures our children inherit a world rich in natural beauty and biodiversity.</p>
                 </div>
               </div>
             </div>
@@ -130,46 +130,46 @@ export default function Home() {
         </div>
 
         {/* Karnataka Wildlife Showcase */}
-        <div className="bg-gradient-to-br from-slate-50/70 to-gray-50/70 p-8 rounded-2xl border border-slate-200/50 backdrop-blur-sm">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Karnataka: A Wildlife Paradise</h2>
-          <p className="text-lg text-gray-600 text-center mb-8 max-w-4xl mx-auto">
+        <div className="bg-gradient-to-br from-slate-50/70 to-gray-50/70 dark:from-slate-950/30 dark:to-gray-950/30 p-8 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-sm">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6 text-center">Karnataka: A Wildlife Paradise</h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 text-center mb-8 max-w-4xl mx-auto">
             Karnataka is home to over 400 bird species, 2000+ flowering plants, and iconic wildlife including tigers, elephants, and the endangered Great Indian Bustard. Our state's 25 wildlife sanctuaries and 5 national parks protect these treasures.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50">
-              <h3 className="font-bold text-gray-800 mb-3">🐅 Big Cats</h3>
-              <p className="text-sm text-gray-600 mb-4">Karnataka hosts the largest tiger population in India with over 500 tigers across Bandipur, Nagarhole, and BR Hills.</p>
-              <div className="text-xs text-green-600 font-semibold">Conservation Status: Protected</div>
+            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50">
+              <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🐅 Big Cats</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Karnataka hosts the largest tiger population in India with over 500 tigers across Bandipur, Nagarhole, and BR Hills.</p>
+              <div className="text-xs text-green-600 dark:text-green-400 font-semibold">Conservation Status: Protected</div>
             </div>
             
-            <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50">
-              <h3 className="font-bold text-gray-800 mb-3">🐘 Gentle Giants</h3>
-              <p className="text-sm text-gray-600 mb-4">Home to the largest Asian elephant population, our corridors help these ecosystem engineers migrate safely.</p>
-              <div className="text-xs text-orange-600 font-semibold">Conservation Status: Endangered</div>
+            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50">
+              <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🐘 Gentle Giants</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Home to the largest Asian elephant population, our corridors help these ecosystem engineers migrate safely.</p>
+              <div className="text-xs text-orange-600 dark:text-orange-400 font-semibold">Conservation Status: Endangered</div>
             </div>
             
-            <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50">
-              <h3 className="font-bold text-gray-800 mb-3">🦅 Rare Birds</h3>
-              <p className="text-sm text-gray-600 mb-4">The Great Indian Bustard and other critically endangered species find refuge in our grasslands and scrublands.</p>
-              <div className="text-xs text-red-600 font-semibold">Conservation Status: Critically Endangered</div>
+            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50">
+              <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🦅 Rare Birds</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The Great Indian Bustard and other critically endangered species find refuge in our grasslands and scrublands.</p>
+              <div className="text-xs text-red-600 dark:text-red-400 font-semibold">Conservation Status: Critically Endangered</div>
             </div>
           </div>
         </div>
 
         {/* Call to Action */}
-        <div className="bg-gradient-to-br from-green-900 via-black to-orange-900 backdrop-blur-sm p-8 rounded-2xl text-white text-center border border-green-400/20">
+        <div className="bg-gradient-to-br from-green-900 via-black to-orange-900 dark:from-green-950 dark:via-gray-950 dark:to-orange-950 backdrop-blur-sm p-8 rounded-2xl text-white text-center border border-green-400/20 dark:border-green-600/30">
           <h2 className="text-2xl font-bold mb-4">Join the Conservation Movement</h2>
           <p className="text-lg mb-6 opacity-90">Every identification, every photo, every action matters. Help us protect Karnataka's incredible wildlife for future generations.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/identify">
-              <Button size="lg" variant="secondary" className="bg-green-600 text-white hover:bg-green-700 backdrop-blur-sm border border-green-400/20" data-testid="button-cta-identify">
+              <Button size="lg" variant="secondary" className="bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 backdrop-blur-sm border border-green-400/20" data-testid="button-cta-identify">
                 <Camera className="w-5 h-5 mr-2" />
                 Start Identifying Animals
               </Button>
             </Link>
             <Link href="/learn">
-              <Button size="lg" variant="outline" className="border-orange-400/70 bg-orange-600/20 text-white hover:bg-orange-600/30 backdrop-blur-sm" data-testid="button-cta-learn">
+              <Button size="lg" variant="outline" className="border-orange-400/70 bg-orange-600/20 text-white hover:bg-orange-600/30 dark:border-orange-500/70 dark:bg-orange-700/20 dark:hover:bg-orange-700/30 backdrop-blur-sm" data-testid="button-cta-learn">
                 Learn More About Conservation
               </Button>
             </Link>
