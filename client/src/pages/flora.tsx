@@ -6,11 +6,13 @@ import { Header } from "@/components/header";
 import { Leaf, Upload, Loader2, TreePine } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { FloraIdentification } from "@shared/schema";
 
 export default function Flora() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [result, setResult] = useState<FloraIdentification | null>(null);
+  const { toast } = useToast();
 
   const identifyMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -25,6 +27,17 @@ export default function Flora() {
     },
     onSuccess: (data) => {
       setResult(data);
+      toast({
+        title: "Plant Identified!",
+        description: `Found ${data.speciesName} with ${(data.confidence * 100).toFixed(0)}% confidence`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Identification Failed",
+        description: error.message || "Please try again with a clearer photo of the plant.",
+        variant: "destructive",
+      });
     },
   });
 

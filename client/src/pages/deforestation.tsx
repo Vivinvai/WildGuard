@@ -185,6 +185,18 @@ export default function Deforestation() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAlerts.length === 0 && (
+            <Card className="p-12 bg-card dark:bg-gray-900 border-border dark:border-gray-800 text-center col-span-full" data-testid="card-alert-empty">
+              <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-muted-foreground dark:text-gray-600" />
+              <h3 className="text-lg font-semibold text-foreground dark:text-white mb-2">No Alerts Found</h3>
+              <p className="text-muted-foreground dark:text-gray-400" data-testid="text-alert-empty-message">
+                {selectedSeverity 
+                  ? `No ${selectedSeverity} severity alerts found. Try a different filter.`
+                  : 'No deforestation alerts to display at this time.'}
+              </p>
+            </Card>
+          )}
+          
           {filteredAlerts.map((alert) => (
             <Card 
               key={alert.id}
