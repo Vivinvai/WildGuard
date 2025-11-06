@@ -11,6 +11,9 @@ import {
   type DeforestationAlert, type InsertDeforestationAlert,
   type VolunteerApplication, type InsertVolunteerApplication,
   type AnimalAdoption, type InsertAnimalAdoption,
+  type AdminUser, type InsertAdminUser,
+  type Certificate, type InsertCertificate,
+  type UserActivity, type InsertUserActivity,
   wildlifeCentersData, botanicalGardensData, ngosData
 } from "@shared/schema";
 import { randomUUID } from "crypto";

@@ -9,6 +9,20 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+export const adminUsers = pgTable("admin_users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  role: text("role").notNull().default('government_official'), // 'government_official', 'super_admin'
+  department: text("department"),
+  email: text("email"),
+  phone: text("phone"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastLogin: timestamp("last_login"),
+}, (table) => ({
+  usernameIdx: index("admin_users_username_idx").on(table.username),
+}));
+
 export const wildlifeCenters = pgTable("wildlife_centers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -95,14 +109,56 @@ export const botanicalGardens = pgTable("botanical_gardens", {
 export const animalSightings = pgTable("animal_sightings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   animalId: varchar("animal_id").references(() => animalIdentifications.id, { onDelete: "cascade" }),
+  reporterName: text("reporter_name"),
+  reporterEmail: text("reporter_email"),
+  reporterPhone: text("reporter_phone"),
   latitude: real("latitude").notNull(),
   longitude: real("longitude").notNull(),
   location: text("location").notNull(),
   habitatType: text("habitat_type").notNull(),
+  animalStatus: text("animal_status").notNull(), // 'healthy', 'injured', 'sick', 'dead', 'in_danger'
+  emergencyStatus: text("emergency_status").notNull().default('none'), // 'none', 'urgent', 'critical'
+  description: text("description"),
+  imageUrl: text("image_url"),
+  certificateIssued: text("certificate_issued").default('no'), // 'yes', 'no'
+  verifiedBy: varchar("verified_by").references(() => adminUsers.id, { onDelete: "set null" }),
+  verifiedAt: timestamp("verified_at"),
   sightedAt: timestamp("sighted_at").defaultNow().notNull(),
 }, (table) => ({
   animalIdIdx: index("animal_sightings_animal_id_idx").on(table.animalId),
   locationIdx: index("animal_sightings_location_idx").on(table.location),
+  emergencyIdx: index("animal_sightings_emergency_idx").on(table.emergencyStatus),
+  verifiedByIdx: index("animal_sightings_verified_by_idx").on(table.verifiedBy),
+}));
+
+export const certificates = pgTable("certificates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sightingId: varchar("sighting_id").references(() => animalSightings.id, { onDelete: "cascade" }),
+  recipientName: text("recipient_name").notNull(),
+  recipientEmail: text("recipient_email").notNull(),
+  certificateNumber: text("certificate_number").notNull().unique(),
+  issueDate: timestamp("issue_date").defaultNow().notNull(),
+  contribution: text("contribution").notNull(), // Description of what they reported
+  speciesHelped: text("species_helped").notNull(),
+  location: text("location").notNull(),
+}, (table) => ({
+  sightingIdIdx: index("certificates_sighting_id_idx").on(table.sightingId),
+  certificateNumberIdx: index("certificates_number_idx").on(table.certificateNumber),
+}));
+
+export const userActivity = pgTable("user_activity", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  activityType: text("activity_type").notNull(), // 'sighting_report', 'identification', 'volunteer_signup', 'adoption'
+  userId: text("user_id"),
+  userName: text("user_name"),
+  userEmail: text("user_email"),
+  details: jsonb("details"),
+  ipAddress: text("ip_address"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  activityTypeIdx: index("user_activity_type_idx").on(table.activityType),
+  timestampIdx: index("user_activity_timestamp_idx").on(table.timestamp),
+  userEmailIdx: index("user_activity_email_idx").on(table.userEmail),
 }));
 
 export const ngos = pgTable("ngos", {
@@ -150,7 +206,11 @@ export const deforestationAlerts = pgTable("deforestation_alerts", {
   detectedAt: timestamp("detected_at").defaultNow().notNull(),
   protectedArea: text("protected_area"),
   affectedSpecies: text("affected_species").array(),
-  imageUrl: text("image_url"),
+  beforeImageUrl: text("before_image_url"),
+  afterImageUrl: text("after_image_url"),
+  description: text("description"),
+  reportedBy: text("reported_by"),
+  verifiedBy: varchar("verified_by").references(() => adminUsers.id, { onDelete: "set null" }),
 }, (table) => ({
   locationIdx: index("deforestation_alerts_location_idx").on(table.location),
   severityIdx: index("deforestation_alerts_severity_idx").on(table.severity),
@@ -249,6 +309,22 @@ export const insertAnimalAdoptionSchema = createInsertSchema(animalAdoptions).om
   status: true,
 });
 
+export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
+  id: true,
+  createdAt: true,
+  lastLogin: true,
+});
+
+export const insertCertificateSchema = createInsertSchema(certificates).omit({
+  id: true,
+  issueDate: true,
+});
+
+export const insertUserActivitySchema = createInsertSchema(userActivity).omit({
+  id: true,
+  timestamp: true,
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   animalIdentifications: many(animalIdentifications),
@@ -312,6 +388,12 @@ export type VolunteerApplication = typeof volunteerApplications.$inferSelect;
 export type InsertVolunteerApplication = z.infer<typeof insertVolunteerApplicationSchema>;
 export type AnimalAdoption = typeof animalAdoptions.$inferSelect;
 export type InsertAnimalAdoption = z.infer<typeof insertAnimalAdoptionSchema>;
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
+export type Certificate = typeof certificates.$inferSelect;
+export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
+export type UserActivity = typeof userActivity.$inferSelect;
+export type InsertUserActivity = z.infer<typeof insertUserActivitySchema>;
 
 // Static data for wildlife centers
 export const wildlifeCentersData: InsertWildlifeCenter[] = [
