@@ -16,6 +16,8 @@ import Gardens from "@/pages/gardens";
 import Deforestation from "@/pages/deforestation";
 import Chat from "@/pages/chat";
 import WildlifeMap from "@/pages/map";
+import AdminLogin from "@/pages/admin-login";
+import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -33,6 +35,8 @@ function Router() {
       <Route path="/deforestation" component={Deforestation} />
       <Route path="/chat" component={Chat} />
       <Route path="/map" component={WildlifeMap} />
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -172,6 +172,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin authentication middleware
+  function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
+    if (!req.session.adminUser) {
+      return res.status(401).json({ error: "Admin authentication required" });
+    }
+    next();
+  }
+
+  // Admin Login
+  app.post("/api/admin/login", authLimiter, async (req, res) => {
+    try {
+      const loginData = loginSchema.parse(req.body);
+
+      const admin = await storage.verifyAdminPassword(loginData.username, loginData.password);
+      if (!admin) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+
+      // Update last login time
+      await storage.updateAdminLastLogin(admin.id);
+
+      // Regenerate session ID to prevent session fixation attacks
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error("Error regenerating session:", err);
+          return res.status(500).json({ error: "Failed to create session" });
+        }
+
+        // Store only minimal admin data in session (no password hash)
+        req.session.adminUser = {
+          id: admin.id,
+          username: admin.username,
+          role: admin.role
+        };
+
+        // Save session before responding
+        req.session.save((err) => {
+          if (err) {
+            console.error("Error saving session:", err);
+            return res.status(500).json({ error: "Failed to save session" });
+          }
+
+          // Don't return password in response
+          const { password: _, ...adminResponse } = admin;
+          res.json(adminResponse);
+        });
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      console.error("Error logging in admin:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to login"
+      });
+    }
+  });
+
+  // Admin Logout
+  app.post("/api/admin/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error logging out admin:", err);
+        return res.status(500).json({ error: "Failed to logout" });
+      }
+      
+      res.clearCookie('connect.sid', {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+      
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
+  // Get current admin
+  app.get("/api/admin/me", requireAdminAuth, async (req, res) => {
+    try {
+      const admin = await storage.getAdminUser(req.session.adminUser!.id);
+      if (!admin) {
+        return res.status(401).json({ error: "Admin not found" });
+      }
+      
+      const { password: _, ...adminResponse } = admin;
+      res.json(adminResponse);
+    } catch (error) {
+      console.error("Error getting current admin:", error);
+      res.status(500).json({ error: "Failed to get admin data" });
+    }
+  });
+
+  // Get all animal sightings (admin only)
+  app.get("/api/admin/sightings", requireAdminAuth, async (req, res) => {
+    try {
+      const sightings = await storage.getAllSightings();
+      res.json(sightings);
+    } catch (error) {
+      console.error("Error getting sightings:", error);
+      res.status(500).json({ error: "Failed to get sightings" });
+    }
+  });
+
+  // Get emergency sightings (admin only)
+  app.get("/api/admin/emergency-sightings", requireAdminAuth, async (req, res) => {
+    try {
+      const sightings = await storage.getEmergencySightings();
+      res.json(sightings);
+    } catch (error) {
+      console.error("Error getting emergency sightings:", error);
+      res.status(500).json({ error: "Failed to get emergency sightings" });
+    }
+  });
+
   // Upload and analyze animal photo
   app.post("/api/identify-animal", upload.single('image'), async (req, res) => {
     try {
