@@ -4,7 +4,41 @@ WildGuard is an AI-powered platform dedicated to wildlife and flora conservation
 
 # Recent Changes (November 6, 2025)
 
-## Navigation Bar Complete Redesign (Latest)
+## Government Admin System & Animal Sighting Reports (Latest)
+- **Admin Authentication System**:
+  - Secure login page with bcrypt password hashing (username: Admin, password: 12345678)
+  - Express session management with PostgreSQL store and session regeneration
+  - Rate limiting (5 login attempts per 15 minutes) to prevent brute force attacks
+  - Session validation with `/api/admin/session` endpoint
+  - Secure logout with session destruction
+
+- **Admin Dashboard**:
+  - Three-tab interface: Emergency Sightings, Pending Verification, All Sightings
+  - Real-time monitoring of animal sightings with location and status information
+  - Emergency alert indicators with red badges for urgent wildlife situations
+  - Verification controls with approve/reject actions for reported sightings
+  - Activity log integration tracking all user submissions and admin actions
+  - Professional gradient design with green-themed color scheme
+
+- **Animal Sighting Reporting System**:
+  - Live camera capture with real-time video preview for instant photo documentation
+  - Photo upload with drag-and-drop support (up to 10MB)
+  - Automatic geolocation capture using browser Geolocation API
+  - Manual coordinate entry fallback when geolocation is unavailable or denied
+  - Comprehensive form: reporter details, location name, habitat type, animal status, emergency level
+  - Coordinate validation with `isFinite()` checks to prevent invalid submissions
+  - Multer backend processing for multipart form data
+  - Activity logging for admin monitoring and analytics
+  - Toast notifications for submission success/failure feedback
+
+- **Backend Enhancements**:
+  - Three new API endpoints: `/api/admin/login`, `/api/admin/logout`, `/api/admin/session`
+  - Sighting endpoints: `/api/report-sighting`, `/api/admin/sightings`, `/api/admin/emergency-sightings`
+  - Zod schema validation for all sighting data (coordinates, status, habitat)
+  - Activity logging system tracking user actions and sighting reports
+  - MemStorage updated with 15 CRUD methods for admin, certificates, sightings, activities
+
+## Navigation Bar Complete Redesign
 - **Unified Navigation Styling**: Completely reorganized navigation with consistent pill-style buttons:
   - All navigation links now have uniform rounded-lg styling with px-4 py-2 padding
   - Font-semibold weight applied consistently across all links
