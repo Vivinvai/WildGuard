@@ -21,7 +21,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-black">
+    <div className="min-h-screen bg-background dark:bg-black pb-32">
       <Header />
       
       {/* WildGuard Brand Section */}

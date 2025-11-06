@@ -22,7 +22,7 @@ export function Header() {
     <header className="bg-card border-b border-border shadow-lg sticky top-0 z-50 backdrop-blur-sm bg-card/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <Link href="/home" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <div className="relative w-12 h-12">
               {/* Combined Logo */}
               <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-lg flex items-center justify-center">
@@ -45,13 +45,13 @@ export function Header() {
               <p className="text-xs text-muted-foreground">AI Wildlife Protection Platform</p>
             </div>
           </Link>
-          <nav className="hidden lg:flex items-center space-x-4 text-sm">
+          <nav className="hidden lg:flex items-center space-x-6 text-sm">
             <Link 
-              href="/" 
-              className={`transition-colors font-medium ${
-                location === "/" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
+              href="/home" 
+              className={`transition-all duration-200 font-semibold text-base ${
+                location === "/home" 
+                  ? "text-primary dark:text-green-400 border-b-2 border-primary dark:border-green-400 pb-1" 
+                  : "text-muted-foreground hover:text-primary dark:hover:text-green-400 hover:scale-105"
               }`}
               data-testid="link-home"
             >
@@ -70,10 +70,10 @@ export function Header() {
             </Link>
             <Link 
               href="/centers" 
-              className={`transition-colors font-medium ${
+              className={`transition-all duration-200 font-semibold text-base ${
                 location === "/centers" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
+                  ? "text-primary dark:text-green-400 border-b-2 border-primary dark:border-green-400 pb-1" 
+                  : "text-muted-foreground hover:text-primary dark:hover:text-green-400 hover:scale-105"
               }`}
               data-testid="link-centers"
             >
@@ -81,10 +81,10 @@ export function Header() {
             </Link>
             <Link 
               href="/gardens" 
-              className={`transition-colors font-medium ${
+              className={`transition-all duration-200 font-semibold text-base ${
                 location === "/gardens" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
+                  ? "text-primary dark:text-green-400 border-b-2 border-primary dark:border-green-400 pb-1" 
+                  : "text-muted-foreground hover:text-primary dark:hover:text-green-400 hover:scale-105"
               }`}
               data-testid="link-gardens"
             >
@@ -115,38 +115,41 @@ export function Header() {
           </nav>
           
           {/* Action buttons */}
-          <div className="hidden lg:flex items-center space-x-2">
+          <div className="hidden lg:flex items-center space-x-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="flex items-center space-x-2 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-700 dark:text-green-400"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40 border-green-300 dark:border-green-700 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/50 dark:hover:to-emerald-900/50 text-green-700 dark:text-green-300 font-semibold shadow-sm hover:shadow-md transition-all duration-200"
                   data-testid="button-identify-dropdown"
                 >
                   <Search className="w-4 h-4" />
                   <span>Identify</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-card dark:bg-gray-900 border-border dark:border-gray-800">
-                <DropdownMenuItem asChild>
+              <DropdownMenuContent 
+                align="end" 
+                className="w-52 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-xl dark:shadow-2xl rounded-lg"
+              >
+                <DropdownMenuItem asChild className="focus:bg-green-50 dark:focus:bg-green-950/50 cursor-pointer">
                   <Link 
                     href="/identify" 
-                    className="flex items-center space-x-2 cursor-pointer"
+                    className="flex items-center space-x-3 px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-green-700 dark:hover:text-green-400"
                     data-testid="dropdown-identify-fauna"
                   >
-                    <PawPrint className="w-4 h-4" />
-                    <span>Identify Fauna</span>
+                    <PawPrint className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <span className="font-medium">Identify Fauna</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="focus:bg-orange-50 dark:focus:bg-orange-950/50 cursor-pointer">
                   <Link 
                     href="/flora" 
-                    className="flex items-center space-x-2 cursor-pointer"
+                    className="flex items-center space-x-3 px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-orange-700 dark:hover:text-orange-400"
                     data-testid="dropdown-identify-flora"
                   >
-                    <Leaf className="w-4 h-4" />
-                    <span>Identify Flora</span>
+                    <Leaf className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                    <span className="font-medium">Identify Flora</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -155,7 +158,7 @@ export function Header() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex items-center space-x-2 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40 border-blue-300 dark:border-blue-700 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-900/50 dark:hover:to-cyan-900/50 text-blue-700 dark:text-blue-300 font-semibold shadow-sm hover:shadow-md transition-all duration-200"
                 data-testid="button-chat-header"
               >
                 <MessageCircle className="w-4 h-4" />
