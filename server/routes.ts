@@ -1006,6 +1006,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Certificate Generation API
+  app.post("/api/certificates/generate", async (req, res) => {
+    try {
+      const { sightingId, recipientName, recipientEmail, contribution, speciesHelped, location } = req.body;
+      
+      if (!sightingId || !recipientName || !recipientEmail) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const { generateCertificateNumber } = await import("./services/certificate-generator");
+      const certificateNumber = generateCertificateNumber();
+
+      const certificate = await storage.createCertificate({
+        sightingId,
+        recipientName,
+        recipientEmail,
+        certificateNumber,
+        contribution: contribution || `Reported wildlife sighting and contributed to conservation efforts`,
+        speciesHelped: speciesHelped || "Wildlife Conservation",
+        location: location || "Karnataka, India",
+      });
+
+      // Update sighting to mark certificate as issued
+      await storage.updateSightingStatus(sightingId, { certificateIssued: 'yes' });
+
+      res.json(certificate);
+    } catch (error) {
+      console.error("Certificate generation error:", error);
+      res.status(500).json({ error: "Failed to generate certificate" });
+    }
+  });
+
+  // Download Certificate as HTML
+  app.get("/api/certificates/download/:certificateNumber", async (req, res) => {
+    try {
+      const { certificateNumber } = req.params;
+      const certificate = await storage.getCertificateByNumber(certificateNumber);
+
+      if (!certificate) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+
+      const { generateCertificateHTML } = await import("./services/certificate-generator");
+      const html = generateCertificateHTML(certificate);
+
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="wildguard-certificate-${certificate.certificateNumber}.html"`);
+      res.send(html);
+    } catch (error) {
+      console.error("Certificate download error:", error);
+      res.status(500).json({ error: "Failed to download certificate" });
+    }
+  });
+
+  // Get Certificate by Number (for verification)
+  app.get("/api/certificates/verify/:certificateNumber", async (req, res) => {
+    try {
+      const { certificateNumber } = req.params;
+      const certificate = await storage.getCertificateByNumber(certificateNumber);
+
+      if (!certificate) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+
+      res.json(certificate);
+    } catch (error) {
+      console.error("Certificate verification error:", error);
+      res.status(500).json({ error: "Failed to verify certificate" });
+    }
+  });
+
+  // Get All Certificates for a User
+  app.get("/api/certificates/user/:email", async (req, res) => {
+    try {
+      const { email } = req.params;
+      const certificates = await storage.getCertificatesByEmail(email);
+      res.json(certificates);
+    } catch (error) {
+      console.error("Get user certificates error:", error);
+      res.status(500).json({ error: "Failed to get user certificates" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

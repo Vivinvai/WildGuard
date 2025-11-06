@@ -61,6 +61,7 @@ export interface IStorage {
   createCertificate(certificate: InsertCertificate): Promise<Certificate>;
   getCertificatesBySighting(sightingId: string): Promise<Certificate[]>;
   getCertificateByNumber(certificateNumber: string): Promise<Certificate | undefined>;
+  getCertificatesByEmail(email: string): Promise<Certificate[]>;
   
   // User activity tracking
   logActivity(activity: InsertUserActivity): Promise<UserActivity>;
@@ -1142,6 +1143,12 @@ export class MemStorage implements IStorage {
       }
     }
     return undefined;
+  }
+
+  async getCertificatesByEmail(email: string): Promise<Certificate[]> {
+    return Array.from(this.certificates.values())
+      .filter(c => c.recipientEmail === email)
+      .sort((a, b) => b.issueDate.getTime() - a.issueDate.getTime());
   }
 
   // User activity methods
