@@ -58,8 +58,8 @@ export default function HealthAssessment() {
 
       toast({
         title: "Assessment Complete",
-        description: `Health status: ${data.healthStatus}`,
-        variant: data.healthStatus === "emergency" || data.healthStatus === "poor" ? "destructive" : "default",
+        description: `Health status: ${data.overallHealthStatus}`,
+        variant: data.overallHealthStatus === "emergency" || data.overallHealthStatus === "critical" ? "destructive" : "default",
       });
     } catch (error) {
       console.error("Health assessment error:", error);
@@ -197,27 +197,35 @@ export default function HealthAssessment() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className={`p-5 rounded-lg border-2 ${getHealthBg(results.healthStatus)}`}>
+                  <div className={`p-5 rounded-lg border-2 ${getHealthBg(results.overallHealthStatus)}`}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        {results.healthStatus.toLowerCase() === "healthy" || results.healthStatus.toLowerCase() === "good" ? (
+                        {results.overallHealthStatus === "healthy" || results.overallHealthStatus === "minor_issues" ? (
                           <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
                         ) : (
                           <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
                         )}
                         <div>
                           <span className="text-sm text-gray-600 dark:text-gray-400 block">Overall Health Status</span>
-                          <span className={`text-2xl font-bold ${getHealthColor(results.healthStatus)} capitalize`}>
-                            {results.healthStatus}
+                          <span className={`text-2xl font-bold ${getHealthColor(results.overallHealthStatus)} capitalize`}>
+                            {results.overallHealthStatus.replace('_', ' ')}
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Confidence</p>
-                        <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{results.confidence}%</p>
+                        <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{Math.round(results.confidence * 100)}%</p>
                       </div>
                     </div>
                   </div>
+
+                  {results.animalIdentified && (
+                    <div className="p-3 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
+                      <p className="text-sm text-blue-800 dark:text-blue-300">
+                        <strong>Species:</strong> {results.animalIdentified}
+                      </p>
+                    </div>
+                  )}
 
                   {results.detectedConditions && results.detectedConditions.length > 0 && (
                     <div className="space-y-3">
@@ -225,62 +233,75 @@ export default function HealthAssessment() {
                         <AlertTriangle className="w-4 h-4 text-yellow-600" />
                         Detected Conditions ({results.detectedConditions.length}):
                       </h4>
-                      {results.detectedConditions.map((condition: any, idx: number) => (
-                        <div key={idx} className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-800 dark:text-gray-200">
-                                {condition.condition}
-                              </p>
-                              {condition.description && (
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                  {condition.description}
-                                </p>
-                              )}
-                            </div>
-                            <span className={`text-xs px-3 py-1 rounded-full font-semibold ${getSeverityColor(condition.severity)}`}>
-                              {condition.severity}
-                            </span>
-                          </div>
-                          {condition.confidence && (
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                              Confidence: {condition.confidence}%
-                            </p>
-                          )}
+                      {results.detectedConditions.map((condition: string, idx: number) => (
+                        <div key={idx} className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                          <p className="font-medium text-gray-800 dark:text-gray-200">
+                            {condition}
+                          </p>
                         </div>
                       ))}
                     </div>
                   )}
 
-                  {results.physicalSigns && results.physicalSigns.length > 0 && (
+                  {results.visualSymptoms && (
                     <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border-l-4 border-blue-500 dark:border-blue-600 rounded">
-                      <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
+                      <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
                         <Activity className="w-4 h-4" />
-                        Physical Signs Observed:
+                        Visual Symptoms:
                       </h4>
-                      <ul className="space-y-1">
-                        {results.physicalSigns.map((sign: string, idx: number) => (
-                          <li key={idx} className="text-sm text-blue-700 dark:text-blue-400">
-                            • {sign}
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="space-y-2">
+                        {results.visualSymptoms.injuries?.length > 0 && (
+                          <div>
+                            <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">Injuries:</p>
+                            {results.visualSymptoms.injuries.map((injury: string, idx: number) => (
+                              <p key={idx} className="text-sm text-blue-700 dark:text-blue-400 ml-4">• {injury}</p>
+                            ))}
+                          </div>
+                        )}
+                        {results.visualSymptoms.skinConditions?.length > 0 && (
+                          <div>
+                            <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">Skin Conditions:</p>
+                            {results.visualSymptoms.skinConditions.map((condition: string, idx: number) => (
+                              <p key={idx} className="text-sm text-blue-700 dark:text-blue-400 ml-4">• {condition}</p>
+                            ))}
+                          </div>
+                        )}
+                        {results.visualSymptoms.abnormalBehavior?.length > 0 && (
+                          <div>
+                            <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">Abnormal Behavior:</p>
+                            {results.visualSymptoms.abnormalBehavior.map((behavior: string, idx: number) => (
+                              <p key={idx} className="text-sm text-blue-700 dark:text-blue-400 ml-4">• {behavior}</p>
+                            ))}
+                          </div>
+                        )}
+                        {results.visualSymptoms.malnutrition && (
+                          <p className="text-sm text-red-700 dark:text-red-400 font-semibold">⚠️ Signs of malnutrition detected</p>
+                        )}
+                      </div>
                     </div>
                   )}
 
                   <div className="p-4 bg-purple-50 dark:bg-purple-950/20 border-l-4 border-purple-500 dark:border-purple-600 rounded">
                     <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-2">Detailed Analysis:</h4>
-                    <p className="text-sm text-purple-700 dark:text-purple-400 whitespace-pre-wrap">{results.analysis}</p>
+                    <p className="text-sm text-purple-700 dark:text-purple-400 whitespace-pre-wrap">{results.detailedAnalysis}</p>
                   </div>
 
-                  {results.recommendations && results.recommendations.length > 0 && (
+                  {results.severity && (
+                    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <strong>Severity Assessment:</strong> {results.severity}
+                      </p>
+                    </div>
+                  )}
+
+                  {results.treatmentRecommendations && results.treatmentRecommendations.length > 0 && (
                     <div className="p-4 bg-green-50 dark:bg-green-950/20 border-l-4 border-green-500 dark:border-green-600 rounded">
                       <h4 className="font-semibold text-green-800 dark:text-green-300 mb-3 flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4" />
-                        Veterinary Recommendations:
+                        Treatment Recommendations:
                       </h4>
                       <ul className="space-y-2">
-                        {results.recommendations.map((rec: string, idx: number) => (
+                        {results.treatmentRecommendations.map((rec: string, idx: number) => (
                           <li key={idx} className="text-sm text-green-700 dark:text-green-400 flex items-start gap-2">
                             <span className="text-green-600 dark:text-green-500 font-bold">{idx + 1}.</span>
                             <span>{rec}</span>
@@ -290,7 +311,7 @@ export default function HealthAssessment() {
                     </div>
                   )}
 
-                  {results.requiresVet && (
+                  {results.veterinaryAlertRequired && (
                     <div className="p-4 bg-red-50 dark:bg-red-950/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -304,9 +325,13 @@ export default function HealthAssessment() {
                     </div>
                   )}
 
-                  <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs text-gray-600 dark:text-gray-400">
-                    <p>⏰ Analyzed: {new Date(results.timestamp).toLocaleString()}</p>
-                  </div>
+                  {results.followUpRequired && (
+                    <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-300 dark:border-yellow-700 rounded-lg">
+                      <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                        📋 Follow-up monitoring recommended
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

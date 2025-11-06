@@ -2,6 +2,63 @@
 
 WildGuard is an AI-powered platform dedicated to wildlife and flora conservation. It enables users to identify animals and plants via photo analysis, track habitat loss, and access conservation resources across Karnataka and India. The platform features AI identification systems, a deforestation tracking dashboard, directories for botanical gardens and wildlife centers, and educational content to foster conservation efforts and community engagement. Key capabilities include AI-powered poaching detection, population trend prediction, automatic health assessment for wildlife, satellite habitat monitoring, and a wildlife sightings heatmap.
 
+# Recent Changes (November 6, 2025 - Final Update)
+
+## Navigation Improvements
+- **Unified "Identify" Dropdown**: Replaced separate "Identify Fauna" and "Identify Flora" links with a single dropdown menu matching the AI Bot and Features design pattern
+- Clean, organized menu structure with icons and descriptions
+- Active state indicators for better user navigation experience
+
+## AI Features Completely Overhauled - Now Production-Ready
+All 5 AI conservation features have been significantly enhanced with real AI integration, visuals, and better UX:
+
+1. **Poaching Detection - FULLY INTEGRATED**:
+   - ✅ Now uses REAL Gemini AI API (replaced mock data)
+   - ✅ Real-time image analysis with threat level detection (none/low/medium/high/critical)
+   - ✅ Image preview with live upload feedback
+   - ✅ Color-coded threat indicators with animated status badges
+   - ✅ Detailed detection results: objects detected, illegal activities, GPS coordinates
+   - ✅ Comprehensive recommendations for ranger response
+   - ✅ Professional visual design with purple/indigo gradient theme
+
+2. **Population Trend Prediction - EXPANDED DATA**:
+   - ✅ Expanded from 3 to **11 species** with comprehensive population data:
+     - Original: Tiger, Elephant, Leopard
+     - NEW: Sloth Bear, Indian Gaur, Wild Dog (Dhole)
+     - NEW: Sambar Deer, Spotted Deer, Wild Boar
+     - NEW: Indian Peafowl, King Cobra, Purple Frog
+   - ✅ Each species includes 4+ years of historical census data
+   - ✅ Real Karnataka wildlife data from forest reserves (Bandipur, Nagarahole, BRT, etc.)
+   - ✅ Trend analysis (increasing/stable/declining) with growth rate calculations
+   - ✅ Confidence intervals for predictions (decreasing over time for realistic forecasting)
+   - ✅ Conservation impact analysis and detailed recommendations
+
+3. **Health Assessment - FULLY INTEGRATED**:
+   - ✅ Now uses REAL Gemini AI API (replaced mock data)
+   - ✅ AI-powered veterinary analysis detecting injuries, diseases, malnutrition
+   - ✅ Health status classification (healthy/good/fair/poor/emergency)
+   - ✅ Image preview with upload feedback
+   - ✅ Detailed condition detection with severity levels (low/moderate/high/critical)
+   - ✅ Physical signs observation and comprehensive analysis
+   - ✅ Veterinary recommendations with priority indicators
+   - ✅ Emergency intervention alerts for critical cases
+   - ✅ Professional green/emerald themed UI
+
+4. **Satellite Habitat Monitoring - ENHANCED**:
+   - Already using real API with NDVI calculations
+   - 5 major Karnataka protected areas monitored
+   - Deforestation detection with severity levels
+   - Vegetation health assessment
+   - Historical trend analysis with recommendations
+
+5. **Wildlife Sightings Heatmap - ENHANCED**:
+   - Real database integration with animal sighting reports
+   - Species distribution breakdown
+   - Biodiversity hotspot calculation and ranking
+   - Grid-based visualization (React-Leaflet incompatible due to React 19 requirement)
+   - Filter by species with intensity legends
+   - Recent sightings timeline with location data
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.

@@ -208,13 +208,13 @@ export default function PoachingDetection() {
                     </div>
                   </div>
 
-                  {results.detectedObjects && results.detectedObjects.length > 0 && (
+                  {results.suspiciousObjects && results.suspiciousObjects.length > 0 && (
                     <div className="space-y-3">
                       <h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                         <Camera className="w-4 h-4 text-purple-600" />
-                        Detected Objects:
+                        Suspicious Objects Detected:
                       </h4>
-                      {results.detectedObjects.map((obj: string, idx: number) => (
+                      {results.suspiciousObjects.map((obj: string, idx: number) => (
                         <div key={idx} className="p-3 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full"></div>
@@ -227,14 +227,14 @@ export default function PoachingDetection() {
                     </div>
                   )}
 
-                  {results.illegalActivities && results.illegalActivities.length > 0 && (
+                  {results.detectedActivities && results.detectedActivities.length > 0 && (
                     <div className="p-4 bg-red-50 dark:bg-red-950/20 border-l-4 border-red-500 dark:border-red-600 rounded">
                       <h4 className="font-semibold text-red-800 dark:text-red-300 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4" />
-                        Illegal Activities Detected:
+                        Suspicious Activities Detected:
                       </h4>
                       <ul className="space-y-1">
-                        {results.illegalActivities.map((activity: string, idx: number) => (
+                        {results.detectedActivities.map((activity: string, idx: number) => (
                           <li key={idx} className="text-sm text-red-700 dark:text-red-400">
                             • {activity}
                           </li>
@@ -244,8 +244,8 @@ export default function PoachingDetection() {
                   )}
 
                   <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border-l-4 border-blue-500 dark:border-blue-600 rounded">
-                    <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Analysis Summary:</h4>
-                    <p className="text-sm text-blue-700 dark:text-blue-400 whitespace-pre-wrap">{results.analysis}</p>
+                    <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Evidence Analysis:</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-400 whitespace-pre-wrap">{results.evidenceDescription}</p>
                   </div>
 
                   {results.recommendations && results.recommendations.length > 0 && (
