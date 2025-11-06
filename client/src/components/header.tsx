@@ -45,35 +45,24 @@ export function Header() {
               <p className="text-xs text-muted-foreground">AI Wildlife Protection Platform</p>
             </div>
           </Link>
-          <nav className="hidden lg:flex items-center space-x-6 text-sm">
+          <nav className="hidden lg:flex items-center space-x-1 text-sm">
             <Link 
               href="/home" 
-              className={`transition-all duration-200 font-semibold text-base ${
+              className={`px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
                 location === "/home" 
-                  ? "text-primary dark:text-green-400 border-b-2 border-primary dark:border-green-400 pb-1" 
-                  : "text-muted-foreground hover:text-primary dark:hover:text-green-400 hover:scale-105"
+                  ? "bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-700 dark:text-green-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-green-700 dark:hover:text-green-300"
               }`}
               data-testid="link-home"
             >
               Home
             </Link>
             <Link 
-              href="/learn" 
-              className={`transition-colors font-medium ${
-                location === "/learn" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
-              }`}
-              data-testid="link-learn"
-            >
-              Learn
-            </Link>
-            <Link 
               href="/centers" 
-              className={`transition-all duration-200 font-semibold text-base ${
+              className={`px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
                 location === "/centers" 
-                  ? "text-primary dark:text-green-400 border-b-2 border-primary dark:border-green-400 pb-1" 
-                  : "text-muted-foreground hover:text-primary dark:hover:text-green-400 hover:scale-105"
+                  ? "bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-700 dark:text-green-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-green-700 dark:hover:text-green-300"
               }`}
               data-testid="link-centers"
             >
@@ -81,10 +70,10 @@ export function Header() {
             </Link>
             <Link 
               href="/gardens" 
-              className={`transition-all duration-200 font-semibold text-base ${
+              className={`px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
                 location === "/gardens" 
-                  ? "text-primary dark:text-green-400 border-b-2 border-primary dark:border-green-400 pb-1" 
-                  : "text-muted-foreground hover:text-primary dark:hover:text-green-400 hover:scale-105"
+                  ? "bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/40 text-orange-700 dark:text-orange-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-orange-700 dark:hover:text-orange-300"
               }`}
               data-testid="link-gardens"
             >
@@ -92,25 +81,36 @@ export function Header() {
             </Link>
             <Link 
               href="/deforestation" 
-              className={`transition-colors font-medium ${
+              className={`px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
                 location === "/deforestation" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
+                  ? "bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-900/40 dark:to-rose-900/40 text-red-700 dark:text-red-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-red-700 dark:hover:text-red-300"
               }`}
               data-testid="link-deforestation"
             >
-              Habitat
+              Habitat Loss
             </Link>
             <Link 
               href="/discover" 
-              className={`transition-colors font-medium ${
+              className={`px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
                 location === "/discover" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
+                  ? "bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/40 dark:to-cyan-900/40 text-blue-700 dark:text-blue-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-700 dark:hover:text-blue-300"
               }`}
               data-testid="link-discover"
             >
               NGOs & Volunteer
+            </Link>
+            <Link 
+              href="/learn" 
+              className={`px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
+                location === "/learn" 
+                  ? "bg-gradient-to-r from-purple-100 to-violet-100 dark:from-purple-900/40 dark:to-violet-900/40 text-purple-700 dark:text-purple-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-purple-700 dark:hover:text-purple-300"
+              }`}
+              data-testid="link-learn"
+            >
+              Learn
             </Link>
           </nav>
           
