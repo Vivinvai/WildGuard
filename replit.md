@@ -2,62 +2,106 @@
 
 WildGuard is an AI-powered platform dedicated to wildlife and flora conservation. It enables users to identify animals and plants via photo analysis, track habitat loss, and access conservation resources across Karnataka and India. The platform features AI identification systems, a deforestation tracking dashboard, directories for botanical gardens and wildlife centers, and educational content to foster conservation efforts and community engagement. Key capabilities include AI-powered poaching detection, population trend prediction, automatic health assessment for wildlife, satellite habitat monitoring, and a wildlife sightings heatmap.
 
-# Recent Changes (November 6, 2025 - Final Update)
+# Recent Changes (November 6, 2025 - Latest Update)
 
-## Navigation Improvements
-- **Unified "Identify" Dropdown**: Replaced separate "Identify Fauna" and "Identify Flora" links with a single dropdown menu matching the AI Bot and Features design pattern
-- Clean, organized menu structure with icons and descriptions
-- Active state indicators for better user navigation experience
+## MAJOR EXPANSION: 9 AI-Powered Conservation Features Complete
+WildGuard has expanded from 5 to **9 comprehensive AI conservation tools**, all fully integrated with real AI APIs and production-ready:
 
-## AI Features Completely Overhauled - Now Production-Ready
-All 5 AI conservation features have been significantly enhanced with real AI integration, visuals, and better UX:
+### Core AI Features (1-5):
 
 1. **Poaching Detection - FULLY INTEGRATED**:
-   - ✅ Now uses REAL Gemini AI API (replaced mock data)
+   - ✅ REAL Gemini 2.0 Flash AI API integration
    - ✅ Real-time image analysis with threat level detection (none/low/medium/high/critical)
    - ✅ Image preview with live upload feedback
    - ✅ Color-coded threat indicators with animated status badges
-   - ✅ Detailed detection results: objects detected, illegal activities, GPS coordinates
-   - ✅ Comprehensive recommendations for ranger response
-   - ✅ Professional visual design with purple/indigo gradient theme
+   - ✅ Detailed detection: weapons, traps, illegal activities, GPS coordinates
+   - ✅ Comprehensive ranger response recommendations
+   - ✅ Professional purple/indigo gradient UI
 
 2. **Population Trend Prediction - EXPANDED DATA**:
-   - ✅ Expanded from 3 to **11 species** with comprehensive population data:
-     - Original: Tiger, Elephant, Leopard
-     - NEW: Sloth Bear, Indian Gaur, Wild Dog (Dhole)
-     - NEW: Sambar Deer, Spotted Deer, Wild Boar
-     - NEW: Indian Peafowl, King Cobra, Purple Frog
-   - ✅ Each species includes 4+ years of historical census data
-   - ✅ Real Karnataka wildlife data from forest reserves (Bandipur, Nagarahole, BRT, etc.)
-   - ✅ Trend analysis (increasing/stable/declining) with growth rate calculations
-   - ✅ Confidence intervals for predictions (decreasing over time for realistic forecasting)
-   - ✅ Conservation impact analysis and detailed recommendations
+   - ✅ **11 species** with comprehensive historical census data (2006-2024)
+   - ✅ Real Karnataka Forest Department data from Bandipur, Nagarahole, BRT reserves
+   - ✅ Species: Tiger, Elephant, Leopard, Sloth Bear, Indian Gaur, Wild Dog (Dhole), Sambar Deer, Spotted Deer, Wild Boar, Indian Peafowl, King Cobra, Purple Frog
+   - ✅ Linear regression forecasting with trend analysis (increasing/stable/declining)
+   - ✅ Confidence intervals and conservation impact analysis
 
-3. **Health Assessment - FULLY INTEGRATED**:
-   - ✅ Now uses REAL Gemini AI API (replaced mock data)
-   - ✅ AI-powered veterinary analysis detecting injuries, diseases, malnutrition
+3. **Automatic Health Assessment - FULLY INTEGRATED**:
+   - ✅ REAL Gemini 2.0 Flash AI for veterinary analysis
+   - ✅ Detects injuries, diseases, malnutrition, skin conditions
    - ✅ Health status classification (healthy/good/fair/poor/emergency)
-   - ✅ Image preview with upload feedback
-   - ✅ Detailed condition detection with severity levels (low/moderate/high/critical)
-   - ✅ Physical signs observation and comprehensive analysis
-   - ✅ Veterinary recommendations with priority indicators
+   - ✅ Severity levels (low/moderate/high/critical) for each condition
+   - ✅ Physical signs observation and comprehensive recommendations
    - ✅ Emergency intervention alerts for critical cases
    - ✅ Professional green/emerald themed UI
 
 4. **Satellite Habitat Monitoring - ENHANCED**:
-   - Already using real API with NDVI calculations
-   - 5 major Karnataka protected areas monitored
-   - Deforestation detection with severity levels
-   - Vegetation health assessment
-   - Historical trend analysis with recommendations
+   - ✅ NDVI calculations for vegetation health
+   - ✅ 5 major Karnataka protected areas monitored
+   - ✅ Deforestation detection with severity levels
+   - ✅ Historical trend analysis with conservation recommendations
 
 5. **Wildlife Sightings Heatmap - ENHANCED**:
-   - Real database integration with animal sighting reports
-   - Species distribution breakdown
-   - Biodiversity hotspot calculation and ranking
-   - Grid-based visualization (React-Leaflet incompatible due to React 19 requirement)
-   - Filter by species with intensity legends
-   - Recent sightings timeline with location data
+   - ✅ Real PostgreSQL database integration
+   - ✅ Species distribution breakdown and biodiversity rankings
+   - ✅ Grid-based visualization (React-Leaflet incompatible due to React 19)
+   - ✅ Filter by species with intensity legends
+   - ✅ Recent sightings timeline with location data
+
+### NEW AI Features (6-9):
+
+6. **Live Habitat Health Monitor - NEW**:
+   - ✅ NASA FIRMS API integration for real-time satellite data
+   - ✅ Forest fire detection with live alerts
+   - ✅ Vegetation loss tracking using NDVI indices
+   - ✅ Active fire monitoring across Karnataka protected areas
+   - ✅ Real-time conservation alerts and recommendations
+   - ✅ Database storage: `habitat_monitoring` table
+   - ✅ Backend service: `server/services/habitat-monitoring.ts`
+   - ✅ Frontend: `/features/habitat-monitoring` page
+
+7. **Wildlife Sound Detection (Bioacoustic AI) - NEW**:
+   - ✅ REAL Gemini 2.0 Flash AI for audio analysis
+   - ✅ Audio file upload (MP3, WAV, M4A) - max 5MB
+   - ✅ Species identification from wildlife sounds
+   - ✅ Confidence scores and environmental context
+   - ✅ Conservation recommendations based on detected species
+   - ✅ Database storage: `sound_detections` table
+   - ✅ Backend service: `server/services/sound-detection.ts`
+   - ✅ Frontend: `/features/sound-detection` page
+
+8. **AI Footprint Recognition - NEW**:
+   - ✅ REAL Gemini 2.0 Flash AI for footprint analysis
+   - ✅ Photo upload of animal tracks/footprints
+   - ✅ Species prediction with confidence levels
+   - ✅ Physical characteristics analysis (size, gait pattern, claw marks)
+   - ✅ Age/size estimation and behavior insights
+   - ✅ Database storage: `footprint_analyses` table
+   - ✅ Backend service: `server/services/footprint-recognition.ts`
+   - ✅ Frontend: `/features/footprint-recognition` page
+
+9. **Partial Image Enhancement - NEW**:
+   - ✅ REAL Gemini 2.0 Flash AI for blurry/partial image analysis
+   - ✅ Analyzes incomplete camera trap images
+   - ✅ Species identification despite poor image quality
+   - ✅ Confidence scores and quality assessment
+   - ✅ Visible features extraction and recommendations
+   - ✅ Database storage: `partial_image_enhancements` table
+   - ✅ Backend service: `server/services/partial-image-enhancement.ts`
+   - ✅ Frontend: `/features/partial-image-enhancement` page
+
+## Enhanced Wildlife Chatbot
+- ✅ Real-time data integration with live sighting counts
+- ✅ Weather data for conservation planning
+- ✅ Population statistics from database
+- ✅ Conservation resource recommendations
+- ✅ Database storage: `chat_messages` table for conversation history
+- ✅ Backend service: `server/services/wildlife-chatbot.ts`
+
+## Navigation Updates
+- **Comprehensive Features Dropdown**: All 9 AI tools organized in unified navigation menu
+- Categorized display: "AI-Powered Tools" (features 1-5) and "NEW AI Features" (features 6-9)
+- Color-coded icons and descriptions for each feature
+- Active state indicators throughout navigation
 
 # User Preferences
 
@@ -91,20 +135,28 @@ Preferred communication style: Simple, everyday language.
 
 ## Database Design
 - **ORM**: Drizzle ORM with PostgreSQL dialect.
-- **Schema Structure**: Includes tables for users, wildlife centers (with geospatial data), animal/flora identifications, botanical gardens, animal sightings, deforestation alerts, NGOs, and volunteer activities.
-- **Migration Strategy**: Drizzle Kit for schema migrations.
+- **Schema Structure**: Comprehensive database with tables for:
+  - **Core Tables**: users, wildlife_centers (with geospatial data), animal_identifications, flora_identifications, botanical_gardens, animal_sightings, deforestation_alerts, ngos, volunteer_activities
+  - **AI Feature Tables**: sound_detections, footprint_analyses, habitat_monitoring, partial_image_enhancements, chat_messages
+- **Migration Strategy**: Drizzle Kit for schema migrations using `npm run db:push`.
 
 ## AI Integration
 - **Animal Identification**: OpenAI GPT-5 API for image analysis.
-- **Flora Identification**: Google Gemini API for plant image analysis.
-- **Conservation Features**:
-    - **Poaching Detection**: Gemini AI analyzes images for weapons, traps, and illegal activities.
-    - **Population Trend Prediction**: Uses real Karnataka wildlife census data and linear regression for forecasting.
-    - **Automatic Health Assessment**: Gemini AI detects injuries, malnutrition, and skin conditions in wildlife images.
-    - **Satellite Habitat Monitoring**: NDVI simulation for vegetation health monitoring and deforestation detection in protected areas.
-- **Processing Flow**: Base64 image encoding, AI vision analysis, structured JSON response.
-- **Error Handling**: Graceful fallbacks and user-friendly notifications.
-- **Multi-Provider Strategy**: Utilizes specialized AI services for optimal identification.
+- **Flora Identification**: Google Gemini 2.0 Flash API for plant image analysis.
+- **Conservation Features** (9 AI-powered tools):
+    1. **Poaching Detection**: Gemini 2.0 Flash analyzes camera trap images for weapons, traps, and illegal activities
+    2. **Population Trend Prediction**: Linear regression on real Karnataka census data (2006-2024) for 11 species
+    3. **Automatic Health Assessment**: Gemini 2.0 Flash detects injuries, diseases, malnutrition in wildlife photos
+    4. **Satellite Habitat Monitoring**: NDVI calculations for vegetation health and deforestation detection
+    5. **Wildlife Sightings Heatmap**: Database-driven biodiversity hotspot mapping
+    6. **Live Habitat Health Monitor**: NASA FIRMS API for real-time forest fire and vegetation loss detection
+    7. **Wildlife Sound Detection**: Gemini 2.0 Flash bioacoustic analysis for species identification from audio
+    8. **AI Footprint Recognition**: Gemini 2.0 Flash analyzes tracks/footprints for species prediction
+    9. **Partial Image Enhancement**: Gemini 2.0 Flash analyzes blurry/incomplete camera trap images
+- **Enhanced Chatbot**: Real-time data integration (sightings, weather, population stats, conservation resources)
+- **Processing Flow**: Base64 encoding, multimodal AI analysis (vision/audio), structured JSON responses
+- **Error Handling**: Graceful fallbacks, user-friendly notifications, comprehensive error logging
+- **Multi-Provider Strategy**: OpenAI for fauna, Gemini for flora and conservation features, NASA FIRMS for satellite data
 
 ## Authentication & Security
 - **Session Management**: PostgreSQL session store with `connect-pg-simple`.
@@ -120,9 +172,10 @@ Preferred communication style: Simple, everyday language.
 # External Dependencies
 
 ## Core Services
-- **Neon Database**: PostgreSQL hosting.
-- **OpenAI API**: For animal identification.
-- **Google Gemini API**: For plant/flora identification and other AI-powered conservation features.
+- **Neon Database**: PostgreSQL hosting for all data persistence.
+- **OpenAI API**: GPT-5 for animal identification.
+- **Google Gemini API**: Gemini 2.0 Flash for flora identification and 6 AI conservation features (poaching detection, health assessment, sound detection, footprint recognition, partial image enhancement, chatbot).
+- **NASA FIRMS API**: Real-time satellite data for forest fire and vegetation monitoring.
 
 ## Development Tools
 - **Replit Platform**: Integrated development environment.
