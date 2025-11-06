@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Header } from "@/components/header";
@@ -7,23 +8,32 @@ import { Leaf, Upload, Loader2, TreePine } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useScrollAnimation } from "@/hooks/use-scroll-animation";
+import { motionConfig } from "@/lib/motionConfig";
 import type { FloraIdentification } from "@shared/schema";
 
 export default function Flora() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [result, setResult] = useState<FloraIdentification | null>(null);
   const { toast } = useToast();
+  const contentSection = useScrollAnimation();
 
   const identifyMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('image', file);
       
-      const response = await apiRequest<FloraIdentification>("/api/identify-flora", {
+      const response = await fetch("/api/identify-flora", {
         method: "POST",
         body: formData,
       });
-      return response;
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to identify plant');
+      }
+      
+      return await response.json() as FloraIdentification;
     },
     onSuccess: (data) => {
       setResult(data);
@@ -78,21 +88,37 @@ export default function Flora() {
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 text-center">
+        <motion.section
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-8 text-center"
+        >
           <div className="flex justify-center mb-4">
-            <div className="bg-green-100 dark:bg-green-950/30 p-4 rounded-full">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="bg-green-100 dark:bg-green-950/30 p-4 rounded-full"
+            >
               <Leaf className="w-12 h-12 text-green-600 dark:text-green-400" />
-            </div>
+            </motion.div>
           </div>
           <h1 className="text-4xl font-bold text-foreground dark:text-white mb-2">Flora Identification</h1>
           <p className="text-lg text-muted-foreground dark:text-gray-400">
             Upload a photo to identify plant species using AI
           </p>
-        </div>
+        </motion.section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <Card className="p-6 bg-card dark:bg-gray-900 border-border dark:border-gray-800">
+        <motion.div
+          ref={contentSection.ref}
+          initial="hidden"
+          animate={contentSection.isVisible ? "visible" : "hidden"}
+          variants={motionConfig.variants.staggerContainer}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        >
+          <motion.div variants={motionConfig.variants.fadeInUp}>
+            <Card className="p-6 bg-card dark:bg-gray-900 border-border dark:border-gray-800 shadow-lg hover:shadow-2xl transition-shadow duration-300">
               <h2 className="text-xl font-semibold mb-4 text-foreground dark:text-white">Upload Plant Photo</h2>
               
               <div
@@ -153,11 +179,11 @@ export default function Flora() {
                 </div>
               </div>
             </Card>
-          </div>
+          </motion.div>
 
-          <div>
+          <motion.div variants={motionConfig.variants.fadeInUp}>
             {result && (
-              <Card className="p-6 bg-card dark:bg-gray-900 border-border dark:border-gray-800 fade-in" data-testid="card-flora-result">
+              <Card className="p-6 bg-card dark:bg-gray-900 border-border dark:border-gray-800 shadow-lg hover:shadow-2xl transition-shadow duration-300 fade-in" data-testid="card-flora-result">
                 <h2 className="text-xl font-semibold mb-4 text-foreground dark:text-white">Identification Result</h2>
                 
                 <div className="space-y-4">
@@ -225,7 +251,7 @@ export default function Flora() {
             )}
 
             {!result && !identifyMutation.isPending && (
-              <Card className="p-6 bg-muted/30 dark:bg-gray-900/50 border-border dark:border-gray-800 text-center">
+              <Card className="p-6 bg-muted/30 dark:bg-gray-900/50 border-border dark:border-gray-800 shadow-lg text-center">
                 <TreePine className="w-16 h-16 mx-auto mb-4 text-muted-foreground dark:text-gray-600" />
                 <p className="text-muted-foreground dark:text-gray-400">
                   Upload a plant photo to see identification results
@@ -234,14 +260,14 @@ export default function Flora() {
             )}
 
             {identifyMutation.isError && (
-              <Card className="p-6 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900" data-testid="card-flora-error">
+              <Card className="p-6 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900 shadow-lg" data-testid="card-flora-error">
                 <p className="text-red-800 dark:text-red-400">
                   Failed to identify plant. Please try again with a clearer photo.
                 </p>
               </Card>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </main>
     </div>
   );

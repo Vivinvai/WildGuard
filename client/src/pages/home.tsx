@@ -1,14 +1,20 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Header } from "@/components/header";
-import { AnimalSlideshow } from "@/components/animal-slideshow";
+import { EnhancedSlideshow } from "@/components/enhanced-slideshow";
 import { QuickActions } from "@/components/quick-actions";
 import { Button } from "@/components/ui/button";
-import { Shield, Camera } from "lucide-react";
+import { Shield, Camera, Sparkles } from "lucide-react";
 import { Link } from "wouter";
+import { useScrollAnimation } from "@/hooks/use-scroll-animation";
+import { motionConfig } from "@/lib/motionConfig";
 import type { AnimalIdentification } from "@shared/schema";
 
 export default function Home() {
   const [currentIdentification, setCurrentIdentification] = useState<AnimalIdentification | null>(null);
+  const platformInfo = useScrollAnimation();
+  const showcase = useScrollAnimation();
+  const cta = useScrollAnimation();
 
   const handleIdentificationResult = (result: AnimalIdentification) => {
     setCurrentIdentification(result);
@@ -19,10 +25,20 @@ export default function Home() {
       <Header />
       
       {/* WildGuard Brand Section */}
-      <section className="bg-gradient-to-br from-green-50/50 via-white to-orange-50/50 dark:from-green-950/30 dark:via-gray-950 dark:to-orange-950/30 py-8">
+      <motion.section
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="bg-gradient-to-br from-green-50/50 via-white to-orange-50/50 dark:from-green-950/30 dark:via-gray-950 dark:to-orange-950/30 py-8"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Combined Logo */}
-          <div className="flex justify-center mb-4">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
+            className="flex justify-center mb-4"
+          >
             <div className="relative w-16 h-16">
               <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-lg flex items-center justify-center">
                 <img 
@@ -41,36 +57,56 @@ export default function Home() {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
           
           {/* Brand Title */}
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-3xl md:text-4xl font-bold mb-3"
+          >
             <span className="bg-gradient-to-r from-green-700 via-green-600 to-orange-600 bg-clip-text text-transparent">
               Wild
             </span>
             <span className="bg-gradient-to-r from-orange-600 via-orange-500 to-green-600 bg-clip-text text-transparent">
               Guard
             </span>
-          </h1>
+          </motion.h1>
           
           {/* Mission Statement */}
-          <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4 max-w-3xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4 max-w-3xl mx-auto"
+          >
             Protecting Karnataka's wildlife through <span className="text-green-600 dark:text-green-400 font-semibold">AI-powered identification</span>, 
             <span className="text-orange-600 dark:text-orange-400 font-semibold"> conservation education</span>, and 
             <span className="text-green-600 dark:text-green-400 font-semibold"> community action</span>
-          </p>
+          </motion.p>
         </div>
-      </section>
+      </motion.section>
       
-      {/* Animal Slideshow - Blended seamlessly */}
-      <AnimalSlideshow />
+      {/* Enhanced Animal Slideshow */}
+      <EnhancedSlideshow />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
         {/* Platform Information */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div
+          ref={platformInfo.ref}
+          initial="hidden"
+          animate={platformInfo.isVisible ? "visible" : "hidden"}
+          variants={motionConfig.variants.staggerContainer}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        >
           {/* How WildGuard Works */}
-          <div className="bg-gradient-to-br from-green-50/70 to-emerald-50/70 dark:from-green-950/30 dark:to-emerald-950/30 p-8 rounded-2xl border border-green-100/50 dark:border-green-800/50 backdrop-blur-sm">
+          <motion.div
+            variants={motionConfig.variants.fadeInUp}
+            whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
+            className="bg-gradient-to-br from-green-50/70 to-emerald-50/70 dark:from-green-950/30 dark:to-emerald-950/30 p-8 rounded-2xl border border-green-100/50 dark:border-green-800/50 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-shadow duration-300"
+          >
             <h2 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-6 flex items-center">
               <Shield className="w-8 h-8 mr-3 text-green-600 dark:text-green-400" />
               How WildGuard Works
@@ -98,10 +134,14 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Why Wildlife Conservation Matters */}
-          <div className="bg-gradient-to-br from-orange-50/70 to-amber-50/70 dark:from-orange-950/30 dark:to-amber-950/30 p-8 rounded-2xl border border-orange-100/50 dark:border-orange-800/50 backdrop-blur-sm">
+          <motion.div
+            variants={motionConfig.variants.fadeInUp}
+            whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
+            className="bg-gradient-to-br from-orange-50/70 to-amber-50/70 dark:from-orange-950/30 dark:to-amber-950/30 p-8 rounded-2xl border border-orange-100/50 dark:border-orange-800/50 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-shadow duration-300"
+          >
             <h2 className="text-2xl font-bold text-orange-800 dark:text-orange-400 mb-6">Why Wildlife Conservation Matters</h2>
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <div className="flex items-start space-x-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200/50 dark:border-orange-700/50" data-testid="card-conservation-biodiversity">
@@ -126,39 +166,68 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Karnataka Wildlife Showcase */}
-        <div className="bg-gradient-to-br from-slate-50/70 to-gray-50/70 dark:from-slate-950/30 dark:to-gray-950/30 p-8 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-sm">
+        <motion.div
+          ref={showcase.ref}
+          initial="hidden"
+          animate={showcase.isVisible ? "visible" : "hidden"}
+          variants={motionConfig.variants.fadeInUp}
+          className="bg-gradient-to-br from-slate-50/70 to-gray-50/70 dark:from-slate-950/30 dark:to-gray-950/30 p-8 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-sm shadow-lg"
+        >
           <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6 text-center">Karnataka: A Wildlife Paradise</h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 text-center mb-8 max-w-4xl mx-auto">
             Karnataka is home to over 400 bird species, 2000+ flowering plants, and iconic wildlife including tigers, elephants, and the endangered Great Indian Bustard. Our state's 25 wildlife sanctuaries and 5 national parks protect these treasures.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50">
+          <motion.div
+            variants={motionConfig.variants.staggerContainer}
+            initial="hidden"
+            animate={showcase.isVisible ? "visible" : "hidden"}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            <motion.div
+              variants={motionConfig.variants.scaleIn}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50 hover:shadow-xl transition-shadow duration-300"
+            >
               <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🐅 Big Cats</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Karnataka hosts the largest tiger population in India with over 500 tigers across Bandipur, Nagarhole, and BR Hills.</p>
               <div className="text-xs text-green-600 dark:text-green-400 font-semibold">Conservation Status: Protected</div>
-            </div>
+            </motion.div>
             
-            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50">
+            <motion.div
+              variants={motionConfig.variants.scaleIn}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50 hover:shadow-xl transition-shadow duration-300"
+            >
               <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🐘 Gentle Giants</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Home to the largest Asian elephant population, our corridors help these ecosystem engineers migrate safely.</p>
               <div className="text-xs text-orange-600 dark:text-orange-400 font-semibold">Conservation Status: Endangered</div>
-            </div>
+            </motion.div>
             
-            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50">
+            <motion.div
+              variants={motionConfig.variants.scaleIn}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100/50 dark:border-gray-800/50 hover:shadow-xl transition-shadow duration-300"
+            >
               <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🦅 Rare Birds</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The Great Indian Bustard and other critically endangered species find refuge in our grasslands and scrublands.</p>
               <div className="text-xs text-red-600 dark:text-red-400 font-semibold">Conservation Status: Critically Endangered</div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         {/* Call to Action */}
-        <div className="bg-gradient-to-br from-green-900 via-black to-orange-900 dark:from-green-950 dark:via-gray-950 dark:to-orange-950 backdrop-blur-sm p-8 rounded-2xl text-white text-center border border-green-400/20 dark:border-green-600/30">
+        <motion.div
+          ref={cta.ref}
+          initial="hidden"
+          animate={cta.isVisible ? "visible" : "hidden"}
+          variants={motionConfig.variants.fadeInUp}
+          className="bg-gradient-to-br from-green-900 via-black to-orange-900 dark:from-green-950 dark:via-gray-950 dark:to-orange-950 backdrop-blur-sm p-8 rounded-2xl text-white text-center border border-green-400/20 dark:border-green-600/30 shadow-2xl"
+        >
           <h2 className="text-2xl font-bold mb-4">Join the Conservation Movement</h2>
           <p className="text-lg mb-6 opacity-90">Every identification, every photo, every action matters. Help us protect Karnataka's incredible wildlife for future generations.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -174,7 +243,7 @@ export default function Home() {
               </Button>
             </Link>
           </div>
-        </div>
+        </motion.div>
       </main>
 
       <QuickActions />

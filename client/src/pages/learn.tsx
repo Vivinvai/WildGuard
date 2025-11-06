@@ -1,10 +1,18 @@
+import { motion } from "framer-motion";
 import { Header } from "@/components/header";
 import { BackButton } from "@/components/back-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, TrendingUp, Award, Users } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/use-scroll-animation";
+import { motionConfig } from "@/lib/motionConfig";
 
 export default function Learn() {
+  const introSection = useScrollAnimation();
+  const successSection = useScrollAnimation();
+  const threatsSection = useScrollAnimation();
+  const techSection = useScrollAnimation();
+  
   const successStories = [
     {
       title: "Project Tiger Success",
@@ -31,9 +39,20 @@ export default function Learn() {
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <BackButton />
-        <div className="text-center mb-12">
+        <motion.section
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
           <div className="flex items-center justify-center mb-4">
-            <Shield className="w-8 h-8 text-primary mr-3" />
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <Shield className="w-8 h-8 text-primary mr-3" />
+            </motion.div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Learn About Conservation
             </h1>
@@ -41,9 +60,15 @@ export default function Learn() {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Discover conservation success stories, learn protection methods, and understand how technology helps wildlife.
           </p>
-        </div>
+        </motion.section>
 
-        <div className="bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 rounded-2xl p-8 mb-12">
+        <motion.div
+          ref={introSection.ref}
+          initial="hidden"
+          animate={introSection.isVisible ? "visible" : "hidden"}
+          variants={motionConfig.variants.scaleIn}
+          className="bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 rounded-2xl p-8 mb-12"
+        >
           <div className="text-center">
             <Shield className="w-12 h-12 text-primary mx-auto mb-4" />
             <h2 className="text-3xl font-bold mb-4">🌍 Wildlife Protection – Why It Matters</h2>
@@ -52,16 +77,28 @@ export default function Learn() {
               Every species plays an important role in keeping our planet balanced.
             </p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="mb-12">
+        <motion.div
+          ref={successSection.ref}
+          initial="hidden"
+          animate={successSection.isVisible ? "visible" : "hidden"}
+          variants={motionConfig.variants.staggerContainer}
+          className="mb-12"
+        >
           <h2 className="text-3xl font-bold text-center mb-8 flex items-center justify-center">
             <Award className="w-8 h-8 text-yellow-500 mr-3" />
             🌱 Conservation Success Stories
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {successStories.map((story, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow" data-testid={`card-success-${index}`}>
+              <motion.div
+                key={index}
+                variants={motionConfig.variants.fadeInUp}
+                whileHover={{ scale: 1.02, y: -4 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300 h-full" data-testid={`card-success-${index}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{story.title}</CardTitle>
@@ -78,12 +115,20 @@ export default function Learn() {
                   </div>
                 </CardContent>
               </Card>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <Card>
+        <motion.div
+          ref={threatsSection.ref}
+          initial="hidden"
+          animate={threatsSection.isVisible ? "visible" : "hidden"}
+          variants={motionConfig.variants.staggerContainer}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12"
+        >
+          <motion.div variants={motionConfig.variants.fadeInUp}>
+            <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300 h-full">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Shield className="w-5 h-5 text-destructive mr-2" />
@@ -113,8 +158,10 @@ export default function Learn() {
               </div>
             </CardContent>
           </Card>
+          </motion.div>
 
-          <Card>
+          <motion.div variants={motionConfig.variants.fadeInUp}>
+            <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300 h-full">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Shield className="w-5 h-5 text-green-600 mr-2" />
@@ -152,9 +199,16 @@ export default function Learn() {
               </div>
             </CardContent>
           </Card>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        <div className="bg-gradient-to-r from-orange-50 to-green-50 dark:from-orange-950 dark:to-green-950 rounded-2xl p-8">
+        <motion.div
+          ref={techSection.ref}
+          initial="hidden"
+          animate={techSection.isVisible ? "visible" : "hidden"}
+          variants={motionConfig.variants.scaleIn}
+          className="bg-gradient-to-r from-orange-50 to-green-50 dark:from-orange-950 dark:to-green-950 rounded-2xl p-8"
+        >
           <div className="text-center">
             <Users className="w-12 h-12 text-primary mx-auto mb-4" />
             <h2 className="text-3xl font-bold mb-6">How Technology Helps Wildlife</h2>
@@ -173,7 +227,7 @@ export default function Learn() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
