@@ -1,43 +1,57 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, TrendingDown, AlertCircle, BarChart3 } from "lucide-react";
 
 export default function PopulationPrediction() {
   const [selectedSpecies, setSelectedSpecies] = useState("");
   const [prediction, setPrediction] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const species = [
-    "Bengal Tiger",
-    "Asian Elephant",
-    "Indian Leopard",
-    "Gaur (Indian Bison)",
-    "Sloth Bear"
+  // Fetch available species data
+  const { data: wildlifeData } = useQuery({
+    queryKey: ["/api/features/wildlife-data"],
+  });
+
+  const species = wildlifeData ? Object.keys(wildlifeData as Record<string, any>).map((key: string) => ({
+    id: key,
+    name: (wildlifeData as Record<string, any>)[key].species
+  })) : [
+    { id: "tiger", name: "Bengal Tiger" },
+    { id: "elephant", name: "Asian Elephant" },
+    { id: "leopard", name: "Indian Leopard" }
   ];
 
-  const handlePredict = () => {
-    setLoading(true);
+  const handlePredict = async () => {
+    if (!selectedSpecies) return;
     
-    setTimeout(() => {
-      setPrediction({
-        current_population: 127,
-        predicted_2030: 156,
-        growth_rate: 2.3,
-        trend: "increasing",
-        confidence: 84,
-        factors: [
-          { name: "Habitat availability", impact: "+15%", positive: true },
-          { name: "Food resources", impact: "+8%", positive: true },
-          { name: "Climate stability", impact: "-3%", positive: false },
-          { name: "Human conflict", impact: "-5%", positive: false }
-        ]
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/features/population-prediction?species=${selectedSpecies}&years=5`);
+      if (!response.ok) throw new Error("Failed to fetch prediction");
+      
+      const data = await response.json();
+      setPrediction(data);
+      
+      toast({
+        title: "Prediction Generated",
+        description: `Successfully generated ${data.species} population forecast`,
       });
+    } catch (error) {
+      toast({
+        title: "Prediction Failed",
+        description: "Unable to generate population forecast. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -74,7 +88,7 @@ export default function PopulationPrediction() {
                   </SelectTrigger>
                   <SelectContent>
                     {species.map(s => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -116,44 +130,52 @@ export default function PopulationPrediction() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Current (2025)</p>
-                      <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                        {prediction.current_population}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-green-100 dark:bg-green-950/30 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Predicted (2030)</p>
-                      <p className="text-3xl font-bold text-green-700 dark:text-green-300">
-                        {prediction.predicted_2030}
-                      </p>
-                    </div>
+                  <div className="text-center mb-4">
+                    <h3 className="text-2xl font-bold text-blue-700 dark:text-blue-300">{prediction.species}</h3>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold">Growth Rate</span>
-                      <span className="text-2xl font-bold text-green-600 dark:text-green-400 flex items-center gap-1">
-                        {prediction.trend === "increasing" ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
-                        +{prediction.growth_rate}%
-                      </span>
+                  {prediction.predictions && prediction.predictions.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Next Year ({prediction.predictions[0].year})</p>
+                        <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
+                          {prediction.predictions[0].population.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          Range: {prediction.predictions[0].confidenceInterval.low.toLocaleString()} - {prediction.predictions[0].confidenceInterval.high.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-green-100 dark:bg-green-950/30 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">5 Years ({prediction.predictions[4].year})</p>
+                        <p className="text-3xl font-bold text-green-700 dark:text-green-300">
+                          {prediction.predictions[4].population.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          Confidence: {(prediction.predictions[4].confidence * 100).toFixed(0)}%
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Confidence: {prediction.confidence}%
-                    </p>
+                  )}
+
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-lg">
+                    <h4 className="font-semibold mb-2">Trend Analysis</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{prediction.trendAnalysis}</p>
+                  </div>
+
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg">
+                    <h4 className="font-semibold mb-2">Conservation Impact</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{prediction.conservationImpact}</p>
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="font-semibold">Influencing Factors:</h4>
-                    {prediction.factors.map((factor: any, idx: number) => (
-                      <div key={idx} className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg flex justify-between items-center">
-                        <span className="text-sm font-medium">{factor.name}</span>
-                        <span className={`text-sm font-bold ${
-                          factor.positive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                        }`}>
-                          {factor.impact}
-                        </span>
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      Recommendations
+                    </h4>
+                    {prediction.recommendations && prediction.recommendations.map((rec: string, idx: number) => (
+                      <div key={idx} className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-start gap-2">
+                        <span className="text-blue-600 dark:text-blue-400 font-bold">{idx + 1}.</span>
+                        <span className="text-sm">{rec}</span>
                       </div>
                     ))}
                   </div>

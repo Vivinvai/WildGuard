@@ -4,39 +4,47 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import { Satellite, AlertTriangle, TrendingDown, MapPin, Calendar } from "lucide-react";
 
 export default function SatelliteMonitoring() {
   const [selectedRegion, setSelectedRegion] = useState("");
-  const [timeRange, setTimeRange] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
+  const { toast } = useToast();
 
   const regions = [
-    "Bannerghatta National Park",
+    "Bandipur National Park",
     "Nagarhole National Park",
-    "Bandipur Tiger Reserve",
-    "Western Ghats Region",
-    "Kabini Wildlife Sanctuary"
+    "BRT Tiger Reserve",
+    "Bhadra Wildlife Sanctuary",
+    "Kali Tiger Reserve"
   ];
 
-  const handleAnalyze = () => {
-    setLoading(true);
+  const handleAnalyze = async () => {
+    if (!selectedRegion) return;
     
-    setTimeout(() => {
-      setData({
-        forest_cover_loss: 247,
-        water_body_reduction: 18,
-        deforestation_rate: 3.2,
-        critical_zones: 5,
-        affected_area_hectares: 1245,
-        alerts: [
-          { location: "North Sector (12.5°N, 77.3°E)", type: "Deforestation", severity: "High", area: "45 hectares", date: "Oct 2025" },
-          { location: "East Buffer Zone", type: "Water Loss", severity: "Medium", area: "12 hectares", date: "Sep 2025" }
-        ]
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/features/satellite-monitoring?location=${encodeURIComponent(selectedRegion)}`);
+      if (!response.ok) throw new Error("Failed to fetch satellite data");
+      
+      const result = await response.json();
+      setData(result);
+      
+      toast({
+        title: "Analysis Complete",
+        description: `Satellite data analyzed for ${result.location.name}`,
       });
+    } catch (error) {
+      toast({
+        title: "Analysis Failed",
+        description: "Unable to fetch satellite data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 2500);
+    }
   };
 
   return (
@@ -79,24 +87,9 @@ export default function SatelliteMonitoring() {
                 </Select>
               </div>
 
-              <div className="space-y-3">
-                <Label>Time Range</Label>
-                <Select value={timeRange} onValueChange={setTimeRange}>
-                  <SelectTrigger data-testid="select-time-range">
-                    <SelectValue placeholder="Select time range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="3m">Last 3 Months</SelectItem>
-                    <SelectItem value="6m">Last 6 Months</SelectItem>
-                    <SelectItem value="1y">Last 1 Year</SelectItem>
-                    <SelectItem value="5y">Last 5 Years</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
               <Button
                 onClick={handleAnalyze}
-                disabled={!selectedRegion || !timeRange || loading}
+                disabled={!selectedRegion || loading}
                 className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold py-6"
                 data-testid="button-analyze-satellite"
               >
@@ -130,70 +123,89 @@ export default function SatelliteMonitoring() {
                 </div>
               ) : (
                 <div className="space-y-6">
+                  <div className="text-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">{data.location.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {data.location.area} • Last Updated: {new Date(data.lastUpdated).toLocaleDateString()}
+                    </p>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-red-100 dark:bg-red-950/30 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Forest Cover Loss</p>
-                      <p className="text-3xl font-bold text-red-700 dark:text-red-300 flex items-center gap-1">
-                        <TrendingDown className="w-6 h-6" />
-                        {data.forest_cover_loss} km²
+                    <div className="p-4 bg-green-100 dark:bg-green-950/30 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Current NDVI</p>
+                      <p className="text-3xl font-bold text-green-700 dark:text-green-300">
+                        {data.ndvi.current.toFixed(3)}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Change: {data.ndvi.change > 0 ? '+' : ''}{(data.ndvi.change * 100).toFixed(1)}%
                       </p>
                     </div>
-                    <div className="p-4 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Water Body Loss</p>
-                      <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                        {data.water_body_reduction}%
+                    <div className={`p-4 rounded-lg ${
+                      data.vegetation.health === 'excellent' || data.vegetation.health === 'good' 
+                        ? 'bg-green-100 dark:bg-green-950/30' 
+                        : 'bg-orange-100 dark:bg-orange-950/30'
+                    }`}>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Vegetation Health</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-200 capitalize">
+                        {data.vegetation.health}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Coverage: {data.vegetation.coveragePercent}%
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Deforestation Rate</p>
-                        <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                          {data.deforestation_rate}% per year
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Critical Zones</p>
-                        <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                          {data.critical_zones}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-red-600" />
-                      Recent Alerts:
-                    </h4>
-                    {data.alerts.map((alert: any, idx: number) => (
-                      <div key={idx} className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg border-l-4 border-red-500">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-red-600" />
-                            <span className="font-medium text-gray-800 dark:text-gray-200">
-                              {alert.location}
-                            </span>
-                          </div>
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            alert.severity === "High" ? "bg-red-200 dark:bg-red-900/40 text-red-700 dark:text-red-300" :
-                            "bg-yellow-200 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300"
-                          }`}>
-                            {alert.severity}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                          <p>Type: {alert.type} • Area: {alert.area}</p>
-                          <p className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {alert.date}
+                  {data.deforestation.detected && (
+                    <div className="p-4 bg-red-100 dark:bg-red-950/30 rounded-lg border-l-4 border-red-500">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-red-800 dark:text-red-300">
+                            Deforestation Detected - {data.deforestation.severity} Severity
+                          </p>
+                          <p className="text-sm text-red-700 dark:text-red-400 mt-1">
+                            {data.deforestation.changeDetected}
+                          </p>
+                          <p className="text-sm text-red-600 dark:text-red-500 mt-1">
+                            Affected Area: {data.deforestation.areaAffected} hectares
                           </p>
                         </div>
                       </div>
-                    ))}
+                    </div>
+                  )}
+
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-lg">
+                    <p className="font-semibold mb-2">Forest Density: {data.vegetation.forestDensity}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      Trend: <span className="font-semibold capitalize">{data.ndvi.trend}</span> over last 6 months
+                    </p>
                   </div>
+
+                  {data.alerts && data.alerts.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                        Alerts:
+                      </h4>
+                      {data.alerts.map((alert: string, idx: number) => (
+                        <div key={idx} className="p-3 bg-yellow-100 dark:bg-yellow-950/30 rounded-lg">
+                          <p className="text-sm text-yellow-800 dark:text-yellow-300">{alert}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {data.recommendations && data.recommendations.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-gray-700 dark:text-gray-300">Recommendations:</h4>
+                      {data.recommendations.map((rec: string, idx: number) => (
+                        <div key={idx} className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-start gap-2">
+                          <span className="text-blue-600 dark:text-blue-400 font-bold">{idx + 1}.</span>
+                          <span className="text-sm">{rec}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
