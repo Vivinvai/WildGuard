@@ -4,7 +4,7 @@ import { Header } from "@/components/header";
 import { EnhancedSlideshow } from "@/components/enhanced-slideshow";
 import { QuickActions } from "@/components/quick-actions";
 import { Button } from "@/components/ui/button";
-import { Shield, Camera, Sparkles } from "lucide-react";
+import { Shield, Camera, Sparkles, Leaf } from "lucide-react";
 import { Link } from "wouter";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { motionConfig } from "@/lib/motionConfig";
@@ -217,6 +217,91 @@ export default function Home() {
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The Great Indian Bustard and other critically endangered species find refuge in our grasslands and scrublands.</p>
               <div className="text-xs text-red-600 dark:text-red-400 font-semibold">Conservation Status: Critically Endangered</div>
             </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Karnataka Flora Showcase */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={motionConfig.variants.fadeInUp}
+          className="bg-gradient-to-br from-emerald-50/70 to-teal-50/70 dark:from-emerald-950/30 dark:to-teal-950/30 p-8 rounded-2xl border border-emerald-200/50 dark:border-emerald-800/50 backdrop-blur-sm shadow-lg"
+        >
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6 text-center">Karnataka: Botanical Treasure Trove</h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 text-center mb-8 max-w-4xl mx-auto">
+            From the lush Western Ghats to coastal mangroves, Karnataka hosts over 4,000 plant species including 400 endemic species. Our rich flora includes medicinal plants, ancient trees, and vibrant flowering species vital to our ecosystem.
+          </p>
+          
+          <motion.div
+            variants={motionConfig.variants.staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-4 gap-6"
+          >
+            <motion.div
+              variants={motionConfig.variants.scaleIn}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-emerald-100/50 dark:border-emerald-800/50 hover:shadow-xl transition-shadow duration-300"
+              data-testid="card-flora-ancient-trees"
+            >
+              <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🌳 Ancient Trees</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Sacred fig, banyan, and teak trees centuries old form the backbone of our forests, providing habitat for countless species.</p>
+              <div className="text-xs text-green-600 dark:text-green-400 font-semibold">Age: 200-500 years</div>
+            </motion.div>
+            
+            <motion.div
+              variants={motionConfig.variants.scaleIn}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-emerald-100/50 dark:border-emerald-800/50 hover:shadow-xl transition-shadow duration-300"
+              data-testid="card-flora-endemic"
+            >
+              <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🌺 Endemic Flora</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Western Ghats harbors unique species found nowhere else - orchids, rhododendrons, and carnivorous plants thrive here.</p>
+              <div className="text-xs text-orange-600 dark:text-orange-400 font-semibold">Status: Unique to Region</div>
+            </motion.div>
+            
+            <motion.div
+              variants={motionConfig.variants.scaleIn}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-emerald-100/50 dark:border-emerald-800/50 hover:shadow-xl transition-shadow duration-300"
+              data-testid="card-flora-medicinal"
+            >
+              <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🌿 Medicinal Plants</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Over 500 medicinal plant species including ashwagandha, tulsi, and neem are vital for traditional Ayurvedic medicine.</p>
+              <div className="text-xs text-blue-600 dark:text-blue-400 font-semibold">Uses: Traditional Medicine</div>
+            </motion.div>
+
+            <motion.div
+              variants={motionConfig.variants.scaleIn}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm p-6 rounded-xl shadow-md border border-emerald-100/50 dark:border-emerald-800/50 hover:shadow-xl transition-shadow duration-300"
+              data-testid="card-flora-flowering"
+            >
+              <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3">🌸 Flowering Species</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Karnataka's state flower, the lotus, along with jasmine, hibiscus, and countless orchids paint our landscapes with color.</p>
+              <div className="text-xs text-pink-600 dark:text-pink-400 font-semibold">Diversity: 2,000+ Species</div>
+            </motion.div>
+          </motion.div>
+
+          <motion.div 
+            className="mt-8 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+          >
+            <Link href="/flora">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg"
+                data-testid="button-identify-flora"
+              >
+                <Leaf className="w-5 h-5 mr-2" />
+                Identify Flora with AI
+              </Button>
+            </Link>
           </motion.div>
         </motion.div>
 
