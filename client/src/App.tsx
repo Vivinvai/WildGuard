@@ -20,6 +20,11 @@ import WildlifeMap from "@/pages/map";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import ReportSighting from "@/pages/report-sighting";
+import PoachingDetection from "@/pages/features/poaching-detection";
+import PopulationPrediction from "@/pages/features/population-prediction";
+import HealthAssessment from "@/pages/features/health-assessment";
+import SatelliteMonitoring from "@/pages/features/satellite-monitoring";
+import SightingsHeatmap from "@/pages/features/sightings-heatmap";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -52,6 +57,11 @@ function Router() {
         <Route path="/report-sighting" component={ReportSighting} />
         <Route path="/admin-login" component={AdminLogin} />
         <Route path="/admin-dashboard" component={AdminDashboard} />
+        <Route path="/features/poaching-detection" component={PoachingDetection} />
+        <Route path="/features/population-prediction" component={PopulationPrediction} />
+        <Route path="/features/health-assessment" component={HealthAssessment} />
+        <Route path="/features/satellite-monitoring" component={SatelliteMonitoring} />
+        <Route path="/features/sightings-heatmap" component={SightingsHeatmap} />
         <Route component={NotFound} />
       </Switch>
     </>
