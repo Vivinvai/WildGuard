@@ -327,6 +327,134 @@ export const insertUserActivitySchema = createInsertSchema(userActivity).omit({
   timestamp: true,
 });
 
+// New AI Conservation Features
+
+export const soundDetections = pgTable("sound_detections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  speciesIdentified: text("species_identified").notNull(),
+  scientificName: text("scientific_name"),
+  soundType: text("sound_type").notNull(), // 'call', 'song', 'alarm', 'territorial'
+  confidence: real("confidence").notNull(),
+  location: text("location"),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  audioUrl: text("audio_url").notNull(),
+  duration: real("duration"), // in seconds
+  frequency: text("frequency"), // dominant frequency range
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  conservationStatus: text("conservation_status"),
+  additionalNotes: text("additional_notes"),
+}, (table) => ({
+  userIdIdx: index("sound_detections_user_id_idx").on(table.userId),
+  speciesIdx: index("sound_detections_species_idx").on(table.speciesIdentified),
+  timestampIdx: index("sound_detections_timestamp_idx").on(table.timestamp),
+}));
+
+export const footprintAnalyses = pgTable("footprint_analyses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  speciesIdentified: text("species_identified").notNull(),
+  scientificName: text("scientific_name"),
+  confidence: real("confidence").notNull(),
+  footprintSize: real("footprint_size"), // in cm
+  trackPattern: text("track_pattern"), // 'walking', 'running', 'stalking'
+  location: text("location"),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  imageUrl: text("image_url").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  conservationStatus: text("conservation_status"),
+  additionalDetails: text("additional_details"),
+}, (table) => ({
+  userIdIdx: index("footprint_analyses_user_id_idx").on(table.userId),
+  speciesIdx: index("footprint_analyses_species_idx").on(table.speciesIdentified),
+  timestampIdx: index("footprint_analyses_timestamp_idx").on(table.timestamp),
+}));
+
+export const habitatMonitoring = pgTable("habitat_monitoring", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  location: text("location").notNull(),
+  latitude: real("latitude").notNull(),
+  longitude: real("longitude").notNull(),
+  protectedArea: text("protected_area"),
+  ndviValue: real("ndvi_value").notNull(), // Normalized Difference Vegetation Index
+  forestCoverPercentage: real("forest_cover_percentage").notNull(),
+  changeDetected: boolean("change_detected").notNull().default(false),
+  changePercentage: real("change_percentage"),
+  fireSeverity: text("fire_severity"), // 'none', 'low', 'moderate', 'high', 'extreme'
+  fireCount: real("fire_count").default(0),
+  vegetationHealth: text("vegetation_health").notNull(), // 'excellent', 'good', 'moderate', 'poor', 'critical'
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  alerts: text("alerts").array(),
+  recommendations: text("recommendations").array(),
+}, (table) => ({
+  locationIdx: index("habitat_monitoring_location_idx").on(table.location),
+  protectedAreaIdx: index("habitat_monitoring_protected_area_idx").on(table.protectedArea),
+  timestampIdx: index("habitat_monitoring_timestamp_idx").on(table.timestamp),
+  changeDetectedIdx: index("habitat_monitoring_change_detected_idx").on(table.changeDetected),
+}));
+
+export const chatMessages = pgTable("chat_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  sessionId: text("session_id").notNull(),
+  userMessage: text("user_message").notNull(),
+  botResponse: text("bot_response").notNull(),
+  intent: text("intent"), // 'sighting_query', 'weather_query', 'species_info', 'conservation_data', 'general'
+  dataSource: text("data_source"), // 'live_api', 'database', 'static', 'multiple'
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("chat_messages_user_id_idx").on(table.userId),
+  sessionIdIdx: index("chat_messages_session_id_idx").on(table.sessionId),
+  timestampIdx: index("chat_messages_timestamp_idx").on(table.timestamp),
+}));
+
+export const partialImageEnhancements = pgTable("partial_image_enhancements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  originalImageUrl: text("original_image_url").notNull(),
+  enhancedImageUrl: text("enhanced_image_url"),
+  speciesIdentified: text("species_identified").notNull(),
+  alternativeSpecies: text("alternative_species").array(), // Other possible species
+  primaryConfidence: real("primary_confidence").notNull(),
+  alternativeConfidences: text("alternative_confidences"), // JSON string of {species: confidence}
+  imageQuality: text("image_quality").notNull(), // 'very_poor', 'poor', 'fair', 'good', 'excellent'
+  visibilityPercentage: real("visibility_percentage"), // How much of animal is visible
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  conservationStatus: text("conservation_status"),
+  detectionDetails: text("detection_details"),
+}, (table) => ({
+  userIdIdx: index("partial_image_enhancements_user_id_idx").on(table.userId),
+  speciesIdx: index("partial_image_enhancements_species_idx").on(table.speciesIdentified),
+  timestampIdx: index("partial_image_enhancements_timestamp_idx").on(table.timestamp),
+}));
+
+export const insertSoundDetectionSchema = createInsertSchema(soundDetections).omit({
+  id: true,
+  timestamp: true,
+});
+
+export const insertFootprintAnalysisSchema = createInsertSchema(footprintAnalyses).omit({
+  id: true,
+  timestamp: true,
+});
+
+export const insertHabitatMonitoringSchema = createInsertSchema(habitatMonitoring).omit({
+  id: true,
+  timestamp: true,
+});
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  timestamp: true,
+});
+
+export const insertPartialImageEnhancementSchema = createInsertSchema(partialImageEnhancements).omit({
+  id: true,
+  timestamp: true,
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   animalIdentifications: many(animalIdentifications),
@@ -396,6 +524,16 @@ export type Certificate = typeof certificates.$inferSelect;
 export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
 export type UserActivity = typeof userActivity.$inferSelect;
 export type InsertUserActivity = z.infer<typeof insertUserActivitySchema>;
+export type SoundDetection = typeof soundDetections.$inferSelect;
+export type InsertSoundDetection = z.infer<typeof insertSoundDetectionSchema>;
+export type FootprintAnalysis = typeof footprintAnalyses.$inferSelect;
+export type InsertFootprintAnalysis = z.infer<typeof insertFootprintAnalysisSchema>;
+export type HabitatMonitoring = typeof habitatMonitoring.$inferSelect;
+export type InsertHabitatMonitoring = z.infer<typeof insertHabitatMonitoringSchema>;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+export type PartialImageEnhancement = typeof partialImageEnhancements.$inferSelect;
+export type InsertPartialImageEnhancement = z.infer<typeof insertPartialImageEnhancementSchema>;
 
 // Static data for wildlife centers
 export const wildlifeCentersData: InsertWildlifeCenter[] = [
