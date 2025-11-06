@@ -31,8 +31,21 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
     };
   }
 
-  // Try OpenAI first if API key is available
-  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "default_key") {
+  // Try Gemini first if preferred (to avoid OpenAI quota issues)
+  if (process.env.PREFER_GEMINI === "true" && process.env.GEMINI_API_KEY) {
+    console.log("Using Gemini as primary AI provider...");
+    try {
+      const { analyzeAnimalWithGemini } = await import("./gemini");
+      const geminiResult = await analyzeAnimalWithGemini(base64Image);
+      console.log(`Gemini identified: ${geminiResult.speciesName}`);
+      return geminiResult;
+    } catch (geminiError) {
+      console.error("Primary Gemini AI failed:", geminiError);
+    }
+  }
+
+  // Try OpenAI first if API key is available and Gemini is not preferred
+  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "default_key" && process.env.PREFER_GEMINI !== "true") {
     try {
       // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
     const response = await openai.chat.completions.create({
