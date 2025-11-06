@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Shield, AlertTriangle, FileCheck, TrendingUp, LogOut, MapPin, Calendar, User, Eye } from "lucide-react";
+import { Shield, AlertTriangle, FileCheck, TrendingUp, LogOut, MapPin, Calendar, User, Eye, Award, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { AdminUser, AnimalSighting } from "@shared/schema";
 
 export default function AdminDashboard() {
@@ -222,6 +222,7 @@ export default function AdminDashboard() {
 }
 
 function SightingCard({ sighting, isEmergency = false }: { sighting: AnimalSighting; isEmergency?: boolean }) {
+  const { toast } = useToast();
   const emergencyColors = {
     critical: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
     urgent: "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400",
@@ -229,6 +230,37 @@ function SightingCard({ sighting, isEmergency = false }: { sighting: AnimalSight
   };
 
   const isVerified = sighting.verifiedBy !== null;
+
+  const issueCertificateMutation = useMutation({
+    mutationFn: async () => {
+      const result = await apiRequest("POST", "/api/certificates/generate", {
+        sightingId: sighting.id,
+        reporterName: sighting.reporterName || "Anonymous Reporter",
+        reporterEmail: sighting.reporterEmail || "",
+        location: sighting.location,
+        species: "Wildlife",
+        sightedAt: sighting.sightedAt,
+      });
+      return result.json() as Promise<{ certificateNumber: string }>;
+    },
+    onSuccess: (data: { certificateNumber: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/sightings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/emergency-sightings'] });
+      toast({
+        title: "Certificate Issued!",
+        description: `Certificate ${data.certificateNumber} has been generated successfully.`,
+      });
+      
+      window.open(`/api/certificates/download/${data.certificateNumber}`, '_blank');
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Certificate Generation Failed",
+        description: error.message || "Failed to generate certificate. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <Card className={`${isEmergency ? 'border-2 border-red-500' : ''} hover:shadow-lg transition-shadow`}>
@@ -274,15 +306,31 @@ function SightingCard({ sighting, isEmergency = false }: { sighting: AnimalSight
             </div>
           )}
         </div>
-        <div className="mt-4 flex gap-2">
-          <Button size="sm" variant="default" className="bg-green-600 hover:bg-green-700" data-testid={`button-verify-${sighting.id}`}>
-            Verify Report
-          </Button>
+        <div className="mt-4 flex gap-2 flex-wrap">
+          {!isVerified && (
+            <Button size="sm" variant="default" className="bg-green-600 hover:bg-green-700" data-testid={`button-verify-${sighting.id}`}>
+              Verify Report
+            </Button>
+          )}
           <Button size="sm" variant="outline" data-testid={`button-view-${sighting.id}`}>
             View Details
           </Button>
+          {isVerified && !sighting.certificateIssued && (
+            <Button 
+              size="sm" 
+              variant="default"
+              className="bg-purple-600 hover:bg-purple-700 gap-2"
+              onClick={() => issueCertificateMutation.mutate()}
+              disabled={issueCertificateMutation.isPending}
+              data-testid={`button-issue-certificate-${sighting.id}`}
+            >
+              <Award className="h-4 w-4" />
+              {issueCertificateMutation.isPending ? "Issuing..." : "Issue Certificate"}
+            </Button>
+          )}
           {sighting.certificateIssued && (
-            <Badge variant="secondary" className="ml-auto">
+            <Badge variant="secondary" className="ml-auto flex items-center gap-1">
+              <Award className="h-3 w-3" />
               Certificate Issued
             </Badge>
           )}

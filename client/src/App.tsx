@@ -59,8 +59,8 @@ function Router() {
         <Route path="/chat" component={Chat} />
         <Route path="/map" component={WildlifeMap} />
         <Route path="/report-sighting" component={ReportSighting} />
-        <Route path="/admin-login" component={AdminLogin} />
-        <Route path="/admin-dashboard" component={AdminDashboard} />
+        <Route path="/admin/login" component={AdminLogin} />
+        <Route path="/admin/dashboard" component={AdminDashboard} />
         <Route path="/features/poaching-detection" component={PoachingDetection} />
         <Route path="/features/population-prediction" component={PopulationPrediction} />
         <Route path="/features/health-assessment" component={HealthAssessment} />

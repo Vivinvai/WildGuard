@@ -290,7 +290,7 @@ export function Header() {
                 <span>AI Chat</span>
               </Button>
             </Link>
-            <Link href="/admin-login">
+            <Link href="/admin/login">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -453,7 +453,7 @@ export function Header() {
                       AI Chat
                     </Link>
                     <Link 
-                      href="/admin-login" 
+                      href="/admin/login" 
                       onClick={() => setMobileMenuOpen(false)}
                       className="p-3 rounded-lg transition-colors font-medium flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                     >
