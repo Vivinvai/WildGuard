@@ -81,6 +81,150 @@ export const wildlifePopulationData: Record<string, PopulationData> = {
       conservation: ["Monitoring programs", "Conflict mitigation", "Habitat protection"],
     },
   },
+  slothBear: {
+    species: "Sloth Bear",
+    historicalData: [
+      { year: 2010, population: 500, reserves: { bandipur: 120, nagarahole: 95, brt: 70, others: 215 } },
+      { year: 2015, population: 550, reserves: { bandipur: 135, nagarahole: 105, brt: 75, others: 235 } },
+      { year: 2020, population: 625, reserves: { bandipur: 155, nagarahole: 120, brt: 85, others: 265 } },
+      { year: 2024, population: 680, reserves: { bandipur: 170, nagarahole: 130, brt: 90, others: 290 } },
+    ],
+    currentPopulation: 680,
+    trend: "increasing",
+    factors: {
+      habitat: "Dense forests, rocky outcrops, termite mounds",
+      threats: ["Habitat loss", "Human-bear conflict", "Road kills"],
+      conservation: ["Habitat protection", "Conflict mitigation", "Awareness programs"],
+    },
+  },
+  gaur: {
+    species: "Indian Gaur",
+    historicalData: [
+      { year: 2012, population: 5500, reserves: { bandipur: 1200, nagarahole: 1100, brt: 800, others: 2400 } },
+      { year: 2016, population: 6200, reserves: { bandipur: 1350, nagarahole: 1250, brt: 900, others: 2700 } },
+      { year: 2020, population: 6800, reserves: { bandipur: 1500, nagarahole: 1350, brt: 950, others: 3000 } },
+      { year: 2024, population: 7200, reserves: { bandipur: 1600, nagarahole: 1450, brt: 1000, others: 3150 } },
+    ],
+    currentPopulation: 7200,
+    trend: "increasing",
+    factors: {
+      habitat: "Evergreen and deciduous forests, grasslands",
+      threats: ["Disease transmission", "Habitat degradation", "Poaching"],
+      conservation: ["Protected areas", "Disease monitoring", "Anti-poaching measures"],
+    },
+  },
+  wildDog: {
+    species: "Wild Dog (Dhole)",
+    historicalData: [
+      { year: 2010, population: 150, reserves: { bandipur: 35, nagarahole: 40, brt: 25, others: 50 } },
+      { year: 2015, population: 135, reserves: { bandipur: 30, nagarahole: 35, brt: 22, others: 48 } },
+      { year: 2020, population: 140, reserves: { bandipur: 32, nagarahole: 37, brt: 23, others: 48 } },
+      { year: 2024, population: 145, reserves: { bandipur: 33, nagarahole: 38, brt: 24, others: 50 } },
+    ],
+    currentPopulation: 145,
+    trend: "stable",
+    factors: {
+      habitat: "Forests with adequate prey density",
+      threats: ["Prey depletion", "Disease from domestic dogs", "Habitat loss"],
+      conservation: ["Prey base management", "Disease control", "Habitat corridors"],
+    },
+  },
+  sambar: {
+    species: "Sambar Deer",
+    historicalData: [
+      { year: 2012, population: 8500, reserves: { bandipur: 2000, nagarahole: 1800, brt: 1200, others: 3500 } },
+      { year: 2016, population: 9200, reserves: { bandipur: 2200, nagarahole: 1950, brt: 1300, others: 3750 } },
+      { year: 2020, population: 10000, reserves: { bandipur: 2400, nagarahole: 2100, brt: 1400, others: 4100 } },
+      { year: 2024, population: 10500, reserves: { bandipur: 2550, nagarahole: 2200, brt: 1450, others: 4300 } },
+    ],
+    currentPopulation: 10500,
+    trend: "increasing",
+    factors: {
+      habitat: "Dense forests, grasslands, water sources",
+      threats: ["Poaching", "Predation", "Habitat encroachment"],
+      conservation: ["Anti-poaching patrols", "Habitat management", "Water hole development"],
+    },
+  },
+  spottedDeer: {
+    species: "Spotted Deer (Chital)",
+    historicalData: [
+      { year: 2012, population: 12000, reserves: { bandipur: 3000, nagarahole: 2500, brt: 1500, others: 5000 } },
+      { year: 2016, population: 13500, reserves: { bandipur: 3400, nagarahole: 2800, brt: 1700, others: 5600 } },
+      { year: 2020, population: 15000, reserves: { bandipur: 3800, nagarahole: 3100, brt: 1900, others: 6200 } },
+      { year: 2024, population: 16000, reserves: { bandipur: 4100, nagarahole: 3300, brt: 2000, others: 6600 } },
+    ],
+    currentPopulation: 16000,
+    trend: "increasing",
+    factors: {
+      habitat: "Open forests, grasslands, near water sources",
+      threats: ["Predation", "Disease", "Habitat change"],
+      conservation: ["Predator-prey balance", "Grassland management", "Disease surveillance"],
+    },
+  },
+  wildBoar: {
+    species: "Wild Boar",
+    historicalData: [
+      { year: 2012, population: 18000, reserves: { bandipur: 4500, nagarahole: 4000, brt: 2500, others: 7000 } },
+      { year: 2016, population: 20000, reserves: { bandipur: 5000, nagarahole: 4500, brt: 2800, others: 7700 } },
+      { year: 2020, population: 22500, reserves: { bandipur: 5700, nagarahole: 5000, brt: 3000, others: 8800 } },
+      { year: 2024, population: 24000, reserves: { bandipur: 6100, nagarahole: 5300, brt: 3200, others: 9400 } },
+    ],
+    currentPopulation: 24000,
+    trend: "increasing",
+    factors: {
+      habitat: "Varied habitats, adaptable omnivores",
+      threats: ["Human-wildlife conflict", "Disease", "Hunting"],
+      conservation: ["Conflict management", "Population monitoring", "Disease control"],
+    },
+  },
+  indianPeafowl: {
+    species: "Indian Peafowl",
+    historicalData: [
+      { year: 2012, population: 15000, reserves: { bandipur: 3500, nagarahole: 3000, others: 8500 } },
+      { year: 2016, population: 16500, reserves: { bandipur: 4000, nagarahole: 3300, others: 9200 } },
+      { year: 2020, population: 18000, reserves: { bandipur: 4400, nagarahole: 3600, others: 10000 } },
+      { year: 2024, population: 19000, reserves: { bandipur: 4700, nagarahole: 3800, others: 10500 } },
+    ],
+    currentPopulation: 19000,
+    trend: "increasing",
+    factors: {
+      habitat: "Open forests, agricultural areas, near human habitats",
+      threats: ["Habitat loss", "Predation", "Illegal trade"],
+      conservation: ["Habitat protection", "Anti-poaching", "Community awareness"],
+    },
+  },
+  kingCobra: {
+    species: "King Cobra",
+    historicalData: [
+      { year: 2010, population: 450, reserves: { nagarahole: 120, bandipur: 95, brt: 65, others: 170 } },
+      { year: 2015, population: 420, reserves: { nagarahole: 115, bandipur: 88, brt: 60, others: 157 } },
+      { year: 2020, population: 400, reserves: { nagarahole: 110, bandipur: 85, brt: 58, others: 147 } },
+      { year: 2024, population: 390, reserves: { nagarahole: 108, bandipur: 82, brt: 56, others: 144 } },
+    ],
+    currentPopulation: 390,
+    trend: "declining",
+    factors: {
+      habitat: "Dense forests, near water bodies",
+      threats: ["Habitat loss", "Human persecution", "Prey depletion"],
+      conservation: ["Habitat protection", "Awareness programs", "Rescue and relocation"],
+    },
+  },
+  purpleFrog: {
+    species: "Purple Frog",
+    historicalData: [
+      { year: 2010, population: 800, reserves: { westernGhats: 800 } },
+      { year: 2015, population: 720, reserves: { westernGhats: 720 } },
+      { year: 2020, population: 650, reserves: { westernGhats: 650 } },
+      { year: 2024, population: 600, reserves: { westernGhats: 600 } },
+    ],
+    currentPopulation: 600,
+    trend: "declining",
+    factors: {
+      habitat: "Western Ghats endemic, underground burrower",
+      threats: ["Habitat destruction", "Climate change", "Agricultural expansion"],
+      conservation: ["Protected area expansion", "Research programs", "Habitat restoration"],
+    },
+  },
 };
 
 // Simple linear regression for population prediction

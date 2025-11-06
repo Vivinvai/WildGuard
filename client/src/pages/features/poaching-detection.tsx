@@ -4,19 +4,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Eye, Upload, AlertTriangle, Shield, Camera, Video, Activity } from "lucide-react";
+import { Eye, Upload, AlertTriangle, Shield, Camera, Video, Activity, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function PoachingDetection() {
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [results, setResults] = useState<any>(null);
   const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
     }
   };
 
@@ -32,24 +39,59 @@ export default function PoachingDetection() {
 
     setAnalyzing(true);
     
-    setTimeout(() => {
-      setResults({
-        threats_detected: 2,
-        confidence: 87,
-        objects: [
-          { type: "human", confidence: 92, location: "North sector", timestamp: "2:34 AM" },
-          { type: "weapon_detected", confidence: 78, location: "Near waterhole", timestamp: "2:34 AM" }
-        ],
-        recommendation: "HIGH ALERT: Multiple poaching indicators detected. Immediate ranger dispatch recommended."
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("latitude", "12.9716");
+      formData.append("longitude", "77.5946");
+
+      const response = await fetch("/api/features/poaching-detection", {
+        method: "POST",
+        body: formData,
       });
-      setAnalyzing(false);
-      
+
+      if (!response.ok) {
+        throw new Error("Analysis failed");
+      }
+
+      const data = await response.json();
+      setResults(data);
+
       toast({
         title: "Analysis Complete",
-        description: "Threats detected in footage",
+        description: data.threatLevel === "none" ? "No threats detected" : `${data.threatLevel} threat level detected`,
+        variant: data.threatLevel !== "none" && data.threatLevel !== "low" ? "destructive" : "default",
+      });
+    } catch (error) {
+      console.error("Poaching detection error:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "Failed to analyze image. Please try again.",
         variant: "destructive",
       });
-    }, 3000);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const getThreatColor = (level: string) => {
+    switch (level) {
+      case "critical": return "bg-red-600 dark:bg-red-500";
+      case "high": return "bg-red-500 dark:bg-red-400";
+      case "medium": return "bg-orange-500 dark:bg-orange-400";
+      case "low": return "bg-yellow-500 dark:bg-yellow-400";
+      default: return "bg-green-500 dark:bg-green-400";
+    }
+  };
+
+  const getThreatBorder = (level: string) => {
+    switch (level) {
+      case "critical": return "border-red-300 dark:border-red-800";
+      case "high": return "border-red-300 dark:border-red-800";
+      case "medium": return "border-orange-300 dark:border-orange-800";
+      case "low": return "border-yellow-300 dark:border-yellow-800";
+      default: return "border-green-300 dark:border-green-800";
+    }
   };
 
   return (
@@ -65,7 +107,7 @@ export default function PoachingDetection() {
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Advanced computer vision analyzes camera trap and drone footage to detect humans, weapons, and suspicious movement patterns in protected areas
+            Advanced AI vision analyzes camera trap and drone footage to detect humans, weapons, traps, and suspicious activities in protected areas
           </p>
         </div>
 
@@ -77,20 +119,25 @@ export default function PoachingDetection() {
                 Upload Footage
               </CardTitle>
               <CardDescription>
-                Upload camera trap images or drone video footage for AI analysis
+                Upload camera trap images or drone video footage for real-time AI analysis
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
-                <Label htmlFor="footage-upload">Select File (Image or Video)</Label>
+                <Label htmlFor="footage-upload">Select Image File</Label>
                 <Input
                   id="footage-upload"
                   type="file"
-                  accept="image/*,video/*"
+                  accept="image/*"
                   onChange={handleFileChange}
                   className="cursor-pointer"
                   data-testid="input-footage-upload"
                 />
+                {preview && (
+                  <div className="mt-4 border-2 border-purple-200 dark:border-purple-800 rounded-lg overflow-hidden">
+                    <img src={preview} alt="Preview" className="w-full object-contain max-h-64" />
+                  </div>
+                )}
                 {file && (
                   <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
                     <Camera className="w-4 h-4" />
@@ -108,7 +155,7 @@ export default function PoachingDetection() {
                 {analyzing ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Analyzing Footage...
+                    Analyzing Footage with AI...
                   </>
                 ) : (
                   <>
@@ -124,61 +171,105 @@ export default function PoachingDetection() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="w-5 h-5" />
-                Detection Results
+                AI Detection Results
               </CardTitle>
               <CardDescription>
-                AI-powered threat analysis with confidence scores
+                Real-time threat analysis powered by Gemini AI
               </CardDescription>
             </CardHeader>
             <CardContent>
               {!results ? (
                 <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <Eye className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                  <p>Upload and analyze footage to see results</p>
+                  <p>Upload and analyze footage to see AI-powered results</p>
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className={`p-4 rounded-lg ${
-                    results.threats_detected > 0
-                      ? "bg-red-100 dark:bg-red-950/30 border-2 border-red-300 dark:border-red-800"
-                      : "bg-green-100 dark:bg-green-950/30 border-2 border-green-300 dark:border-green-800"
+                  <div className={`p-5 rounded-lg border-2 ${getThreatBorder(results.threatLevel)} ${
+                    results.threatLevel === "none"
+                      ? "bg-green-100 dark:bg-green-950/30"
+                      : "bg-red-100 dark:bg-red-950/30"
                   }`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertTriangle className={`w-5 h-5 ${
-                        results.threats_detected > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"
-                      }`} />
-                      <h3 className="font-bold text-lg">
-                        {results.threats_detected} Threats Detected
-                      </h3>
-                    </div>
-                    <p className="text-sm font-medium">
-                      Confidence: {results.confidence}%
-                    </p>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-700 dark:text-gray-300">Detected Objects:</h4>
-                    {results.objects.map((obj: any, idx: number) => (
-                      <div key={idx} className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="font-medium text-red-600 dark:text-red-400 capitalize">
-                            {obj.type.replace('_', ' ')}
-                          </span>
-                          <span className="text-sm bg-red-200 dark:bg-red-900/40 px-2 py-1 rounded">
-                            {obj.confidence}% confidence
-                          </span>
-                        </div>
+                    <div className="flex items-center gap-3 mb-3">
+                      {results.threatLevel === "none" ? (
+                        <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                      ) : (
+                        <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-bold text-xl text-gray-800 dark:text-gray-200 capitalize">
+                          {results.threatLevel} Threat Level
+                        </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          📍 {obj.location} • ⏰ {obj.timestamp}
+                          Analysis Confidence: {results.confidence}%
                         </p>
                       </div>
-                    ))}
+                      <div className={`w-4 h-4 rounded-full ${getThreatColor(results.threatLevel)} animate-pulse`}></div>
+                    </div>
                   </div>
 
-                  <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border-l-4 border-yellow-500 dark:border-yellow-600">
-                    <h4 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-2">Recommendation:</h4>
-                    <p className="text-sm text-yellow-700 dark:text-yellow-400">{results.recommendation}</p>
+                  {results.detectedObjects && results.detectedObjects.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <Camera className="w-4 h-4 text-purple-600" />
+                        Detected Objects:
+                      </h4>
+                      {results.detectedObjects.map((obj: string, idx: number) => (
+                        <div key={idx} className="p-3 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full"></div>
+                            <span className="font-medium text-gray-800 dark:text-gray-200 capitalize">
+                              {obj}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {results.illegalActivities && results.illegalActivities.length > 0 && (
+                    <div className="p-4 bg-red-50 dark:bg-red-950/20 border-l-4 border-red-500 dark:border-red-600 rounded">
+                      <h4 className="font-semibold text-red-800 dark:text-red-300 mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        Illegal Activities Detected:
+                      </h4>
+                      <ul className="space-y-1">
+                        {results.illegalActivities.map((activity: string, idx: number) => (
+                          <li key={idx} className="text-sm text-red-700 dark:text-red-400">
+                            • {activity}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border-l-4 border-blue-500 dark:border-blue-600 rounded">
+                    <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Analysis Summary:</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-400 whitespace-pre-wrap">{results.analysis}</p>
                   </div>
+
+                  {results.recommendations && results.recommendations.length > 0 && (
+                    <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border-l-4 border-yellow-500 dark:border-yellow-600 rounded">
+                      <h4 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-2 flex items-center gap-2">
+                        <Shield className="w-4 h-4" />
+                        Recommendations:
+                      </h4>
+                      <ul className="space-y-1">
+                        {results.recommendations.map((rec: string, idx: number) => (
+                          <li key={idx} className="text-sm text-yellow-700 dark:text-yellow-400">
+                            • {rec}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {results.location && (
+                    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs text-gray-600 dark:text-gray-400">
+                      <p>📍 Location: {results.location.latitude}°N, {results.location.longitude}°E</p>
+                      <p>⏰ Analyzed: {new Date(results.timestamp).toLocaleString()}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -195,7 +286,7 @@ export default function PoachingDetection() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Identifies humans, vehicles, and weapons in camera trap footage using state-of-the-art YOLO models
+                Identifies humans, vehicles, weapons, and traps in camera footage using Gemini AI vision models
               </p>
             </CardContent>
           </Card>
@@ -204,12 +295,12 @@ export default function PoachingDetection() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Activity className="w-5 h-5 text-indigo-600" />
-                Motion Analysis
+                Behavior Analysis
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Tracks movement patterns to detect suspicious behavior like stalking or setting up traps
+                Analyzes suspicious patterns like stalking behavior, trap placement, and illegal hunting activities
               </p>
             </CardContent>
           </Card>
@@ -218,12 +309,12 @@ export default function PoachingDetection() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Shield className="w-5 h-5 text-green-600" />
-                24/7 Monitoring
+                Real-Time Alerts
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Continuous analysis of incoming footage from all camera traps and drones in the network
+                Instant threat notifications with GPS coordinates for rapid ranger response and intervention
               </p>
             </CardContent>
           </Card>
