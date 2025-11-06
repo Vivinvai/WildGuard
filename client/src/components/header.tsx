@@ -150,8 +150,8 @@ export function Header() {
                   Features
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-xl">
-                <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">AI-POWERED TOOLS</div>
+              <DropdownMenuContent align="start" className="w-64 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-xl max-h-[500px] overflow-y-auto">
+                <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">AI CONSERVATION TOOLS</div>
                 <DropdownMenuItem asChild className="focus:bg-purple-50 dark:focus:bg-purple-950/50 cursor-pointer">
                   <Link href="/features/poaching-detection" className="flex items-center space-x-3 px-3 py-2">
                     <Eye className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -166,7 +166,7 @@ export function Header() {
                     <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     <div>
                       <div className="font-medium">Population Trends</div>
-                      <div className="text-xs text-gray-500">ML-based forecasts</div>
+                      <div className="text-xs text-gray-500">Species forecasts</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -175,7 +175,7 @@ export function Header() {
                     <Heart className="w-4 h-4 text-green-600 dark:text-green-400" />
                     <div>
                       <div className="font-medium">Health Assessment</div>
-                      <div className="text-xs text-gray-500">Detect injuries & diseases</div>
+                      <div className="text-xs text-gray-500">Injury & disease detection</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -184,7 +184,7 @@ export function Header() {
                     <Satellite className="w-4 h-4 text-red-600 dark:text-red-400" />
                     <div>
                       <div className="font-medium">Satellite Monitoring</div>
-                      <div className="text-xs text-gray-500">Habitat loss tracking</div>
+                      <div className="text-xs text-gray-500">Vegetation health</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -197,14 +197,12 @@ export function Header() {
                     </div>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">NEW AI FEATURES</div>
-                <DropdownMenuItem asChild className="focus:bg-green-50 dark:focus:bg-green-950/50 cursor-pointer">
+                <DropdownMenuItem asChild className="focus:bg-teal-50 dark:focus:bg-teal-950/50 cursor-pointer">
                   <Link href="/features/habitat-monitoring" className="flex items-center space-x-3 px-3 py-2">
-                    <Satellite className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <Activity className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                     <div>
-                      <div className="font-medium">Habitat Health Monitor</div>
-                      <div className="text-xs text-gray-500">NASA FIRMS satellite data</div>
+                      <div className="font-medium">Habitat Health</div>
+                      <div className="text-xs text-gray-500">NASA fire monitoring</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -213,7 +211,7 @@ export function Header() {
                     <Volume2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                     <div>
                       <div className="font-medium">Sound Detection</div>
-                      <div className="text-xs text-gray-500">Bioacoustic AI analysis</div>
+                      <div className="text-xs text-gray-500">Bioacoustic analysis</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -222,7 +220,7 @@ export function Header() {
                     <Footprints className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     <div>
                       <div className="font-medium">Footprint Recognition</div>
-                      <div className="text-xs text-gray-500">Track pattern analysis</div>
+                      <div className="text-xs text-gray-500">Track identification</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -231,7 +229,7 @@ export function Header() {
                     <ImagePlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     <div>
                       <div className="font-medium">Image Enhancement</div>
-                      <div className="text-xs text-gray-500">Partial/blurry images</div>
+                      <div className="text-xs text-gray-500">Blurry image analysis</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>
