@@ -57,7 +57,7 @@ export default function Deforestation() {
     }
   ];
 
-  const displayAlerts = alerts || mockAlerts;
+  const displayAlerts = (alerts && alerts.length > 0) ? alerts : mockAlerts;
   const filteredAlerts = selectedSeverity 
     ? displayAlerts.filter(a => a.severity === selectedSeverity)
     : displayAlerts;
