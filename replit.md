@@ -2,6 +2,32 @@
 
 WildGuard is an AI-powered platform dedicated to wildlife and flora conservation. It enables users to identify animals and plants via photo analysis, track habitat loss, and access conservation resources across Karnataka and India. The platform features AI identification systems (OpenAI GPT-5 for animals, Google Gemini for plants), a deforestation tracking dashboard, directories for botanical gardens and wildlife centers, and educational content to foster conservation efforts and community engagement.
 
+# Recent Changes (November 6, 2025)
+
+## Get Started Landing Page & Navigation Enhancements
+- **New Landing Experience**: Created a stunning Get Started landing page as the default route (/) featuring:
+  - Animated floating background elements (leaf, shield, sparkles) with custom CSS keyframe animations
+  - Large gradient logo with combined shield and wildlife badge
+  - Animated "WildGuard" title with gradient text effects
+  - Three feature highlight cards (Identify Wildlife, Discover Flora, Track Habitat)
+  - "Let's Get Started" button with gradient styling that redirects to /home
+  - Smooth scroll indicator animation
+  - Complete dark mode support with gradient backgrounds
+- **Enhanced Navigation Board**: Improved main navigation links styling with:
+  - Larger font size and semibold weight for Home, Wildlife Centers, and Botanical Gardens
+  - Active state indication with colored underline border
+  - Hover scale effects (1.05) for interactive feedback
+  - Superior dark mode colors (green-400 for active states)
+  - Increased spacing between navigation items
+- **Fixed Layout Issues**: 
+  - Resolved QuickActions component covering "Join the Conservation Movement" section
+  - Reduced z-index from 40 to 30 and added bottom padding to home and chat pages
+  - QuickActions now has beautiful dark mode gradients with gray-900 backgrounds
+- **Improved Dark Mode Components**:
+  - Identify dropdown: gradient backgrounds, enhanced borders, better shadows, improved hover states
+  - Chat interface: dark gradients for all sections, proper text contrast, comprehensive dark mode variants
+  - All accent colors (green, orange, blue, purple) have proper dark mode variants
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
