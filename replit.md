@@ -4,9 +4,59 @@ WildGuard is an AI-powered platform dedicated to wildlife and flora conservation
 
 # Recent Changes (November 6, 2025)
 
-## Government Admin System & Animal Sighting Reports (Latest)
+## AI-Powered Conservation Features & Navigation Redesign (Latest)
+- **Updated Admin Credentials**: Changed to username: `admineo75`, password: `wildguard1234` with bcrypt hashing
+
+- **Complete Navigation Redesign**:
+  - Compact, beautiful navigation with organized dropdown menus
+  - **Explore**: Identify Fauna, Identify Flora (AI-powered identification)
+  - **Features**: 5 AI-powered conservation tools in dropdown menu
+  - **Actions**: Report Sighting, NGOs, Volunteer opportunities
+  - **Admin**: Direct login access for government officials
+  - Scroll-to-top behavior on all page transitions using wouter hooks
+  - Consistent color-coded hover states and active indicators
+
+- **Five AI-Powered Conservation Features**:
+  1. **Poaching Detection**: AI analysis of camera trap and drone footage for suspicious activities
+     - Real-time threat detection with severity levels
+     - GPS coordinate logging and evidence collection
+     - Integration with forest department alerts
+  
+  2. **Population Trend Prediction**: ML models predicting species population changes
+     - Multi-year forecasting with confidence intervals
+     - Habitat correlation analysis
+     - Conservation impact assessment tools
+  
+  3. **Automatic Health Assessment**: AI image/video analysis detecting injuries and diseases
+     - Visual symptom detection (injuries, malnutrition, infections)
+     - Behavioral analysis for distress indicators
+     - Treatment recommendations and veterinary alerts
+  
+  4. **Satellite Habitat Monitoring**: Google Earth Engine/Sentinel integration
+     - Real-time deforestation detection
+     - Vegetation health analysis (NDVI indices)
+     - Historical change tracking and trend analysis
+     - Conservation zone boundary monitoring
+  
+  5. **Wildlife Sightings Heatmap**: Geospatial visualization of biodiversity hotspots
+     - Interactive Leaflet-based mapping
+     - Species density analysis
+     - Temporal pattern visualization
+     - Conservation priority area identification
+
+- **Enhanced Home Page**:
+  - Added dynamic Karnataka Flora Showcase section with 4 cards:
+    - Ancient Trees (200-500 year old sacred figs, banyans, teak)
+    - Endemic Flora (Western Ghats unique species)
+    - Medicinal Plants (500+ Ayurvedic species)
+    - Flowering Species (2,000+ including state flower lotus)
+  - All showcase cards with data-testid attributes for testing
+  - Smooth Framer Motion animations matching wildlife showcase style
+  - Emerald/teal gradient theming distinct from wildlife sections
+
+## Government Admin System & Animal Sighting Reports
 - **Admin Authentication System**:
-  - Secure login page with bcrypt password hashing (username: Admin, password: 12345678)
+  - Secure login page with bcrypt password hashing (username: admineo75, password: wildguard1234)
   - Express session management with PostgreSQL store and session regeneration
   - Rate limiting (5 login attempts per 15 minutes) to prevent brute force attacks
   - Session validation with `/api/admin/session` endpoint
