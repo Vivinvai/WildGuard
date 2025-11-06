@@ -4,6 +4,17 @@ WildGuard is a comprehensive AI-powered wildlife and flora conservation platform
 
 # Recent Changes
 
+## Latest Bug Fixes & Improvements (November 6, 2025)
+
+### Critical Bug Fixes
+- **Theme Persistence Fix**: Resolved naming collision in ThemeProvider where `setTheme` parameter shadowed `useState` setter, preventing localStorage persistence. Theme preference now correctly saves to localStorage with key `wildguard-theme` and persists across all pages and browser sessions.
+- **Deforestation Alerts Display Fix**: Fixed mock data fallback logic by changing from `alerts || mockAlerts` to `(alerts && alerts.length > 0) ? alerts : mockAlerts`, ensuring empty array responses properly fall back to display 3 sample alerts (Bandipur 12.5 ha, Western Ghats 8.3 ha, Nagarhole 5.7 ha).
+- **Mobile Navigation Functionality**: Verified functional mobile menu with slide-in Sheet navigation for screens <1024px, providing full access to all pages (Home, Animals, Flora, Habitat, Centers, Gardens, NGOs, Learn, Chat).
+
+### Testing & Verification
+- **Comprehensive E2E Testing**: All features verified via Playwright tests including theme persistence, deforestation alert display, mobile navigation, and dark mode across all pages.
+- **Architect Review**: Code reviewed and approved with no security concerns, confirmed data integrity and proper fallback mechanisms.
+
 ## Latest Platform Enhancements (November 2025)
 
 ### Flora & Plant Conservation Features
