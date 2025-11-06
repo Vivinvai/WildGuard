@@ -25,6 +25,10 @@ import PopulationPrediction from "@/pages/features/population-prediction";
 import HealthAssessment from "@/pages/features/health-assessment";
 import SatelliteMonitoring from "@/pages/features/satellite-monitoring";
 import SightingsHeatmap from "@/pages/features/sightings-heatmap";
+import HabitatMonitoring from "@/pages/features/habitat-monitoring";
+import SoundDetection from "@/pages/features/sound-detection";
+import FootprintRecognition from "@/pages/features/footprint-recognition";
+import PartialImageEnhancement from "@/pages/features/partial-image-enhancement";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -62,6 +66,10 @@ function Router() {
         <Route path="/features/health-assessment" component={HealthAssessment} />
         <Route path="/features/satellite-monitoring" component={SatelliteMonitoring} />
         <Route path="/features/sightings-heatmap" component={SightingsHeatmap} />
+        <Route path="/features/habitat-monitoring" component={HabitatMonitoring} />
+        <Route path="/features/sound-detection" component={SoundDetection} />
+        <Route path="/features/footprint-recognition" component={FootprintRecognition} />
+        <Route path="/features/partial-image-enhancement" component={PartialImageEnhancement} />
         <Route component={NotFound} />
       </Switch>
     </>

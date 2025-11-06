@@ -14,7 +14,8 @@ import {
 import { 
   Shield, Camera, MessageCircle, Menu, Search, Leaf, PawPrint,
   TreePine, Users, HeartHandshake, LogIn, Sparkles, Eye,
-  TrendingUp, Heart, Satellite, MapPin, Activity
+  TrendingUp, Heart, Satellite, MapPin, Activity, Volume2,
+  Footprints, ImagePlus
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -193,6 +194,44 @@ export function Header() {
                     <div>
                       <div className="font-medium">Sightings Heatmap</div>
                       <div className="text-xs text-gray-500">Biodiversity hotspots</div>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">NEW AI FEATURES</div>
+                <DropdownMenuItem asChild className="focus:bg-green-50 dark:focus:bg-green-950/50 cursor-pointer">
+                  <Link href="/features/habitat-monitoring" className="flex items-center space-x-3 px-3 py-2">
+                    <Satellite className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <div>
+                      <div className="font-medium">Habitat Health Monitor</div>
+                      <div className="text-xs text-gray-500">NASA FIRMS satellite data</div>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="focus:bg-purple-50 dark:focus:bg-purple-950/50 cursor-pointer">
+                  <Link href="/features/sound-detection" className="flex items-center space-x-3 px-3 py-2">
+                    <Volume2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <div>
+                      <div className="font-medium">Sound Detection</div>
+                      <div className="text-xs text-gray-500">Bioacoustic AI analysis</div>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="focus:bg-amber-50 dark:focus:bg-amber-950/50 cursor-pointer">
+                  <Link href="/features/footprint-recognition" className="flex items-center space-x-3 px-3 py-2">
+                    <Footprints className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <div>
+                      <div className="font-medium">Footprint Recognition</div>
+                      <div className="text-xs text-gray-500">Track pattern analysis</div>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="focus:bg-blue-50 dark:focus:bg-blue-950/50 cursor-pointer">
+                  <Link href="/features/partial-image-enhancement" className="flex items-center space-x-3 px-3 py-2">
+                    <ImagePlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <div>
+                      <div className="font-medium">Image Enhancement</div>
+                      <div className="text-xs text-gray-500">Partial/blurry images</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>
