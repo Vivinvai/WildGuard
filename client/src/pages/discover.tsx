@@ -14,6 +14,14 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Ngo } from "@shared/schema";
 
+// Import animal images
+import elephantImg from "@assets/stock_images/asian_elephant_wildl_d783d82b.jpg";
+import tigerImg from "@assets/stock_images/bengal_tiger_wildlif_f41ab7a4.jpg";
+import leopardImg from "@assets/stock_images/indian_leopard_wildl_95762e17.jpg";
+import bearImg from "@assets/stock_images/sloth_bear_wildlife__cc92a9ff.jpg";
+import deerImg from "@assets/stock_images/spotted_deer_chital__13c3d594.jpg";
+import peafowlImg from "@assets/stock_images/indian_peafowl_peaco_ade86f32.jpg";
+
 export default function Discover() {
   const [volunteerFormOpen, setVolunteerFormOpen] = useState(false);
   const [adoptionFormOpen, setAdoptionFormOpen] = useState(false);
@@ -92,12 +100,12 @@ export default function Discover() {
 
   // Animals available for adoption
   const adoptableAnimals = [
-    { id: "elephant-1", name: "Raja (Asian Elephant)", age: "8 years", status: "Rescued from conflict zone", monthlySupport: "₹5,000" },
-    { id: "tiger-1", name: "Shakti (Bengal Tiger)", age: "4 years", status: "Orphaned cub under care", monthlySupport: "₹8,000" },
-    { id: "leopard-1", name: "Chitra (Leopard)", age: "3 years", status: "Recovering from injury", monthlySupport: "₹6,000" },
-    { id: "sloth-1", name: "Bhalu (Sloth Bear)", age: "5 years", status: "Rescued from poachers", monthlySupport: "₹4,500" },
-    { id: "deer-1", name: "Mrigi (Spotted Deer)", age: "2 years", status: "Orphaned fawn", monthlySupport: "₹2,500" },
-    { id: "peacock-1", name: "Mayura (Indian Peafowl)", age: "1 year", status: "Injured wing recovery", monthlySupport: "₹1,500" }
+    { id: "elephant-1", name: "Raja (Asian Elephant)", age: "8 years", status: "Rescued from conflict zone", monthlySupport: "₹5,000", image: elephantImg },
+    { id: "tiger-1", name: "Shakti (Bengal Tiger)", age: "4 years", status: "Orphaned cub under care", monthlySupport: "₹8,000", image: tigerImg },
+    { id: "leopard-1", name: "Chitra (Leopard)", age: "3 years", status: "Recovering from injury", monthlySupport: "₹6,000", image: leopardImg },
+    { id: "sloth-1", name: "Bhalu (Sloth Bear)", age: "5 years", status: "Rescued from poachers", monthlySupport: "₹4,500", image: bearImg },
+    { id: "deer-1", name: "Mrigi (Spotted Deer)", age: "2 years", status: "Orphaned fawn", monthlySupport: "₹2,500", image: deerImg },
+    { id: "peacock-1", name: "Mayura (Indian Peafowl)", age: "1 year", status: "Injured wing recovery", monthlySupport: "₹1,500", image: peafowlImg }
   ];
 
   const volunteerMutation = useMutation({
@@ -452,7 +460,17 @@ export default function Discover() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {adoptableAnimals.map(animal => (
-                <Card key={animal.id} className="hover:shadow-lg transition-shadow bg-card dark:bg-gray-900 border-border dark:border-gray-800">
+                <Card key={animal.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 bg-card dark:bg-gray-900 border-border dark:border-gray-800 group" data-testid={`adoption-card-${animal.id}`}>
+                  {/* Animal Image */}
+                  <div className="aspect-video overflow-hidden bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30">
+                    <img 
+                      src={animal.image} 
+                      alt={animal.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      data-testid={`adoption-image-${animal.id}`}
+                    />
+                  </div>
+                  
                   <CardHeader>
                     <div className="flex items-center gap-2 mb-2">
                       <PawPrint className="w-6 h-6 text-primary" />
@@ -476,11 +494,12 @@ export default function Discover() {
                         <p className="text-sm text-amber-900 dark:text-amber-300">{animal.status}</p>
                       </div>
                       <Button 
-                        className="w-full" 
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg" 
                         onClick={() => {
                           setSelectedAnimal(animal.id);
                           setAdoptionFormOpen(true);
                         }}
+                        data-testid={`button-adopt-${animal.id}`}
                       >
                         <Heart className="w-4 h-4 mr-2" />
                         Adopt {animal.name.split('(')[0]}
