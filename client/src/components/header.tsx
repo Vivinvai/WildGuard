@@ -63,34 +63,29 @@ export function Header() {
               Home
             </Link>
             
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button 
-                  className={`px-3 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
-                    location === "/identify" || location === "/flora"
-                      ? "bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/40 text-emerald-700 dark:text-emerald-300 shadow-sm" 
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-emerald-700 dark:hover:text-emerald-300"
-                  }`}
-                  data-testid="dropdown-explore"
-                >
-                  Explore
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-52 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-xl">
-                <DropdownMenuItem asChild className="focus:bg-green-50 dark:focus:bg-green-950/50 cursor-pointer">
-                  <Link href="/identify" className="flex items-center space-x-3 px-3 py-2">
-                    <PawPrint className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    <span>Identify Fauna</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="focus:bg-orange-50 dark:focus:bg-orange-950/50 cursor-pointer">
-                  <Link href="/flora" className="flex items-center space-x-3 px-3 py-2">
-                    <Leaf className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                    <span>Identify Flora</span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link 
+              href="/identify" 
+              className={`px-3 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
+                location === "/identify" 
+                  ? "bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-700 dark:text-green-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-green-700 dark:hover:text-green-300"
+              }`}
+              data-testid="link-identify-fauna"
+            >
+              Identify Fauna
+            </Link>
+
+            <Link 
+              href="/flora" 
+              className={`px-3 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
+                location === "/flora" 
+                  ? "bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/40 text-orange-700 dark:text-orange-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-orange-700 dark:hover:text-orange-300"
+              }`}
+              data-testid="link-identify-flora"
+            >
+              Identify Flora
+            </Link>
 
             <Link 
               href="/centers" 
