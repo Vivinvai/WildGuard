@@ -25,6 +25,13 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   verifyPassword(username: string, password: string): Promise<User | null>;
   
+  // Admin user management
+  getAdminUser(id: string): Promise<AdminUser | undefined>;
+  getAdminByUsername(username: string): Promise<AdminUser | undefined>;
+  createAdminUser(user: InsertAdminUser): Promise<AdminUser>;
+  verifyAdminPassword(username: string, password: string): Promise<AdminUser | null>;
+  updateAdminLastLogin(id: string): Promise<void>;
+  
   getWildlifeCenters(): Promise<WildlifeCenter[]>;
   getWildlifeCenterById(id: string): Promise<WildlifeCenter | undefined>;
   getNearbyWildlifeCenters(latitude: number, longitude: number, radiusKm?: number): Promise<WildlifeCenter[]>;
@@ -45,6 +52,20 @@ export interface IStorage {
   
   createAnimalSighting(sighting: InsertAnimalSighting): Promise<AnimalSighting>;
   getAnimalSightings(animalId?: string): Promise<AnimalSighting[]>;
+  getAllSightings(): Promise<AnimalSighting[]>;
+  getSightingById(id: string): Promise<AnimalSighting | undefined>;
+  updateSightingStatus(id: string, updates: Partial<AnimalSighting>): Promise<AnimalSighting | undefined>;
+  getEmergencySightings(): Promise<AnimalSighting[]>;
+  
+  // Certificates
+  createCertificate(certificate: InsertCertificate): Promise<Certificate>;
+  getCertificatesBySighting(sightingId: string): Promise<Certificate[]>;
+  getCertificateByNumber(certificateNumber: string): Promise<Certificate | undefined>;
+  
+  // User activity tracking
+  logActivity(activity: InsertUserActivity): Promise<UserActivity>;
+  getUserActivities(filters?: { activityType?: string; userEmail?: string; limit?: number }): Promise<UserActivity[]>;
+  getRecentActivities(limit?: number): Promise<UserActivity[]>;
   
   getNgos(filters?: { focus?: string }): Promise<Ngo[]>;
   getNgoById(id: string): Promise<Ngo | undefined>;
@@ -66,12 +87,15 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private users: Map<string, User> = new Map();
+  private adminUsers: Map<string, AdminUser> = new Map();
   private wildlifeCenters: Map<string, WildlifeCenter> = new Map();
   private animalIdentifications: Map<string, AnimalIdentification> = new Map();
   private supportedAnimals: Map<string, SupportedAnimal> = new Map();
   private floraIdentifications: Map<string, FloraIdentification> = new Map();
   private botanicalGardens: Map<string, BotanicalGarden> = new Map();
   private animalSightings: Map<string, AnimalSighting> = new Map();
+  private certificates: Map<string, Certificate> = new Map();
+  private userActivity: Map<string, UserActivity> = new Map();
   private ngos: Map<string, Ngo> = new Map();
   private volunteerActivities: Map<string, VolunteerActivity> = new Map();
   private deforestationAlerts: Map<string, DeforestationAlert> = new Map();
@@ -121,6 +145,22 @@ export class MemStorage implements IStorage {
       };
       this.ngos.set(id, ngoEntry);
     });
+    
+    // Create default admin user (username: Admin, password: 12345678)
+    const adminId = randomUUID();
+    const hashedAdminPassword = bcrypt.hashSync('12345678', 10);
+    const defaultAdmin: AdminUser = {
+      id: adminId,
+      username: 'Admin',
+      password: hashedAdminPassword,
+      role: 'government_official',
+      department: 'Karnataka Wildlife Department',
+      email: 'admin@wildguard.gov.in',
+      phone: null,
+      createdAt: new Date(),
+      lastLogin: null
+    };
+    this.adminUsers.set(adminId, defaultAdmin);
     
     this.isInitialized = true;
   }
@@ -364,10 +404,20 @@ export class MemStorage implements IStorage {
     const result: AnimalSighting = {
       id: randomUUID(),
       animalId: sighting.animalId || null,
+      reporterName: sighting.reporterName || null,
+      reporterEmail: sighting.reporterEmail || null,
+      reporterPhone: sighting.reporterPhone || null,
       latitude: sighting.latitude,
       longitude: sighting.longitude,
       location: sighting.location,
       habitatType: sighting.habitatType,
+      animalStatus: sighting.animalStatus,
+      emergencyStatus: sighting.emergencyStatus || 'none',
+      description: sighting.description || null,
+      imageUrl: sighting.imageUrl || null,
+      certificateIssued: sighting.certificateIssued || 'no',
+      verifiedBy: sighting.verifiedBy || null,
+      verifiedAt: sighting.verifiedAt || null,
       sightedAt: new Date()
     };
     
@@ -445,7 +495,11 @@ export class MemStorage implements IStorage {
       ...alert,
       protectedArea: alert.protectedArea || null,
       affectedSpecies: alert.affectedSpecies || null,
-      imageUrl: alert.imageUrl || null,
+      beforeImageUrl: alert.beforeImageUrl || null,
+      afterImageUrl: alert.afterImageUrl || null,
+      description: alert.description || null,
+      reportedBy: alert.reportedBy || null,
+      verifiedBy: alert.verifiedBy || null,
       detectedAt: new Date()
     };
     
@@ -507,6 +561,155 @@ export class MemStorage implements IStorage {
     }
     
     return adoptions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  // Admin user management methods
+  async getAdminUser(id: string): Promise<AdminUser | undefined> {
+    return this.adminUsers.get(id);
+  }
+
+  async getAdminByUsername(username: string): Promise<AdminUser | undefined> {
+    for (const admin of Array.from(this.adminUsers.values())) {
+      if (admin.username === username) {
+        return admin;
+      }
+    }
+    return undefined;
+  }
+
+  async createAdminUser(insertAdmin: InsertAdminUser): Promise<AdminUser> {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(insertAdmin.password, saltRounds);
+    
+    const admin: AdminUser = {
+      id: randomUUID(),
+      username: insertAdmin.username,
+      password: hashedPassword,
+      role: insertAdmin.role || 'government_official',
+      department: insertAdmin.department || null,
+      email: insertAdmin.email || null,
+      phone: insertAdmin.phone || null,
+      createdAt: new Date(),
+      lastLogin: null
+    };
+    
+    this.adminUsers.set(admin.id, admin);
+    return admin;
+  }
+
+  async verifyAdminPassword(username: string, password: string): Promise<AdminUser | null> {
+    const admin = await this.getAdminByUsername(username);
+    if (!admin) return null;
+    
+    const isValid = await bcrypt.compare(password, admin.password);
+    return isValid ? admin : null;
+  }
+
+  async updateAdminLastLogin(id: string): Promise<void> {
+    const admin = this.adminUsers.get(id);
+    if (admin) {
+      admin.lastLogin = new Date();
+      this.adminUsers.set(id, admin);
+    }
+  }
+
+  // Enhanced sighting methods
+  async getAllSightings(): Promise<AnimalSighting[]> {
+    return Array.from(this.animalSightings.values())
+      .sort((a, b) => b.sightedAt.getTime() - a.sightedAt.getTime());
+  }
+
+  async getSightingById(id: string): Promise<AnimalSighting | undefined> {
+    return this.animalSightings.get(id);
+  }
+
+  async updateSightingStatus(id: string, updates: Partial<AnimalSighting>): Promise<AnimalSighting | undefined> {
+    const sighting = this.animalSightings.get(id);
+    if (!sighting) return undefined;
+    
+    const updated = { ...sighting, ...updates };
+    this.animalSightings.set(id, updated);
+    return updated;
+  }
+
+  async getEmergencySightings(): Promise<AnimalSighting[]> {
+    return Array.from(this.animalSightings.values())
+      .filter(s => s.emergencyStatus === 'urgent' || s.emergencyStatus === 'critical')
+      .sort((a, b) => {
+        const urgencyOrder = { critical: 0, urgent: 1, none: 2 };
+        return urgencyOrder[a.emergencyStatus as keyof typeof urgencyOrder] - 
+               urgencyOrder[b.emergencyStatus as keyof typeof urgencyOrder];
+      });
+  }
+
+  // Certificate methods
+  async createCertificate(insertCert: InsertCertificate): Promise<Certificate> {
+    const cert: Certificate = {
+      id: randomUUID(),
+      ...insertCert,
+      sightingId: insertCert.sightingId || null,
+      issueDate: new Date()
+    };
+    
+    this.certificates.set(cert.id, cert);
+    return cert;
+  }
+
+  async getCertificatesBySighting(sightingId: string): Promise<Certificate[]> {
+    return Array.from(this.certificates.values())
+      .filter(c => c.sightingId === sightingId);
+  }
+
+  async getCertificateByNumber(certificateNumber: string): Promise<Certificate | undefined> {
+    for (const cert of Array.from(this.certificates.values())) {
+      if (cert.certificateNumber === certificateNumber) {
+        return cert;
+      }
+    }
+    return undefined;
+  }
+
+  // User activity methods
+  async logActivity(insertActivity: InsertUserActivity): Promise<UserActivity> {
+    const activity: UserActivity = {
+      id: randomUUID(),
+      activityType: insertActivity.activityType,
+      userId: insertActivity.userId || null,
+      userName: insertActivity.userName || null,
+      userEmail: insertActivity.userEmail || null,
+      details: insertActivity.details || null,
+      ipAddress: insertActivity.ipAddress || null,
+      timestamp: new Date()
+    };
+    
+    this.userActivity.set(activity.id, activity);
+    return activity;
+  }
+
+  async getUserActivities(filters?: { activityType?: string; userEmail?: string; limit?: number }): Promise<UserActivity[]> {
+    let activities = Array.from(this.userActivity.values());
+    
+    if (filters?.activityType) {
+      activities = activities.filter(a => a.activityType === filters.activityType);
+    }
+    
+    if (filters?.userEmail) {
+      activities = activities.filter(a => a.userEmail === filters.userEmail);
+    }
+    
+    activities = activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    
+    if (filters?.limit) {
+      return activities.slice(0, filters.limit);
+    }
+    
+    return activities;
+  }
+
+  async getRecentActivities(limit = 50): Promise<UserActivity[]> {
+    return Array.from(this.userActivity.values())
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, limit);
   }
 }
 
