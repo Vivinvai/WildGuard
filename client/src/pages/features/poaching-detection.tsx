@@ -37,7 +37,28 @@ export default function PoachingDetection() {
       return;
     }
 
+    // Validate image size (must be at least 10KB for valid analysis)
+    if (file.size < 10000) {
+      toast({
+        title: "Image Too Small",
+        description: "Please upload a clear, high-quality image (at least 10KB). Tiny images cannot be analyzed accurately.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate image type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload a valid image file (JPG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setAnalyzing(true);
+    setResults(null); // Clear previous results
     
     try {
       const formData = new FormData();
@@ -51,7 +72,8 @@ export default function PoachingDetection() {
       });
 
       if (!response.ok) {
-        throw new Error("Analysis failed");
+        const errorData = await response.json().catch(() => ({ error: "Analysis failed" }));
+        throw new Error(errorData.error || errorData.details || "Analysis failed");
       }
 
       const data = await response.json();
@@ -64,9 +86,12 @@ export default function PoachingDetection() {
       });
     } catch (error) {
       console.error("Poaching detection error:", error);
+      const errorMessage = (error as Error).message || "Failed to analyze image";
       toast({
         title: "Analysis Failed",
-        description: "Failed to analyze image. Please try again.",
+        description: errorMessage.includes("image is not valid") 
+          ? "The uploaded image could not be processed. Please try a different, clearer image."
+          : errorMessage + ". Please try again with a different image.",
         variant: "destructive",
       });
     } finally {

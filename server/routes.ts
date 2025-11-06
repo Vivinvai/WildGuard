@@ -763,9 +763,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Poaching Detection API
   app.post("/api/features/poaching-detection", upload.single('image'), async (req, res) => {
     try {
+      console.log("[Poaching Detection] Request received");
+      
       if (!req.file) {
+        console.log("[Poaching Detection] No file uploaded");
         return res.status(400).json({ error: "Image file required" });
       }
+
+      console.log("[Poaching Detection] File received:", {
+        filename: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype
+      });
 
       const { analyzePoachingEvidence } = await import("./services/poaching-detection");
       const imageBase64 = req.file.buffer.toString('base64');
@@ -775,11 +784,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         longitude: parseFloat(req.body.longitude),
       } : undefined;
 
+      console.log("[Poaching Detection] Calling AI service...");
       const result = await analyzePoachingEvidence(imageBase64, location);
+      console.log("[Poaching Detection] Analysis complete, threat level:", result.threatLevel);
+      
       res.json(result);
     } catch (error) {
-      console.error("Poaching detection error:", error);
-      res.status(500).json({ error: "Failed to analyze image for poaching evidence" });
+      console.error("[Poaching Detection] ERROR:", error);
+      console.error("[Poaching Detection] Error stack:", (error as Error).stack);
+      res.status(500).json({ error: "Failed to analyze image for poaching evidence", details: (error as Error).message });
     }
   });
 
