@@ -25,8 +25,7 @@ export default function HabitatMonitoring() {
   const [showAll, setShowAll] = useState(true);
 
   const { data: habitats, isLoading } = useQuery<HabitatData[]>({
-    queryKey: ['/api/features/habitat-monitoring', { all: showAll }],
-    enabled: showAll,
+    queryKey: ['/api/features/habitat-monitoring?all=true'],
   });
 
   const getHealthColor = (health: string) => {
