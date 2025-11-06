@@ -9,6 +9,8 @@ import {
   type Ngo, type InsertNgo,
   type VolunteerActivity, type InsertVolunteerActivity,
   type DeforestationAlert, type InsertDeforestationAlert,
+  type VolunteerApplication, type InsertVolunteerApplication,
+  type AnimalAdoption, type InsertAnimalAdoption,
   wildlifeCentersData, botanicalGardensData, ngosData
 } from "@shared/schema";
 import { randomUUID } from "crypto";
@@ -49,6 +51,12 @@ export interface IStorage {
   
   getDeforestationAlerts(filters?: { severity?: string; limit?: number }): Promise<DeforestationAlert[]>;
   createDeforestationAlert(alert: InsertDeforestationAlert): Promise<DeforestationAlert>;
+  
+  createVolunteerApplication(application: InsertVolunteerApplication): Promise<VolunteerApplication>;
+  getVolunteerApplications(filters?: { ngoId?: string; status?: string }): Promise<VolunteerApplication[]>;
+  
+  createAnimalAdoption(adoption: InsertAnimalAdoption): Promise<AnimalAdoption>;
+  getAnimalAdoptions(filters?: { animalId?: string; status?: string }): Promise<AnimalAdoption[]>;
 }
 
 // DatabaseStorage temporarily disabled to avoid database connection issues
@@ -64,6 +72,8 @@ export class MemStorage implements IStorage {
   private ngos: Map<string, Ngo> = new Map();
   private volunteerActivities: Map<string, VolunteerActivity> = new Map();
   private deforestationAlerts: Map<string, DeforestationAlert> = new Map();
+  private volunteerApplications: Map<string, VolunteerApplication> = new Map();
+  private animalAdoptions: Map<string, AnimalAdoption> = new Map();
   private isInitialized = false;
 
   constructor() {
@@ -402,6 +412,7 @@ export class MemStorage implements IStorage {
       id: randomUUID(),
       ...activity,
       ngoId: activity.ngoId || null,
+      volunteersJoined: activity.volunteersJoined ?? 0,
       createdAt: new Date()
     };
     
@@ -437,6 +448,62 @@ export class MemStorage implements IStorage {
     
     this.deforestationAlerts.set(result.id, result);
     return result;
+  }
+
+  async createVolunteerApplication(application: InsertVolunteerApplication): Promise<VolunteerApplication> {
+    const result: VolunteerApplication = {
+      id: randomUUID(),
+      ...application,
+      ngoId: application.ngoId || null,
+      skills: application.skills || null,
+      message: application.message || null,
+      status: 'pending',
+      createdAt: new Date()
+    };
+    
+    this.volunteerApplications.set(result.id, result);
+    return result;
+  }
+
+  async getVolunteerApplications(filters?: { ngoId?: string; status?: string }): Promise<VolunteerApplication[]> {
+    let applications = Array.from(this.volunteerApplications.values());
+    
+    if (filters?.ngoId) {
+      applications = applications.filter(a => a.ngoId === filters.ngoId);
+    }
+    
+    if (filters?.status) {
+      applications = applications.filter(a => a.status === filters.status);
+    }
+    
+    return applications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createAnimalAdoption(adoption: InsertAnimalAdoption): Promise<AnimalAdoption> {
+    const result: AnimalAdoption = {
+      id: randomUUID(),
+      ...adoption,
+      message: adoption.message || null,
+      status: 'pending',
+      createdAt: new Date()
+    };
+    
+    this.animalAdoptions.set(result.id, result);
+    return result;
+  }
+
+  async getAnimalAdoptions(filters?: { animalId?: string; status?: string }): Promise<AnimalAdoption[]> {
+    let adoptions = Array.from(this.animalAdoptions.values());
+    
+    if (filters?.animalId) {
+      adoptions = adoptions.filter(a => a.animalId === filters.animalId);
+    }
+    
+    if (filters?.status) {
+      adoptions = adoptions.filter(a => a.status === filters.status);
+    }
+    
+    return adoptions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 }
 

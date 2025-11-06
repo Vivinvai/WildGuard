@@ -12,6 +12,8 @@ import {
   insertAnimalSightingSchema,
   insertVolunteerActivitySchema,
   insertDeforestationAlertSchema,
+  insertVolunteerApplicationSchema,
+  insertAnimalAdoptionSchema,
   insertUserSchema 
 } from "@shared/schema";
 import { z } from "zod";
@@ -496,6 +498,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("Error creating deforestation alert:", error);
       res.status(500).json({ error: "Failed to create deforestation alert" });
+    }
+  });
+
+  // Volunteer applications
+  app.post("/api/volunteer-applications", async (req, res) => {
+    try {
+      const applicationData = insertVolunteerApplicationSchema.parse(req.body);
+      const application = await storage.createVolunteerApplication(applicationData);
+      res.status(201).json(application);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      console.error("Error creating volunteer application:", error);
+      res.status(500).json({ error: "Failed to create volunteer application" });
+    }
+  });
+
+  app.get("/api/volunteer-applications", async (req, res) => {
+    try {
+      const { ngoId, status } = req.query;
+      const filters: { ngoId?: string; status?: string } = {};
+      if (ngoId) filters.ngoId = ngoId as string;
+      if (status) filters.status = status as string;
+      
+      const applications = await storage.getVolunteerApplications(Object.keys(filters).length > 0 ? filters : undefined);
+      res.json(applications);
+    } catch (error) {
+      console.error("Error getting volunteer applications:", error);
+      res.status(500).json({ error: "Failed to get volunteer applications" });
+    }
+  });
+
+  // Animal adoptions
+  app.post("/api/animal-adoptions", async (req, res) => {
+    try {
+      const adoptionData = insertAnimalAdoptionSchema.parse(req.body);
+      const adoption = await storage.createAnimalAdoption(adoptionData);
+      res.status(201).json(adoption);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      console.error("Error creating animal adoption:", error);
+      res.status(500).json({ error: "Failed to create animal adoption" });
+    }
+  });
+
+  app.get("/api/animal-adoptions", async (req, res) => {
+    try {
+      const { animalId, status } = req.query;
+      const filters: { animalId?: string; status?: string } = {};
+      if (animalId) filters.animalId = animalId as string;
+      if (status) filters.status = status as string;
+      
+      const adoptions = await storage.getAnimalAdoptions(Object.keys(filters).length > 0 ? filters : undefined);
+      res.json(adoptions);
+    } catch (error) {
+      console.error("Error getting animal adoptions:", error);
+      res.status(500).json({ error: "Failed to get animal adoptions" });
     }
   });
 

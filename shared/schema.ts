@@ -157,6 +157,39 @@ export const deforestationAlerts = pgTable("deforestation_alerts", {
   detectedAtIdx: index("deforestation_alerts_detected_at_idx").on(table.detectedAt),
 }));
 
+export const volunteerApplications = pgTable("volunteer_applications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  ngoId: varchar("ngo_id").references(() => ngos.id, { onDelete: "cascade" }),
+  availability: text("availability").notNull(),
+  skills: text("skills"),
+  message: text("message"),
+  status: text("status").notNull().default('pending'), // 'pending', 'approved', 'rejected'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  ngoIdIdx: index("volunteer_applications_ngo_id_idx").on(table.ngoId),
+  statusIdx: index("volunteer_applications_status_idx").on(table.status),
+  emailIdx: index("volunteer_applications_email_idx").on(table.email),
+}));
+
+export const animalAdoptions = pgTable("animal_adoptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  animalId: text("animal_id").notNull(),
+  adoptionType: text("adoption_type").notNull(), // 'monthly', 'yearly', 'lifetime'
+  message: text("message"),
+  status: text("status").notNull().default('pending'), // 'pending', 'approved', 'active', 'cancelled'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  animalIdIdx: index("animal_adoptions_animal_id_idx").on(table.animalId),
+  statusIdx: index("animal_adoptions_status_idx").on(table.status),
+  emailIdx: index("animal_adoptions_email_idx").on(table.email),
+}));
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -202,6 +235,18 @@ export const insertVolunteerActivitySchema = createInsertSchema(volunteerActivit
 export const insertDeforestationAlertSchema = createInsertSchema(deforestationAlerts).omit({
   id: true,
   detectedAt: true,
+});
+
+export const insertVolunteerApplicationSchema = createInsertSchema(volunteerApplications).omit({
+  id: true,
+  createdAt: true,
+  status: true,
+});
+
+export const insertAnimalAdoptionSchema = createInsertSchema(animalAdoptions).omit({
+  id: true,
+  createdAt: true,
+  status: true,
 });
 
 // Relations
@@ -263,6 +308,10 @@ export type VolunteerActivity = typeof volunteerActivities.$inferSelect;
 export type InsertVolunteerActivity = z.infer<typeof insertVolunteerActivitySchema>;
 export type DeforestationAlert = typeof deforestationAlerts.$inferSelect;
 export type InsertDeforestationAlert = z.infer<typeof insertDeforestationAlertSchema>;
+export type VolunteerApplication = typeof volunteerApplications.$inferSelect;
+export type InsertVolunteerApplication = z.infer<typeof insertVolunteerApplicationSchema>;
+export type AnimalAdoption = typeof animalAdoptions.$inferSelect;
+export type InsertAnimalAdoption = z.infer<typeof insertAnimalAdoptionSchema>;
 
 // Static data for wildlife centers
 export const wildlifeCentersData: InsertWildlifeCenter[] = [
