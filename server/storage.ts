@@ -306,23 +306,24 @@ export class MemStorage implements IStorage {
     if (this.supportedAnimals.size > 0) return;
 
     const animalsData: InsertSupportedAnimal[] = [
+      // MAMMALS
       {
         speciesName: "Bengal Tiger",
         scientificName: "Panthera tigris tigris",
         conservationStatus: "Endangered",
-        population: "2,500-3,000 individuals in India",
-        habitat: "Dense forests, grasslands, and mangrove swamps. Karnataka's Bandipur and Nagarhole National Parks.",
+        population: "563 individuals in Karnataka (2024)",
+        habitat: "Dense forests, grasslands. Karnataka's Bandipur, Nagarhole, BRT, Bhadra National Parks.",
         threats: ["Poaching", "Habitat Loss", "Human-Wildlife Conflict"],
         region: "Karnataka",
         category: "Mammal",
-        description: "The Royal Bengal Tiger is India's national animal and a apex predator. Karnataka's tiger reserves are crucial for their conservation."
+        description: "The Royal Bengal Tiger is India's national animal and apex predator. Karnataka's tiger reserves are crucial for their conservation."
       },
       {
         speciesName: "Asian Elephant",
         scientificName: "Elephas maximus",
         conservationStatus: "Endangered",
-        population: "27,000-31,000 individuals in India",
-        habitat: "Tropical forests, grasslands, and cultivated areas. Large populations in Karnataka's Western Ghats.",
+        population: "6,395 individuals in Karnataka (2024)",
+        habitat: "Tropical forests, grasslands, cultivated areas. Large populations in Karnataka's Western Ghats.",
         threats: ["Habitat Fragmentation", "Human-Elephant Conflict", "Poaching"],
         region: "Karnataka",
         category: "Mammal",
@@ -332,8 +333,8 @@ export class MemStorage implements IStorage {
         speciesName: "Indian Leopard",
         scientificName: "Panthera pardus fusca",
         conservationStatus: "Vulnerable",
-        population: "12,000-14,000 individuals in India",
-        habitat: "Deciduous forests, grasslands, and rocky areas. Abundant in Karnataka's protected areas.",
+        population: "1,783 individuals in Karnataka (2024)",
+        habitat: "Deciduous forests, grasslands, rocky areas. Abundant in Karnataka's protected areas.",
         threats: ["Retaliatory Killing", "Poaching", "Prey Depletion"],
         region: "Karnataka",
         category: "Mammal",
@@ -344,11 +345,483 @@ export class MemStorage implements IStorage {
         scientificName: "Melursus ursinus",
         conservationStatus: "Vulnerable",
         population: "10,000-20,000 individuals in India",
-        habitat: "Dry deciduous forests, grasslands, and scrublands. Common in Karnataka's Daroji Bear Sanctuary.",
+        habitat: "Dry deciduous forests, grasslands, scrublands. Common in Karnataka's Daroji Bear Sanctuary.",
         threats: ["Habitat Loss", "Human-Bear Conflict", "Poaching"],
         region: "Karnataka",
         category: "Mammal",
         description: "Sloth bears are the only bear species native to India, known for their excellent climbing abilities and insect diet."
+      },
+      {
+        speciesName: "Indian Gaur",
+        scientificName: "Bos gaurus",
+        conservationStatus: "Vulnerable",
+        population: "21,000-28,000 in India",
+        habitat: "Dense forests, bamboo thickets, grasslands. Western Ghats of Karnataka.",
+        threats: ["Habitat Loss", "Disease from Domestic Cattle", "Hunting"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "The gaur is the world's largest bovine species, standing up to 2m tall. Vital grazers in forest ecosystems."
+      },
+      {
+        speciesName: "Dhole",
+        scientificName: "Cuon alpinus",
+        conservationStatus: "Endangered",
+        population: "2,000-2,500 in India",
+        habitat: "Forests, grasslands. Nagarhole, Bandipur National Parks.",
+        threats: ["Habitat Loss", "Prey Depletion", "Disease", "Persecution"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Dholes are highly social wild dogs that hunt in packs. Excellent communicators with unique whistling calls."
+      },
+      {
+        speciesName: "Striped Hyena",
+        scientificName: "Hyaena hyaena",
+        conservationStatus: "Near Threatened",
+        population: "5,000-14,000 in India",
+        habitat: "Scrublands, grasslands, open forests. Scattered across Karnataka.",
+        threats: ["Habitat Loss", "Persecution", "Prey Depletion"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Nocturnal scavengers with powerful jaws capable of crushing bones. Important for ecosystem cleanup."
+      },
+      {
+        speciesName: "Indian Giant Squirrel",
+        scientificName: "Ratufa indica",
+        conservationStatus: "Least Concern",
+        population: "Unknown",
+        habitat: "Dense tropical and mixed deciduous forests. Western Ghats canopy.",
+        threats: ["Habitat Loss", "Hunting"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Giant squirrels are spectacular arboreal rodents with colorful fur, reaching up to 1m in length including tail."
+      },
+      {
+        speciesName: "Nilgiri Langur",
+        scientificName: "Semnopithecus johnii",
+        conservationStatus: "Vulnerable",
+        population: "Unknown",
+        habitat: "Tropical evergreen forests. Endemic to Western Ghats.",
+        threats: ["Habitat Loss", "Fragmentation"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Black-furred primates with distinctive white head hair. Endemic to Western Ghats rainforests."
+      },
+      {
+        speciesName: "Indian Pangolin",
+        scientificName: "Manis crassicaudata",
+        conservationStatus: "Endangered",
+        population: "Unknown",
+        habitat: "Grasslands, tropical forests, dry forests.",
+        threats: ["Illegal Wildlife Trade", "Habitat Loss"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Pangolins are the world's most trafficked mammals. Covered in protective keratin scales, they feed on ants and termites."
+      },
+      {
+        speciesName: "Smooth-Coated Otter",
+        scientificName: "Lutrogale perspicillata",
+        conservationStatus: "Vulnerable",
+        population: "Unknown",
+        habitat: "Rivers, wetlands, mangroves. Cauvery River basin.",
+        threats: ["Habitat Loss", "Pollution", "Hunting"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Social otters living in family groups. Excellent swimmers crucial for aquatic ecosystem health."
+      },
+      {
+        speciesName: "Indian Wild Dog",
+        scientificName: "Cuon alpinus",
+        conservationStatus: "Endangered",
+        population: "2,000-2,500 in India",
+        habitat: "Forests, grasslands across Karnataka's protected areas.",
+        threats: ["Habitat Loss", "Disease", "Prey Depletion"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Pack hunters with complex social structures. Essential predators maintaining herbivore populations."
+      },
+
+      // BIRDS
+      {
+        speciesName: "Indian Peafowl",
+        scientificName: "Pavo cristatus",
+        conservationStatus: "Least Concern",
+        population: "Common across India",
+        habitat: "Forests, grasslands, agricultural areas.",
+        threats: ["Habitat Loss", "Hunting"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "India's national bird, famous for spectacular courtship displays. Males have iridescent blue-green plumage."
+      },
+      {
+        speciesName: "Great Indian Hornbill",
+        scientificName: "Buceros bicornis",
+        conservationStatus: "Vulnerable",
+        population: "Unknown",
+        habitat: "Evergreen and moist deciduous forests. Western Ghats.",
+        threats: ["Habitat Loss", "Hunting", "Nest Site Loss"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "Massive birds with distinctive yellow-orange casques. Important seed dispersers for forest regeneration."
+      },
+      {
+        speciesName: "Malabar Pied Hornbill",
+        scientificName: "Anthracoceros coronatus",
+        conservationStatus: "Near Threatened",
+        population: "Unknown",
+        habitat: "Evergreen forests, plantations. Western Ghats.",
+        threats: ["Habitat Loss", "Hunting"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "Endemic to Western Ghats. Iconic black and white plumage with large curved bill."
+      },
+      {
+        speciesName: "Nilgiri Wood Pigeon",
+        scientificName: "Columba elphinstonii",
+        conservationStatus: "Vulnerable",
+        population: "Unknown",
+        habitat: "Dense montane forests. Endemic to Western Ghats.",
+        threats: ["Habitat Loss", "Hunting"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "Beautiful endemic pigeon with checkered black and white neck pattern. Found only in Western Ghats."
+      },
+      {
+        speciesName: "Indian Vulture",
+        scientificName: "Gyps indicus",
+        conservationStatus: "Critically Endangered",
+        population: "Less than 30,000 globally",
+        habitat: "Open countryside, agricultural areas.",
+        threats: ["Diclofenac Poisoning", "Habitat Loss"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "Vultures prevent disease spread by consuming carcasses. Population crashed 97% due to veterinary drug poisoning."
+      },
+      {
+        speciesName: "Painted Stork",
+        scientificName: "Mycteria leucocephala",
+        conservationStatus: "Near Threatened",
+        population: "Unknown",
+        habitat: "Wetlands, marshes, lakes. Ranganathittu Bird Sanctuary.",
+        threats: ["Habitat Loss", "Pollution", "Disturbance"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "Striking wading birds with pink tertiary wing feathers. Colonial breeders in wetland habitats."
+      },
+      {
+        speciesName: "Indian Grey Hornbill",
+        scientificName: "Ocyceros birostris",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Dry forests, scrublands, urban areas.",
+        threats: ["Habitat Loss"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "Adaptable hornbills common even in urban areas. Cavity nesters vital for seed dispersal."
+      },
+      {
+        speciesName: "Black-Headed Ibis",
+        scientificName: "Threskiornis melanocephalus",
+        conservationStatus: "Near Threatened",
+        population: "Unknown",
+        habitat: "Wetlands, paddy fields, marshes.",
+        threats: ["Habitat Loss", "Pollution", "Disturbance"],
+        region: "Karnataka",
+        category: "Bird",
+        description: "Wetland specialists with distinctive bare black head and curved bill. Important for wetland ecosystems."
+      },
+
+      // REPTILES
+      {
+        speciesName: "Indian Rock Python",
+        scientificName: "Python molurus",
+        conservationStatus: "Near Threatened",
+        population: "Unknown",
+        habitat: "Forests, grasslands, agricultural areas.",
+        threats: ["Habitat Loss", "Hunting", "Illegal Trade"],
+        region: "Karnataka",
+        category: "Reptile",
+        description: "Large non-venomous constrictor snake. Important rodent predators in agricultural areas."
+      },
+      {
+        speciesName: "King Cobra",
+        scientificName: "Ophiophagus hannah",
+        conservationStatus: "Vulnerable",
+        population: "Unknown",
+        habitat: "Dense highland forests. Western Ghats.",
+        threats: ["Habitat Loss", "Persecution", "Illegal Trade"],
+        region: "Karnataka",
+        category: "Reptile",
+        description: "World's longest venomous snake. Feeds primarily on other snakes. Essential apex predator."
+      },
+      {
+        speciesName: "Indian Star Tortoise",
+        scientificName: "Geochelone elegans",
+        conservationStatus: "Vulnerable",
+        population: "Declining",
+        habitat: "Dry grasslands, scrub forests.",
+        threats: ["Illegal Pet Trade", "Habitat Loss"],
+        region: "Karnataka",
+        category: "Reptile",
+        description: "Beautifully patterned tortoise with star-like shell markings. Heavily targeted by illegal pet trade."
+      },
+      {
+        speciesName: "Mugger Crocodile",
+        scientificName: "Crocodylus palustris",
+        conservationStatus: "Vulnerable",
+        population: "5,000-10,000 in India",
+        habitat: "Rivers, lakes, marshes. Cauvery River system.",
+        threats: ["Habitat Loss", "Human-Wildlife Conflict"],
+        region: "Karnataka",
+        category: "Reptile",
+        description: "Medium-sized crocodile adapted to freshwater habitats. Important apex predator in aquatic ecosystems."
+      },
+      {
+        speciesName: "Indian Chameleon",
+        scientificName: "Chamaeleo zeylanicus",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Dry forests, scrublands, gardens.",
+        threats: ["Habitat Loss", "Collection for Traditional Medicine"],
+        region: "Karnataka",
+        category: "Reptile",
+        description: "Color-changing lizard with independently mobile eyes. Important insect predator."
+      },
+      {
+        speciesName: "Monitor Lizard",
+        scientificName: "Varanus bengalensis",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Forests, grasslands, wetlands.",
+        threats: ["Habitat Loss", "Hunting for Skin and Meat"],
+        region: "Karnataka",
+        category: "Reptile",
+        description: "Large carnivorous lizards. Ecosystem cleaners consuming carrion and controlling rodent populations."
+      },
+
+      // AMPHIBIANS
+      {
+        speciesName: "Purple Frog",
+        scientificName: "Nasikabatrachus sahyadrensis",
+        conservationStatus: "Endangered",
+        population: "Unknown",
+        habitat: "Moist forests. Endemic to Western Ghats.",
+        threats: ["Habitat Loss", "Agriculture", "Climate Change"],
+        region: "Karnataka",
+        category: "Amphibian",
+        description: "Ancient lineage of frog discovered in 2003. Spends most of life underground, emerging only during monsoons."
+      },
+      {
+        speciesName: "Malabar Gliding Frog",
+        scientificName: "Rhacophorus malabaricus",
+        conservationStatus: "Least Concern",
+        population: "Unknown",
+        habitat: "Tropical moist forests. Western Ghats.",
+        threats: ["Habitat Loss", "Pollution"],
+        region: "Karnataka",
+        category: "Amphibian",
+        description: "Tree frogs capable of gliding using webbed feet. Build foam nests above water bodies."
+      },
+      {
+        speciesName: "Indian Bull Frog",
+        scientificName: "Hoplobatrachus tigerinus",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Agricultural areas, wetlands, ponds.",
+        threats: ["Pollution", "Overharvesting"],
+        region: "Karnataka",
+        category: "Amphibian",
+        description: "Large edible frogs turning bright yellow during breeding season. Important pest controllers in agriculture."
+      },
+
+      // FISH
+      {
+        speciesName: "Mahseer",
+        scientificName: "Tor khudree",
+        conservationStatus: "Endangered",
+        population: "Declining",
+        habitat: "Fast-flowing rivers and streams. Cauvery River.",
+        threats: ["Overfishing", "Dam Construction", "Pollution"],
+        region: "Karnataka",
+        category: "Fish",
+        description: "Large game fish known as 'Tiger of the Water'. Important for river ecosystems and local livelihoods."
+      },
+      {
+        speciesName: "Golden Mahseer",
+        scientificName: "Tor putitora",
+        conservationStatus: "Critically Endangered",
+        population: "Severely declining",
+        habitat: "Clear rivers in Western Ghats.",
+        threats: ["Overfishing", "Habitat Degradation", "Dams"],
+        region: "Karnataka",
+        category: "Fish",
+        description: "Magnificent golden-scaled fish reaching over 50kg. Critical indicator species for river health."
+      },
+
+      // MORE MAMMALS
+      {
+        speciesName: "Sambar Deer",
+        scientificName: "Rusa unicolor",
+        conservationStatus: "Vulnerable",
+        population: "Common in Karnataka",
+        habitat: "Dense forests, grasslands.",
+        threats: ["Habitat Loss", "Poaching"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Largest Indian deer species. Important prey for tigers and leopards."
+      },
+      {
+        speciesName: "Spotted Deer (Chital)",
+        scientificName: "Axis axis",
+        conservationStatus: "Least Concern",
+        population: "Abundant",
+        habitat: "Grasslands, light forests.",
+        threats: ["Habitat Loss"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Beautiful deer with distinctive white spots. Primary prey species for large carnivores."
+      },
+      {
+        speciesName: "Indian Muntjac",
+        scientificName: "Muntiacus muntjak",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Dense forests, scrublands.",
+        threats: ["Habitat Loss", "Hunting"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Small deer known as 'barking deer' due to alarm call. Solitary forest dwellers."
+      },
+      {
+        speciesName: "Four-Horned Antelope",
+        scientificName: "Tetracerus quadricornis",
+        conservationStatus: "Vulnerable",
+        population: "Unknown",
+        habitat: "Dry forests, grasslands.",
+        threats: ["Habitat Loss", "Hunting"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Unique antelope with four horns (males). Endemic to Indian subcontinent."
+      },
+      {
+        speciesName: "Indian Wolf",
+        scientificName: "Canis lupus pallipes",
+        conservationStatus: "Endangered",
+        population: "2,000-3,000 in India",
+        habitat: "Grasslands, scrublands.",
+        threats: ["Habitat Loss", "Human-Wildlife Conflict", "Prey Depletion"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Smaller than northern wolves. Pack hunters essential for ecosystem balance."
+      },
+      {
+        speciesName: "Indian Fox",
+        scientificName: "Vulpes bengalensis",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Semi-arid grasslands, agricultural areas.",
+        threats: ["Habitat Loss"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Small omnivorous foxes. Important rodent controllers in agricultural landscapes."
+      },
+      {
+        speciesName: "Indian Jackal",
+        scientificName: "Canis aureus indicus",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Grasslands, scrublands, agricultural areas.",
+        threats: ["Persecution", "Disease"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Adaptable omnivores and scavengers. Important for ecosystem cleanup and rodent control."
+      },
+      {
+        speciesName: "Jungle Cat",
+        scientificName: "Felis chaus",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Wetlands, grasslands, scrublands.",
+        threats: ["Habitat Loss", "Persecution"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Medium-sized wild cats adapted to diverse habitats. Excellent rodent hunters."
+      },
+      {
+        speciesName: "Rusty-Spotted Cat",
+        scientificName: "Prionailurus rubiginosus",
+        conservationStatus: "Near Threatened",
+        population: "Unknown",
+        habitat: "Dry forests, scrublands.",
+        threats: ["Habitat Loss"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "One of the world's smallest wild cats. Nocturnal hunters of rodents and small prey."
+      },
+      {
+        speciesName: "Indian Crested Porcupine",
+        scientificName: "Hystrix indica",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Forests, grasslands, agricultural areas.",
+        threats: ["Hunting", "Road Mortality"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Large rodents with defensive quills. Important seed dispersers and soil aerators."
+      },
+      {
+        speciesName: "Indian Hare",
+        scientificName: "Lepus nigricollis",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Grasslands, agricultural areas, scrublands.",
+        threats: ["Habitat Loss", "Hunting"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Desert-adapted hares. Important prey species for carnivores and raptors."
+      },
+      {
+        speciesName: "Bonnet Macaque",
+        scientificName: "Macaca radiata",
+        conservationStatus: "Vulnerable",
+        population: "Common in Karnataka",
+        habitat: "Forests, urban areas, agricultural lands.",
+        threats: ["Habitat Loss", "Human-Wildlife Conflict"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Endemic to Indian peninsula. Adaptable primates found even in urban areas."
+      },
+      {
+        speciesName: "Common Palm Civet",
+        scientificName: "Paradoxurus hermaphroditus",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Forests, plantations, urban areas.",
+        threats: ["Habitat Loss", "Hunting"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Nocturnal omnivores. Important seed dispersers and coffee bean processors."
+      },
+      {
+        speciesName: "Indian Flying Fox",
+        scientificName: "Pteropus medius",
+        conservationStatus: "Least Concern",
+        population: "Common",
+        habitat: "Forests, urban areas with large trees.",
+        threats: ["Habitat Loss", "Persecution"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Large fruit bats crucial for pollination and seed dispersal. Form large roosting colonies."
+      },
+      {
+        speciesName: "Honey Badger",
+        scientificName: "Mellivora capensis",
+        conservationStatus: "Least Concern",
+        population: "Uncommon",
+        habitat: "Forests, grasslands, scrublands.",
+        threats: ["Habitat Loss", "Persecution"],
+        region: "Karnataka",
+        category: "Mammal",
+        description: "Fearless omnivores known for ferocity. Important controllers of venomous snakes."
       }
     ];
 
