@@ -4,7 +4,13 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Shield, Camera, MessageCircle, Menu, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Shield, Camera, MessageCircle, Menu, X, Search, Leaf, PawPrint } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Header() {
@@ -52,26 +58,37 @@ export function Header() {
               Home
             </Link>
             <Link 
-              href="/identify" 
+              href="/learn" 
               className={`transition-colors font-medium ${
-                location === "/identify" 
+                location === "/learn" 
                   ? "text-primary" 
                   : "text-muted-foreground hover:text-primary"
               }`}
-              data-testid="link-identify"
+              data-testid="link-learn"
             >
-              Animals
+              Learn
             </Link>
             <Link 
-              href="/flora" 
+              href="/centers" 
               className={`transition-colors font-medium ${
-                location === "/flora" 
+                location === "/centers" 
                   ? "text-primary" 
                   : "text-muted-foreground hover:text-primary"
               }`}
-              data-testid="link-flora"
+              data-testid="link-centers"
             >
-              Flora
+              Wildlife Centers
+            </Link>
+            <Link 
+              href="/gardens" 
+              className={`transition-colors font-medium ${
+                location === "/gardens" 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-primary"
+              }`}
+              data-testid="link-gardens"
+            >
+              Botanical Gardens
             </Link>
             <Link 
               href="/deforestation" 
@@ -85,28 +102,6 @@ export function Header() {
               Habitat
             </Link>
             <Link 
-              href="/centers" 
-              className={`transition-colors font-medium ${
-                location === "/centers" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
-              }`}
-              data-testid="link-centers"
-            >
-              Centers
-            </Link>
-            <Link 
-              href="/gardens" 
-              className={`transition-colors font-medium ${
-                location === "/gardens" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
-              }`}
-              data-testid="link-gardens"
-            >
-              Gardens
-            </Link>
-            <Link 
               href="/discover" 
               className={`transition-colors font-medium ${
                 location === "/discover" 
@@ -115,23 +110,47 @@ export function Header() {
               }`}
               data-testid="link-discover"
             >
-              NGOs
-            </Link>
-            <Link 
-              href="/learn" 
-              className={`transition-colors font-medium ${
-                location === "/learn" 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-primary"
-              }`}
-              data-testid="link-learn"
-            >
-              Learn
+              NGOs & Volunteer
             </Link>
           </nav>
           
           {/* Action buttons */}
           <div className="hidden lg:flex items-center space-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center space-x-2 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-700 dark:text-green-400"
+                  data-testid="button-identify-dropdown"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>Identify</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-card dark:bg-gray-900 border-border dark:border-gray-800">
+                <DropdownMenuItem asChild>
+                  <Link 
+                    href="/identify" 
+                    className="flex items-center space-x-2 cursor-pointer"
+                    data-testid="dropdown-identify-fauna"
+                  >
+                    <PawPrint className="w-4 h-4" />
+                    <span>Identify Fauna</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link 
+                    href="/flora" 
+                    className="flex items-center space-x-2 cursor-pointer"
+                    data-testid="dropdown-identify-flora"
+                  >
+                    <Leaf className="w-4 h-4" />
+                    <span>Identify Flora</span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link href="/chat">
               <Button 
                 variant="outline" 
@@ -140,7 +159,7 @@ export function Header() {
                 data-testid="button-chat-header"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Chat</span>
+                <span>AI Chat</span>
               </Button>
             </Link>
             <ThemeToggle />
@@ -170,43 +189,19 @@ export function Header() {
                     }`}
                     data-testid="link-mobile-home"
                   >
-                    Home
+                    🏠 Home
                   </Link>
                   <Link 
-                    href="/identify" 
+                    href="/learn" 
                     onClick={() => setMobileMenuOpen(false)}
                     className={`p-3 rounded-lg transition-colors font-medium ${
-                      location === "/identify" 
+                      location === "/learn" 
                         ? "bg-primary/10 text-primary" 
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`}
-                    data-testid="link-mobile-identify"
+                    data-testid="link-mobile-learn"
                   >
-                    🐾 Animals
-                  </Link>
-                  <Link 
-                    href="/flora" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`p-3 rounded-lg transition-colors font-medium ${
-                      location === "/flora" 
-                        ? "bg-primary/10 text-primary" 
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
-                    data-testid="link-mobile-flora"
-                  >
-                    🌿 Flora
-                  </Link>
-                  <Link 
-                    href="/deforestation" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`p-3 rounded-lg transition-colors font-medium ${
-                      location === "/deforestation" 
-                        ? "bg-primary/10 text-primary" 
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
-                    data-testid="link-mobile-habitat"
-                  >
-                    🌲 Habitat Loss
+                    📚 Learn
                   </Link>
                   <Link 
                     href="/centers" 
@@ -233,6 +228,18 @@ export function Header() {
                     🌺 Botanical Gardens
                   </Link>
                   <Link 
+                    href="/deforestation" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`p-3 rounded-lg transition-colors font-medium ${
+                      location === "/deforestation" 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    data-testid="link-mobile-habitat"
+                  >
+                    🌲 Habitat
+                  </Link>
+                  <Link 
                     href="/discover" 
                     onClick={() => setMobileMenuOpen(false)}
                     className={`p-3 rounded-lg transition-colors font-medium ${
@@ -244,18 +251,39 @@ export function Header() {
                   >
                     🤝 NGOs & Volunteer
                   </Link>
-                  <Link 
-                    href="/learn" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`p-3 rounded-lg transition-colors font-medium ${
-                      location === "/learn" 
-                        ? "bg-primary/10 text-primary" 
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
-                    data-testid="link-mobile-learn"
-                  >
-                    📚 Learn
-                  </Link>
+                  
+                  {/* Identify section */}
+                  <div className="border-t border-border dark:border-gray-800 pt-4 mt-2">
+                    <p className="text-xs text-muted-foreground px-3 mb-2 font-semibold">Identify Species</p>
+                    <Link 
+                      href="/identify" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`p-3 rounded-lg transition-colors font-medium ${
+                        location === "/identify" 
+                          ? "bg-primary/10 text-primary" 
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      } flex items-center space-x-2`}
+                      data-testid="link-mobile-identify"
+                    >
+                      <PawPrint className="w-4 h-4" />
+                      <span>Identify Fauna</span>
+                    </Link>
+                    <Link 
+                      href="/flora" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`p-3 rounded-lg transition-colors font-medium ${
+                        location === "/flora" 
+                          ? "bg-primary/10 text-primary" 
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      } flex items-center space-x-2`}
+                      data-testid="link-mobile-flora"
+                    >
+                      <Leaf className="w-4 h-4" />
+                      <span>Identify Flora</span>
+                    </Link>
+                  </div>
+                  
+                  {/* AI Chat */}
                   <Link 
                     href="/chat" 
                     onClick={() => setMobileMenuOpen(false)}
@@ -263,10 +291,11 @@ export function Header() {
                       location === "/chat" 
                         ? "bg-primary/10 text-primary" 
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
+                    } flex items-center space-x-2`}
                     data-testid="link-mobile-chat"
                   >
-                    💬 AI Chat
+                    <MessageCircle className="w-4 h-4" />
+                    <span>AI Chat</span>
                   </Link>
                 </nav>
               </SheetContent>
