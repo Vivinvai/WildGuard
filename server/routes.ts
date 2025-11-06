@@ -756,6 +756,153 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI-Powered Conservation Features
+
+  // Poaching Detection API
+  app.post("/api/features/poaching-detection", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Image file required" });
+      }
+
+      const { analyzePoachingEvidence } = await import("./services/poaching-detection");
+      const imageBase64 = req.file.buffer.toString('base64');
+      
+      const location = req.body.latitude && req.body.longitude ? {
+        latitude: parseFloat(req.body.latitude),
+        longitude: parseFloat(req.body.longitude),
+      } : undefined;
+
+      const result = await analyzePoachingEvidence(imageBase64, location);
+      res.json(result);
+    } catch (error) {
+      console.error("Poaching detection error:", error);
+      res.status(500).json({ error: "Failed to analyze image for poaching evidence" });
+    }
+  });
+
+  // Health Assessment API
+  app.post("/api/features/health-assessment", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Image file required" });
+      }
+
+      const { assessAnimalHealth } = await import("./services/health-assessment");
+      const imageBase64 = req.file.buffer.toString('base64');
+      
+      const result = await assessAnimalHealth(imageBase64);
+      res.json(result);
+    } catch (error) {
+      console.error("Health assessment error:", error);
+      res.status(500).json({ error: "Failed to assess animal health" });
+    }
+  });
+
+  // Population Prediction API
+  app.get("/api/features/population-prediction", async (req, res) => {
+    try {
+      const { predictPopulation } = await import("./services/population-prediction");
+      const species = (req.query.species as string) || "tiger";
+      const years = parseInt(req.query.years as string) || 5;
+      
+      const result = await predictPopulation(species, years);
+      res.json(result);
+    } catch (error) {
+      console.error("Population prediction error:", error);
+      res.status(500).json({ error: "Failed to predict population trends" });
+    }
+  });
+
+  // Get available species data
+  app.get("/api/features/wildlife-data", async (req, res) => {
+    try {
+      const { wildlifePopulationData } = await import("./services/population-prediction");
+      res.json(wildlifePopulationData);
+    } catch (error) {
+      console.error("Wildlife data error:", error);
+      res.status(500).json({ error: "Failed to fetch wildlife data" });
+    }
+  });
+
+  // Satellite Monitoring API
+  app.get("/api/features/satellite-monitoring", async (req, res) => {
+    try {
+      const { analyzeSatelliteData } = await import("./services/satellite-monitoring");
+      const locationName = req.query.location as string;
+      const latitude = req.query.latitude ? parseFloat(req.query.latitude as string) : undefined;
+      const longitude = req.query.longitude ? parseFloat(req.query.longitude as string) : undefined;
+      
+      const result = await analyzeSatelliteData(locationName, latitude, longitude);
+      res.json(result);
+    } catch (error) {
+      console.error("Satellite monitoring error:", error);
+      res.status(500).json({ error: "Failed to analyze satellite data" });
+    }
+  });
+
+  // Wildlife Sightings Heatmap API (uses existing sighting data)
+  app.get("/api/features/sightings-heatmap", async (req, res) => {
+    try {
+      const sightings = await storage.getAnimalSightings();
+      
+      // Transform sightings into heatmap data
+      const heatmapData = sightings
+        .filter((s: any) => s.latitude && s.longitude)
+        .map((s: any) => ({
+          latitude: s.latitude as number,
+          longitude: s.longitude as number,
+          species: s.animal || "Unknown",
+          status: s.animalStatus,
+          timestamp: s.timestamp,
+          locationName: s.locationName,
+          habitatType: s.habitatType,
+        }));
+
+      // Calculate species density by location
+      const densityMap = new Map<string, { count: number; species: Set<string> }>();
+      heatmapData.forEach((point: any) => {
+        const key = `${point.latitude.toFixed(2)},${point.longitude.toFixed(2)}`;
+        if (!densityMap.has(key)) {
+          densityMap.set(key, { count: 0, species: new Set() });
+        }
+        const data = densityMap.get(key)!;
+        data.count++;
+        data.species.add(point.species);
+      });
+
+      const hotspots = Array.from(densityMap.entries()).map(([coords, data]) => {
+        const [lat, lon] = coords.split(',').map(Number);
+        return {
+          latitude: lat,
+          longitude: lon,
+          sightingCount: data.count,
+          speciesCount: data.species.size,
+          priority: data.count * data.species.size,
+        };
+      }).sort((a, b) => b.priority - a.priority);
+
+      const speciesCountMap = heatmapData.reduce((acc: Map<string, number>, point: any) => {
+        acc.set(point.species, (acc.get(point.species) || 0) + 1);
+        return acc;
+      }, new Map<string, number>());
+
+      res.json({
+        totalSightings: sightings.length,
+        activeSightings: heatmapData.length,
+        heatmapData,
+        hotspots: hotspots.slice(0, 10), // Top 10 hotspots
+        speciesBreakdown: Array.from(speciesCountMap.entries()).map(([species, count]: [string, number]) => ({ 
+          species, 
+          count 
+        })),
+      });
+    } catch (error) {
+      console.error("Sightings heatmap error:", error);
+      res.status(500).json({ error: "Failed to generate sightings heatmap" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
