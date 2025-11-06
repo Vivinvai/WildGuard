@@ -1,4 +1,16 @@
-import { type User, type InsertUser, type WildlifeCenter, type InsertWildlifeCenter, type AnimalIdentification, type InsertAnimalIdentification, type SupportedAnimal, type InsertSupportedAnimal, wildlifeCentersData } from "@shared/schema";
+import { 
+  type User, type InsertUser, 
+  type WildlifeCenter, type InsertWildlifeCenter, 
+  type AnimalIdentification, type InsertAnimalIdentification, 
+  type SupportedAnimal, type InsertSupportedAnimal,
+  type FloraIdentification, type InsertFloraIdentification,
+  type BotanicalGarden, type InsertBotanicalGarden,
+  type AnimalSighting, type InsertAnimalSighting,
+  type Ngo, type InsertNgo,
+  type VolunteerActivity, type InsertVolunteerActivity,
+  type DeforestationAlert, type InsertDeforestationAlert,
+  wildlifeCentersData, botanicalGardensData, ngosData
+} from "@shared/schema";
 import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 
@@ -19,6 +31,24 @@ export interface IStorage {
   getSupportedAnimals(filters?: { region?: string; category?: string; conservationStatus?: string }): Promise<SupportedAnimal[]>;
   createSupportedAnimal(animal: InsertSupportedAnimal): Promise<SupportedAnimal>;
   seedSupportedAnimals(): Promise<void>;
+  
+  createFloraIdentification(identification: InsertFloraIdentification, userId?: string): Promise<FloraIdentification>;
+  getRecentFloraIdentifications(limit?: number): Promise<FloraIdentification[]>;
+  
+  getBotanicalGardens(): Promise<BotanicalGarden[]>;
+  getNearbyBotanicalGardens(latitude: number, longitude: number, radiusKm?: number): Promise<BotanicalGarden[]>;
+  
+  createAnimalSighting(sighting: InsertAnimalSighting): Promise<AnimalSighting>;
+  getAnimalSightings(animalId?: string): Promise<AnimalSighting[]>;
+  
+  getNgos(filters?: { focus?: string }): Promise<Ngo[]>;
+  getNgoById(id: string): Promise<Ngo | undefined>;
+  
+  getVolunteerActivities(filters?: { status?: string; ngoId?: string }): Promise<VolunteerActivity[]>;
+  createVolunteerActivity(activity: InsertVolunteerActivity): Promise<VolunteerActivity>;
+  
+  getDeforestationAlerts(filters?: { severity?: string; limit?: number }): Promise<DeforestationAlert[]>;
+  createDeforestationAlert(alert: InsertDeforestationAlert): Promise<DeforestationAlert>;
 }
 
 // DatabaseStorage temporarily disabled to avoid database connection issues
@@ -28,13 +58,19 @@ export class MemStorage implements IStorage {
   private wildlifeCenters: Map<string, WildlifeCenter> = new Map();
   private animalIdentifications: Map<string, AnimalIdentification> = new Map();
   private supportedAnimals: Map<string, SupportedAnimal> = new Map();
+  private floraIdentifications: Map<string, FloraIdentification> = new Map();
+  private botanicalGardens: Map<string, BotanicalGarden> = new Map();
+  private animalSightings: Map<string, AnimalSighting> = new Map();
+  private ngos: Map<string, Ngo> = new Map();
+  private volunteerActivities: Map<string, VolunteerActivity> = new Map();
+  private deforestationAlerts: Map<string, DeforestationAlert> = new Map();
   private isInitialized = false;
 
   constructor() {
-    this.initializeWildlifeCenters();
+    this.initializeData();
   }
 
-  private initializeWildlifeCenters() {
+  private initializeData() {
     if (this.isInitialized) return;
     
     // Seed wildlife centers from shared data
@@ -47,6 +83,30 @@ export class MemStorage implements IStorage {
         website: center.website || null
       };
       this.wildlifeCenters.set(id, wildlifeCenter);
+    });
+    
+    // Seed botanical gardens
+    botanicalGardensData.forEach(garden => {
+      const id = randomUUID();
+      const botanicalGarden: BotanicalGarden = {
+        id,
+        ...garden,
+        email: garden.email || null,
+        website: garden.website || null
+      };
+      this.botanicalGardens.set(id, botanicalGarden);
+    });
+    
+    // Seed NGOs
+    ngosData.forEach(ngo => {
+      const id = randomUUID();
+      const ngoEntry: Ngo = {
+        id,
+        ...ngo,
+        website: ngo.website || null,
+        established: ngo.established || null
+      };
+      this.ngos.set(id, ngoEntry);
     });
     
     this.isInitialized = true;
@@ -242,6 +302,141 @@ export class MemStorage implements IStorage {
     for (const animal of animalsData) {
       await this.createSupportedAnimal(animal);
     }
+  }
+
+  async createFloraIdentification(identification: InsertFloraIdentification, userId?: string): Promise<FloraIdentification> {
+    const result: FloraIdentification = {
+      id: randomUUID(),
+      userId: userId || null,
+      speciesName: identification.speciesName,
+      scientificName: identification.scientificName,
+      conservationStatus: identification.conservationStatus,
+      habitat: identification.habitat,
+      uses: identification.uses,
+      threats: identification.threats,
+      imageUrl: identification.imageUrl,
+      confidence: identification.confidence,
+      createdAt: new Date()
+    };
+    
+    this.floraIdentifications.set(result.id, result);
+    return result;
+  }
+
+  async getRecentFloraIdentifications(limit = 10): Promise<FloraIdentification[]> {
+    const identifications = Array.from(this.floraIdentifications.values());
+    return identifications
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+  }
+
+  async getBotanicalGardens(): Promise<BotanicalGarden[]> {
+    return Array.from(this.botanicalGardens.values());
+  }
+
+  async getNearbyBotanicalGardens(latitude: number, longitude: number, radiusKm = 50): Promise<BotanicalGarden[]> {
+    const gardens = Array.from(this.botanicalGardens.values());
+    
+    return gardens.filter(garden => {
+      const distance = this.calculateDistance(latitude, longitude, garden.latitude, garden.longitude);
+      return distance <= radiusKm;
+    }).sort((a, b) => {
+      const distanceA = this.calculateDistance(latitude, longitude, a.latitude, a.longitude);
+      const distanceB = this.calculateDistance(latitude, longitude, b.latitude, b.longitude);
+      return distanceA - distanceB;
+    });
+  }
+
+  async createAnimalSighting(sighting: InsertAnimalSighting): Promise<AnimalSighting> {
+    const result: AnimalSighting = {
+      id: randomUUID(),
+      animalId: sighting.animalId || null,
+      latitude: sighting.latitude,
+      longitude: sighting.longitude,
+      location: sighting.location,
+      habitatType: sighting.habitatType,
+      sightedAt: new Date()
+    };
+    
+    this.animalSightings.set(result.id, result);
+    return result;
+  }
+
+  async getAnimalSightings(animalId?: string): Promise<AnimalSighting[]> {
+    const sightings = Array.from(this.animalSightings.values());
+    if (animalId) {
+      return sightings.filter(s => s.animalId === animalId);
+    }
+    return sightings;
+  }
+
+  async getNgos(filters?: { focus?: string }): Promise<Ngo[]> {
+    let ngosList = Array.from(this.ngos.values());
+    
+    if (filters?.focus) {
+      ngosList = ngosList.filter(ngo => ngo.focus.includes(filters.focus!));
+    }
+    
+    return ngosList.sort((a, b) => b.rating - a.rating);
+  }
+
+  async getNgoById(id: string): Promise<Ngo | undefined> {
+    return this.ngos.get(id);
+  }
+
+  async getVolunteerActivities(filters?: { status?: string; ngoId?: string }): Promise<VolunteerActivity[]> {
+    let activities = Array.from(this.volunteerActivities.values());
+    
+    if (filters?.status) {
+      activities = activities.filter(a => a.status === filters.status);
+    }
+    if (filters?.ngoId) {
+      activities = activities.filter(a => a.ngoId === filters.ngoId);
+    }
+    
+    return activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createVolunteerActivity(activity: InsertVolunteerActivity): Promise<VolunteerActivity> {
+    const result: VolunteerActivity = {
+      id: randomUUID(),
+      ...activity,
+      ngoId: activity.ngoId || null,
+      createdAt: new Date()
+    };
+    
+    this.volunteerActivities.set(result.id, result);
+    return result;
+  }
+
+  async getDeforestationAlerts(filters?: { severity?: string; limit?: number }): Promise<DeforestationAlert[]> {
+    let alerts = Array.from(this.deforestationAlerts.values());
+    
+    if (filters?.severity) {
+      alerts = alerts.filter(a => a.severity === filters.severity);
+    }
+    
+    const sortedAlerts = alerts.sort((a, b) => b.detectedAt.getTime() - a.detectedAt.getTime());
+    
+    if (filters?.limit) {
+      return sortedAlerts.slice(0, filters.limit);
+    }
+    
+    return sortedAlerts;
+  }
+
+  async createDeforestationAlert(alert: InsertDeforestationAlert): Promise<DeforestationAlert> {
+    const result: DeforestationAlert = {
+      id: randomUUID(),
+      ...alert,
+      protectedArea: alert.protectedArea || null,
+      affectedSpecies: alert.affectedSpecies || null,
+      imageUrl: alert.imageUrl || null,
+      detectedAt: new Date()
+    };
+    
+    this.deforestationAlerts.set(result.id, result);
+    return result;
   }
 }
 
