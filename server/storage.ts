@@ -146,12 +146,12 @@ export class MemStorage implements IStorage {
       this.ngos.set(id, ngoEntry);
     });
     
-    // Create default admin user (username: Admin, password: 12345678)
+    // Create default admin user (username: admineo75, password: wildguard1234)
     const adminId = randomUUID();
-    const hashedAdminPassword = bcrypt.hashSync('12345678', 10);
+    const hashedAdminPassword = bcrypt.hashSync('wildguard1234', 10);
     const defaultAdmin: AdminUser = {
       id: adminId,
-      username: 'Admin',
+      username: 'admineo75',
       password: hashedAdminPassword,
       role: 'government_official',
       department: 'Karnataka Wildlife Department',
