@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Shield, Camera, MessageCircle } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Header() {
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -100,7 +101,7 @@ export function Header() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex items-center space-x-2 bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
+                className="flex items-center space-x-2 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-700 dark:text-green-400"
                 data-testid="button-upload-header"
               >
                 <Camera className="w-4 h-4" />
@@ -111,13 +112,14 @@ export function Header() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex items-center space-x-2 bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700"
+                className="flex items-center space-x-2 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                 data-testid="button-chat-header"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Chat</span>
               </Button>
             </Link>
+            <ThemeToggle />
           </div>
           <button className="md:hidden p-2 text-muted-foreground hover:text-foreground" data-testid="button-mobile-menu">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
