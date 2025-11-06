@@ -30,45 +30,61 @@ export default function Discover() {
       id: "1",
       name: "Wildlife Conservation Trust Karnataka",
       description: "Leading organization working on wildlife protection, habitat restoration, and community-based conservation across Karnataka's forests and protected areas.",
-      focusAreas: ["Tiger Conservation", "Elephant Protection", "Habitat Restoration"],
-      location: "Bangalore, Karnataka",
-      contact: "contact@wctkarnata.org",
+      focus: ["Tiger Conservation", "Elephant Protection", "Habitat Restoration"],
+      address: "Bangalore, Karnataka",
+      email: "contact@wctkarnata.org",
       phone: "+91 80 1234 5678",
       website: "www.wctkarnataka.org",
-      established: 1995
+      latitude: 12.9716,
+      longitude: 77.5946,
+      volunteerOpportunities: ["Field Research", "Community Outreach"],
+      established: "1995",
+      rating: 4.8
     },
     {
       id: "2",
       name: "Karnataka Forest Department Conservation Wing",
       description: "Government body responsible for protecting Karnataka's 38,720 km² of forest area, managing wildlife sanctuaries, and anti-poaching operations.",
-      focusAreas: ["Forest Protection", "Wildlife Surveys", "Community Engagement"],
-      location: "Bangalore, Karnataka",
-      contact: "info@karnatakaforest.gov.in",
+      focus: ["Forest Protection", "Wildlife Surveys", "Community Engagement"],
+      address: "Bangalore, Karnataka",
+      email: "info@karnatakaforest.gov.in",
       phone: "+91 80 2222 3333",
       website: "www.aranya.gov.in",
-      established: 1975
+      latitude: 12.9716,
+      longitude: 77.5946,
+      volunteerOpportunities: ["Forest Patrols", "Wildlife Monitoring"],
+      established: "1975",
+      rating: 4.6
     },
     {
       id: "3",
       name: "Green Earth Volunteers",
       description: "Youth-led environmental organization conducting tree plantation drives, wildlife awareness programs, and eco-tourism initiatives across Karnataka.",
-      focusAreas: ["Reforestation", "Youth Education", "Eco-Tourism"],
-      location: "Mysore, Karnataka",
-      contact: "hello@greenearthvolunteers.org",
+      focus: ["Reforestation", "Youth Education", "Eco-Tourism"],
+      address: "Mysore, Karnataka",
+      email: "hello@greenearthvolunteers.org",
       phone: "+91 821 4567 8901",
       website: "www.greenearthvolunteers.org",
-      established: 2010
+      latitude: 12.2958,
+      longitude: 76.6394,
+      volunteerOpportunities: ["Tree Planting", "Educational Programs"],
+      established: "2010",
+      rating: 4.5
     },
     {
       id: "4",
       name: "Bandipur Wildlife Rescue Center",
       description: "Dedicated rescue and rehabilitation facility for injured wildlife, specializing in elephant care, leopard rescue, and bird sanctuary operations.",
-      focusAreas: ["Animal Rescue", "Wildlife Rehabilitation", "Veterinary Care"],
-      location: "Bandipur, Karnataka",
-      contact: "rescue@bandipurwildlife.org",
+      focus: ["Animal Rescue", "Wildlife Rehabilitation", "Veterinary Care"],
+      address: "Bandipur, Karnataka",
+      email: "rescue@bandipurwildlife.org",
       phone: "+91 8229 123456",
       website: "www.bandipurrescue.org",
-      established: 2005
+      latitude: 11.7401,
+      longitude: 76.5026,
+      volunteerOpportunities: ["Animal Care", "Rescue Operations"],
+      established: "2005",
+      rating: 4.7
     }
   ];
 
@@ -376,7 +392,7 @@ export default function Discover() {
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
                       <div className="flex items-center gap-2 text-sm">
                         <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-foreground dark:text-gray-300">{ngo.location}</span>
+                        <span className="text-foreground dark:text-gray-300">{ngo.address}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
@@ -384,7 +400,7 @@ export default function Discover() {
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Mail className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-foreground dark:text-gray-300">{ngo.contact}</span>
+                        <span className="text-foreground dark:text-gray-300">{ngo.email}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Phone className="w-4 h-4 text-muted-foreground" />
@@ -395,7 +411,7 @@ export default function Discover() {
                     <div className="mb-4">
                       <h4 className="font-semibold text-foreground dark:text-white mb-2">Focus Areas:</h4>
                       <div className="flex flex-wrap gap-2">
-                        {ngo.focusAreas?.map((area, idx) => (
+                        {ngo.focus?.map((area: string, idx: number) => (
                           <span key={idx} className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
                             {area}
                           </span>
