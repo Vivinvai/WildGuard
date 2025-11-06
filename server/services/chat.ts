@@ -23,27 +23,43 @@ const anthropic = new Anthropic({
 });
 
 export async function generateChatResponse(userMessage: string): Promise<string> {
-  // Create a specialized prompt for wildlife conservation and endangered animals
-  const systemPrompt = `You are WildGuard AI, a knowledgeable and passionate wildlife conservation expert. You specialize in:
+  // Create a specialized prompt for wildlife AND flora conservation
+  const systemPrompt = `You are WildGuard AI, a knowledgeable and passionate wildlife AND flora conservation expert. You specialize in:
 
+FAUNA (Animals):
 - Endangered and threatened animal species
 - Wildlife conservation efforts and strategies
 - Habitat protection and restoration
 - Human-wildlife conflict solutions
 - Conservation success stories
-- How individuals can help protect wildlife
-- Environmental threats facing animals
-- Protected areas and national parks
 - Wildlife rehabilitation and rescue
 
+FLORA (Plants):
+- Endangered plant species and endemic flora
+- Medicinal plants and traditional uses
+- Sacred trees and ancient specimens
+- Forest ecosystem health
+- Plant conservation strategies
+- Botanical gardens and seed banks
+- Invasive species threats
+- Pollinator-plant relationships
+
+General Conservation:
+- Protected areas and national parks
+- Ecosystem restoration
+- Climate change impacts
+- How individuals can help
+- Karnataka Western Ghats biodiversity
+
 Guidelines:
-- Provide accurate, helpful information about wildlife conservation
+- Provide accurate, helpful information about BOTH wildlife AND flora conservation
 - Be encouraging about conservation efforts
 - Suggest actionable ways people can help
-- Focus on endangered animals from Karnataka, India, and globally
+- Focus on endangered species from Karnataka, India, and globally
 - Be concise but informative (aim for 2-4 sentences unless more detail is requested)
-- If asked about non-conservation topics, politely redirect to wildlife conservation
-- Use a warm, educational tone that inspires people to care about wildlife
+- If asked about non-conservation topics, politely redirect to conservation
+- Use a warm, educational tone that inspires people to care about nature
+- Include endangered status when relevant (Critically Endangered, Endangered, Vulnerable, etc.)
 
 User question: ${userMessage}`;
 
@@ -55,7 +71,7 @@ User question: ${userMessage}`;
         messages: [
           {
             role: "system",
-            content: "You are WildGuard AI, a knowledgeable and passionate wildlife conservation expert. Provide accurate, helpful information about wildlife conservation. Be encouraging about conservation efforts and suggest actionable ways people can help. Focus on endangered animals from Karnataka, India, and globally. Be concise but informative (aim for 2-4 sentences unless more detail is requested). If asked about non-conservation topics, politely redirect to wildlife conservation. Use a warm, educational tone that inspires people to care about wildlife."
+            content: "You are WildGuard AI, a knowledgeable and passionate wildlife AND flora conservation expert. Provide accurate, helpful information about both wildlife AND plant conservation. Be encouraging about conservation efforts and suggest actionable ways people can help. Focus on endangered species (animals and plants) from Karnataka, India, and globally. Include endangered status when relevant. Be concise but informative (aim for 2-4 sentences unless more detail is requested). If asked about non-conservation topics, politely redirect to conservation. Use a warm, educational tone that inspires people to care about nature."
           },
           {
             role: "user",
@@ -85,7 +101,7 @@ User question: ${userMessage}`;
         messages: [
           {
             role: "user",
-            content: `You are WildGuard AI, a knowledgeable and passionate wildlife conservation expert. Provide accurate, helpful information about wildlife conservation. Be encouraging about conservation efforts and suggest actionable ways people can help. Focus on endangered animals from Karnataka, India, and globally. Be concise but informative (aim for 2-4 sentences unless more detail is requested). If asked about non-conservation topics, politely redirect to wildlife conservation. Use a warm, educational tone that inspires people to care about wildlife.
+            content: `You are WildGuard AI, a knowledgeable and passionate wildlife AND flora conservation expert. Provide accurate, helpful information about both wildlife AND plant conservation. Be encouraging about conservation efforts and suggest actionable ways people can help. Focus on endangered species (animals and plants) from Karnataka, India, and globally. Include endangered status when relevant. Be concise but informative (aim for 2-4 sentences unless more detail is requested). If asked about non-conservation topics, politely redirect to conservation. Use a warm, educational tone that inspires people to care about nature.
 
 User question: ${userMessage}`
           }
@@ -178,6 +194,39 @@ function generateConservationResponse(userMessage: string): string {
     return "🌡️ Climate change is a major threat to wildlife, altering habitats and migration patterns. Combat it by using renewable energy, supporting climate-friendly policies, and reducing consumption. Protecting the planet's climate protects endangered species worldwide.";
   }
   
+  // Flora-specific responses
+  if (message.includes('plant') || message.includes('flora') || message.includes('tree')) {
+    return "🌱 Karnataka's Western Ghats harbor over 2,000 flowering species including many endemic and endangered plants. Medicinal plants like Ashwagandha, Brahmi, and Tulsi are threatened by overharvesting. Support conservation by visiting botanical gardens, avoiding illegal plant trade, and learning about native flora. Sacred trees like ancient Banyans and Peepals are cultural treasures that need protection!";
+  }
+  
+  if (message.includes('medicinal') || message.includes('ayurvedic') || message.includes('herb')) {
+    return "🌿 Karnataka has 500+ medicinal plant species used in Ayurveda and traditional medicine. Many are Endangered due to overharvesting: Red Sanders (Critically Endangered), Costus (Endangered), and Gloriosa Lily (Vulnerable). Support sustainable harvesting, cultivate medicinal gardens, and avoid purchasing wild-collected herbs. Ethical sourcing protects both plants and traditional knowledge!";
+  }
+  
+  if (message.includes('sacred') || message.includes('banyan') || message.includes('peepal') || message.includes('fig')) {
+    return "🌳 Sacred trees like Banyans and Peepals are 200-500 years old and support entire ecosystems! These ancient figs provide food for birds, bats, and monkeys. Many are threatened by urbanization. Protect sacred groves, document ancient trees, and educate communities about their ecological and cultural value.";
+  }
+  
+  if (message.includes('lotus') || message.includes('state flower')) {
+    return "🪷 The Lotus is Karnataka's state flower and a symbol of purity! Found in wetlands and temple ponds, lotus plants are threatened by pollution and habitat loss. Support wetland conservation, avoid picking wild lotus flowers, and create lotus ponds that provide habitat for aquatic wildlife.";
+  }
+  
+  if (message.includes('endangered plant') || message.includes('rare plant') || message.includes('endemic plant')) {
+    return "🌺 Western Ghats endemic plants are global treasures! Species like the Nilgiri Tahr's food plant Neelakurinji (blooms once in 12 years), Strobilanthes, and rare orchids are threatened by habitat loss. Support botanical gardens, seed banks, and avoid disturbing wild plant populations during treks. Every endemic plant lost is irreplaceable!";
+  }
+  
+  if (message.includes('orchid') || message.includes('flowering')) {
+    return "🌸 Karnataka has 150+ orchid species, many endemic to Western Ghats! These delicate flowers are threatened by illegal collection and habitat loss. Never pick wild orchids - they're protected under Wildlife Act. Support orchid conservation programs and visit botanical gardens to see cultivated specimens. Orchids are indicators of healthy forest ecosystems!";
+  }
+  
+  if (message.includes('botanical garden') || message.includes('plant conservation')) {
+    return "🏛️ Karnataka's botanical gardens like Lalbagh conserve endangered plants and maintain seed banks! They preserve genetic diversity and educate public about plant conservation. Visit gardens to learn about rare species, support their programs, and discover how plants sustain all life. Botanical gardens are living museums of biodiversity!";
+  }
+  
+  if (message.includes('teak') || message.includes('rosewood') || message.includes('sandalwood')) {
+    return "🪵 Valuable timber trees like Sandalwood, Teak, and Rosewood are threatened by illegal logging. Sandalwood (Endangered) is protected but still poached. Support sustainable forestry, avoid buying illegal wood products, and report timber smuggling. Choose certified sustainable wood and plant native trees. These forests support countless wildlife species!";
+  }
+  
   // General conservation response
-  return "🦎 Wildlife conservation is crucial for maintaining biodiversity and healthy ecosystems. Every species plays a vital role in their habitat. You can help by supporting conservation organizations, making sustainable choices, and spreading awareness about endangered animals. What specific animal or conservation topic would you like to learn about?";
+  return "🦎🌱 Wildlife AND flora conservation is crucial for maintaining biodiversity and healthy ecosystems. Every species - animal and plant - plays a vital role in their habitat. You can help by supporting conservation organizations, making sustainable choices, and spreading awareness about endangered species. What specific animal, plant, or conservation topic would you like to learn about?";
 }

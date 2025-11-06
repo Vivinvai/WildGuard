@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, real, jsonb, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, real, jsonb, timestamp, index, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -80,8 +80,10 @@ export const floraIdentifications = pgTable("flora_identifications", {
   speciesName: text("species_name").notNull(),
   scientificName: text("scientific_name").notNull(),
   conservationStatus: text("conservation_status").notNull(),
+  isEndangered: boolean("is_endangered").notNull().default(false),
+  endangeredAlert: text("endangered_alert"),
   habitat: text("habitat").notNull(),
-  uses: text("uses").array().notNull(),
+  uses: text("uses").notNull(), // Changed from array to text
   threats: text("threats").array().notNull(),
   imageUrl: text("image_url").notNull(),
   confidence: real("confidence").notNull(),

@@ -4,7 +4,7 @@ import multer from "multer";
 import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { analyzeAnimalImage } from "./services/openai";
-import { analyzeFloraWithGemini } from "./services/flora";
+import { analyzeFloraWithGemini } from "./services/gemini";
 import { generateChatResponse } from "./services/chat";
 import { 
   insertAnimalIdentificationSchema, 
@@ -502,6 +502,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         speciesName: analysisResult.speciesName,
         scientificName: analysisResult.scientificName,
         conservationStatus: analysisResult.conservationStatus,
+        isEndangered: analysisResult.isEndangered,
+        endangeredAlert: analysisResult.endangeredAlert,
         habitat: analysisResult.habitat,
         uses: analysisResult.uses,
         threats: analysisResult.threats,

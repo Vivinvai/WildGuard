@@ -837,6 +837,8 @@ export class MemStorage implements IStorage {
       speciesName: identification.speciesName,
       scientificName: identification.scientificName,
       conservationStatus: identification.conservationStatus,
+      isEndangered: identification.isEndangered,
+      endangeredAlert: identification.endangeredAlert || null,
       habitat: identification.habitat,
       uses: identification.uses,
       threats: identification.threats,
