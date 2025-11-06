@@ -4,8 +4,16 @@ import multer from "multer";
 import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { analyzeAnimalImage } from "./services/openai";
+import { analyzeFloraWithGemini } from "./services/flora";
 import { generateChatResponse } from "./services/chat";
-import { insertAnimalIdentificationSchema, insertUserSchema } from "@shared/schema";
+import { 
+  insertAnimalIdentificationSchema, 
+  insertFloraIdentificationSchema,
+  insertAnimalSightingSchema,
+  insertVolunteerActivitySchema,
+  insertDeforestationAlertSchema,
+  insertUserSchema 
+} from "@shared/schema";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -298,6 +306,196 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error seeding supported animals:", error);
       res.status(500).json({ error: "Failed to seed supported animals" });
+    }
+  });
+
+  // Upload and analyze plant photo
+  app.post("/api/identify-flora", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file uploaded" });
+      }
+
+      const base64Image = req.file.buffer.toString('base64');
+      const analysisResult = await analyzeFloraWithGemini(base64Image);
+
+      const userId = req.session.user?.id;
+
+      const identification = await storage.createFloraIdentification({
+        speciesName: analysisResult.speciesName,
+        scientificName: analysisResult.scientificName,
+        conservationStatus: analysisResult.conservationStatus,
+        habitat: analysisResult.habitat,
+        uses: analysisResult.uses,
+        threats: analysisResult.threats,
+        imageUrl: `data:${req.file.mimetype};base64,${base64Image}`,
+        confidence: analysisResult.confidence,
+      }, userId);
+
+      res.json(identification);
+    } catch (error) {
+      console.error("Error identifying flora:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to identify flora"
+      });
+    }
+  });
+
+  // Get recent flora identifications
+  app.get("/api/recent-flora-identifications", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const identifications = await storage.getRecentFloraIdentifications(limit);
+      res.json(identifications);
+    } catch (error) {
+      console.error("Error getting recent flora identifications:", error);
+      res.status(500).json({ error: "Failed to get recent flora identifications" });
+    }
+  });
+
+  // Get all botanical gardens
+  app.get("/api/botanical-gardens", async (req, res) => {
+    try {
+      const gardens = await storage.getBotanicalGardens();
+      res.json(gardens);
+    } catch (error) {
+      console.error("Error getting botanical gardens:", error);
+      res.status(500).json({ error: "Failed to get botanical gardens" });
+    }
+  });
+
+  // Get nearby botanical gardens
+  app.get("/api/botanical-gardens/nearby", async (req, res) => {
+    try {
+      const latitude = parseFloat(req.query.lat as string);
+      const longitude = parseFloat(req.query.lng as string);
+      const radius = parseFloat(req.query.radius as string) || 50;
+
+      if (isNaN(latitude) || isNaN(longitude)) {
+        return res.status(400).json({ error: "Valid latitude and longitude are required" });
+      }
+
+      const gardens = await storage.getNearbyBotanicalGardens(latitude, longitude, radius);
+      res.json(gardens);
+    } catch (error) {
+      console.error("Error getting nearby botanical gardens:", error);
+      res.status(500).json({ error: "Failed to get nearby botanical gardens" });
+    }
+  });
+
+  // Create animal sighting
+  app.post("/api/animal-sightings", async (req, res) => {
+    try {
+      const sightingData = insertAnimalSightingSchema.parse(req.body);
+      const sighting = await storage.createAnimalSighting(sightingData);
+      res.status(201).json(sighting);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      console.error("Error creating animal sighting:", error);
+      res.status(500).json({ error: "Failed to create animal sighting" });
+    }
+  });
+
+  // Get animal sightings
+  app.get("/api/animal-sightings", async (req, res) => {
+    try {
+      const animalId = req.query.animalId as string | undefined;
+      const sightings = await storage.getAnimalSightings(animalId);
+      res.json(sightings);
+    } catch (error) {
+      console.error("Error getting animal sightings:", error);
+      res.status(500).json({ error: "Failed to get animal sightings" });
+    }
+  });
+
+  // Get all NGOs
+  app.get("/api/ngos", async (req, res) => {
+    try {
+      const { focus } = req.query;
+      const filters = focus ? { focus: focus as string } : undefined;
+      const ngos = await storage.getNgos(filters);
+      res.json(ngos);
+    } catch (error) {
+      console.error("Error getting NGOs:", error);
+      res.status(500).json({ error: "Failed to get NGOs" });
+    }
+  });
+
+  // Get NGO by ID
+  app.get("/api/ngos/:id", async (req, res) => {
+    try {
+      const ngo = await storage.getNgoById(req.params.id);
+      if (!ngo) {
+        return res.status(404).json({ error: "NGO not found" });
+      }
+      res.json(ngo);
+    } catch (error) {
+      console.error("Error getting NGO:", error);
+      res.status(500).json({ error: "Failed to get NGO" });
+    }
+  });
+
+  // Get volunteer activities
+  app.get("/api/volunteer-activities", async (req, res) => {
+    try {
+      const { status, ngoId } = req.query;
+      const filters: { status?: string; ngoId?: string } = {};
+      if (status) filters.status = status as string;
+      if (ngoId) filters.ngoId = ngoId as string;
+      
+      const activities = await storage.getVolunteerActivities(Object.keys(filters).length > 0 ? filters : undefined);
+      res.json(activities);
+    } catch (error) {
+      console.error("Error getting volunteer activities:", error);
+      res.status(500).json({ error: "Failed to get volunteer activities" });
+    }
+  });
+
+  // Create volunteer activity
+  app.post("/api/volunteer-activities", async (req, res) => {
+    try {
+      const activityData = insertVolunteerActivitySchema.parse(req.body);
+      const activity = await storage.createVolunteerActivity(activityData);
+      res.status(201).json(activity);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      console.error("Error creating volunteer activity:", error);
+      res.status(500).json({ error: "Failed to create volunteer activity" });
+    }
+  });
+
+  // Get deforestation alerts
+  app.get("/api/deforestation-alerts", async (req, res) => {
+    try {
+      const { severity, limit } = req.query;
+      const filters: { severity?: string; limit?: number } = {};
+      if (severity) filters.severity = severity as string;
+      if (limit) filters.limit = parseInt(limit as string);
+      
+      const alerts = await storage.getDeforestationAlerts(Object.keys(filters).length > 0 ? filters : undefined);
+      res.json(alerts);
+    } catch (error) {
+      console.error("Error getting deforestation alerts:", error);
+      res.status(500).json({ error: "Failed to get deforestation alerts" });
+    }
+  });
+
+  // Create deforestation alert
+  app.post("/api/deforestation-alerts", async (req, res) => {
+    try {
+      const alertData = insertDeforestationAlertSchema.parse(req.body);
+      const alert = await storage.createDeforestationAlert(alertData);
+      res.status(201).json(alert);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      console.error("Error creating deforestation alert:", error);
+      res.status(500).json({ error: "Failed to create deforestation alert" });
     }
   });
 
