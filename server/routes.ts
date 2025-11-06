@@ -287,6 +287,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Report animal sighting with photo and location
+  app.post("/api/report-sighting", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Photo is required for sighting reports" });
+      }
+
+      // Convert image to base64
+      const base64Image = req.file.buffer.toString('base64');
+      const imageUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+
+      // Parse and validate coordinates
+      const latitude = parseFloat(req.body.latitude);
+      const longitude = parseFloat(req.body.longitude);
+      
+      if (!isFinite(latitude) || !isFinite(longitude)) {
+        return res.status(400).json({ error: "Invalid coordinates provided" });
+      }
+
+      // Validate sighting data using Zod schema
+      const sightingData = insertAnimalSightingSchema.parse({
+        reporterName: req.body.reporterName,
+        reporterEmail: req.body.reporterEmail,
+        reporterPhone: req.body.reporterPhone || null,
+        latitude,
+        longitude,
+        location: req.body.location,
+        habitatType: req.body.habitatType,
+        animalStatus: req.body.animalStatus,
+        emergencyStatus: req.body.emergencyStatus,
+        description: req.body.description || null,
+        imageUrl,
+        animalId: null,
+      });
+
+      // Create sighting record
+      const sighting = await storage.createAnimalSighting(sightingData);
+
+      // Log activity for admin monitoring
+      await storage.logActivity({
+        activityType: 'sighting_reported',
+        userName: sightingData.reporterName,
+        userEmail: sightingData.reporterEmail,
+        details: {
+          sightingId: sighting.id,
+          location: sightingData.location,
+          emergencyStatus: sightingData.emergencyStatus,
+          animalStatus: sightingData.animalStatus,
+        },
+      });
+
+      res.json(sighting);
+    } catch (error) {
+      console.error("Error reporting sighting:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to report sighting"
+      });
+    }
+  });
+
   // Upload and analyze animal photo
   app.post("/api/identify-animal", upload.single('image'), async (req, res) => {
     try {
