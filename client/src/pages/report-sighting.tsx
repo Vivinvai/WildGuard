@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Header } from "@/components/header";
+import "leaflet/dist/leaflet.css";
 
 const sightingSchema = z.object({
   reporterName: z.string().min(1, "Your name is required"),
@@ -53,6 +54,8 @@ export default function ReportSighting() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [showCamera, setShowCamera] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
 
   const form = useForm<SightingForm>({
     resolver: zodResolver(sightingSchema),
@@ -90,6 +93,10 @@ export default function ReportSighting() {
             variant: "destructive",
           });
           setLocationLoading(false);
+        },
+        {
+          timeout: 10000, // 10 second timeout
+          enableHighAccuracy: false
         }
       );
     } else {
@@ -101,6 +108,67 @@ export default function ReportSighting() {
       setLocationLoading(false);
     }
   };
+
+  // Initialize map when coordinates are captured
+  useEffect(() => {
+    if (!coordinates || !mapRef.current) return;
+
+    // Clean up existing map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+
+    // Dynamically import Leaflet
+    import('leaflet').then(({ default: L }) => {
+      if (!mapRef.current || mapInstanceRef.current) return;
+
+      try {
+        // Create map centered on user's location
+        const map = L.map(mapRef.current).setView([coordinates.latitude, coordinates.longitude], 15);
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add current location marker
+        const locationIcon = L.divIcon({
+          html: '<div class="w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse flex items-center justify-center"><div class="w-2 h-2 bg-white rounded-full"></div></div>',
+          className: 'custom-div-icon',
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        });
+
+        L.marker([coordinates.latitude, coordinates.longitude], { icon: locationIcon })
+          .addTo(map)
+          .bindPopup('<b>Your Current Location</b><br/>Sighting will be reported here');
+
+        mapInstanceRef.current = map;
+      } catch (error) {
+        console.error('Map initialization error:', error);
+        toast({
+          title: "Map Error",
+          description: "Unable to display map. Location has been captured.",
+          variant: "destructive",
+        });
+      }
+    }).catch((error) => {
+      console.error('Failed to load map library:', error);
+      toast({
+        title: "Map Loading Error",
+        description: "Map visualization unavailable. Your location has been captured successfully.",
+        variant: "destructive",
+      });
+    });
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [coordinates]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -412,12 +480,23 @@ export default function ReportSighting() {
                       </Button>
 
                       {coordinates && (
-                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg text-sm">
-                          <p className="font-medium">Coordinates:</p>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            Lat: {coordinates.latitude.toFixed(6)}, Long: {coordinates.longitude.toFixed(6)}
-                          </p>
-                        </div>
+                        <>
+                          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg text-sm">
+                            <p className="font-medium">Coordinates:</p>
+                            <p className="text-gray-600 dark:text-gray-400">
+                              Lat: {coordinates.latitude.toFixed(6)}, Long: {coordinates.longitude.toFixed(6)}
+                            </p>
+                          </div>
+                          
+                          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                            <p className="font-medium text-sm mb-2">Your Location on Map:</p>
+                            <div 
+                              ref={mapRef} 
+                              className="w-full h-64 rounded-lg border-2 border-gray-200 dark:border-gray-700"
+                              data-testid="map-current-location"
+                            />
+                          </div>
+                        </>
                       )}
 
                       {!coordinates && (
