@@ -287,6 +287,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Verify sighting (admin only)
+  app.patch("/api/admin/sightings/:id/verify", requireAdminAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Get admin details from storage
+      const admin = await storage.getAdminUser(req.session.adminUser!.id);
+      if (!admin) {
+        return res.status(401).json({ error: "Admin not found" });
+      }
+      
+      const updatedSighting = await storage.verifySighting(id, admin.email);
+      
+      if (!updatedSighting) {
+        return res.status(404).json({ error: "Sighting not found" });
+      }
+      
+      res.json({ success: true, sighting: updatedSighting });
+    } catch (error) {
+      console.error("Error verifying sighting:", error);
+      res.status(500).json({ error: "Failed to verify sighting" });
+    }
+  });
+
   // Report animal sighting with photo and location
   app.post("/api/report-sighting", upload.single('image'), async (req, res) => {
     try {

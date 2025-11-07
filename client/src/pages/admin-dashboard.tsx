@@ -235,11 +235,11 @@ function SightingCard({ sighting, isEmergency = false }: { sighting: AnimalSight
     mutationFn: async () => {
       const result = await apiRequest("POST", "/api/certificates/generate", {
         sightingId: sighting.id,
-        reporterName: sighting.reporterName || "Anonymous Reporter",
-        reporterEmail: sighting.reporterEmail || "",
-        location: sighting.location,
-        species: "Wildlife",
-        sightedAt: sighting.sightedAt,
+        recipientName: sighting.reporterName || "Anonymous Reporter",
+        recipientEmail: sighting.reporterEmail || "reporter@wildguard.gov.in",
+        contribution: `Reported ${sighting.animal || 'wildlife'} sighting and contributed to conservation efforts`,
+        speciesHelped: sighting.animal || "Wildlife Conservation",
+        location: sighting.location || "Karnataka, India",
       });
       return result.json() as Promise<{ certificateNumber: string }>;
     },
@@ -315,7 +315,7 @@ function SightingCard({ sighting, isEmergency = false }: { sighting: AnimalSight
           <Button size="sm" variant="outline" data-testid={`button-view-${sighting.id}`}>
             View Details
           </Button>
-          {isVerified && !sighting.certificateIssued && (
+          {isVerified && sighting.certificateIssued !== 'yes' && (
             <Button 
               size="sm" 
               variant="default"
@@ -328,7 +328,7 @@ function SightingCard({ sighting, isEmergency = false }: { sighting: AnimalSight
               {issueCertificateMutation.isPending ? "Issuing..." : "Issue Certificate"}
             </Button>
           )}
-          {sighting.certificateIssued && (
+          {sighting.certificateIssued === 'yes' && (
             <Badge variant="secondary" className="ml-auto flex items-center gap-1">
               <Award className="h-3 w-3" />
               Certificate Issued

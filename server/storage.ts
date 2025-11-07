@@ -55,6 +55,7 @@ export interface IStorage {
   getAllSightings(): Promise<AnimalSighting[]>;
   getSightingById(id: string): Promise<AnimalSighting | undefined>;
   updateSightingStatus(id: string, updates: Partial<AnimalSighting>): Promise<AnimalSighting | undefined>;
+  verifySighting(id: string, adminEmail: string): Promise<AnimalSighting | undefined>;
   getEmergencySightings(): Promise<AnimalSighting[]>;
   
   // Certificates
@@ -1155,6 +1156,19 @@ export class MemStorage implements IStorage {
     if (!sighting) return undefined;
     
     const updated = { ...sighting, ...updates };
+    this.animalSightings.set(id, updated);
+    return updated;
+  }
+
+  async verifySighting(id: string, adminEmail: string): Promise<AnimalSighting | undefined> {
+    const sighting = this.animalSightings.get(id);
+    if (!sighting) return undefined;
+    
+    const updated = { 
+      ...sighting, 
+      verifiedBy: adminEmail,
+      verifiedAt: new Date()
+    };
     this.animalSightings.set(id, updated);
     return updated;
   }

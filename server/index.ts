@@ -1,10 +1,14 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import path from "path";
-import { Pool } from "@neondatabase/serverless";
+import { Pool, neonConfig } from "@neondatabase/serverless";
 import connectPgSimple from "connect-pg-simple";
+import ws from "ws";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+
+// Configure Neon for Node.js environment
+neonConfig.webSocketConstructor = ws;
 
 const app = express();
 app.use(express.json());
@@ -12,7 +16,9 @@ app.use(express.urlencoded({ extended: false }));
 
 // Set up PostgreSQL session store
 const PgSession = connectPgSimple(session);
-const pgPool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pgPool = new Pool({ 
+  connectionString: process.env.DATABASE_URL
+});
 
 // Ensure session secret is configured
 if (!process.env.SESSION_SECRET) {
