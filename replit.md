@@ -2,7 +2,19 @@
 
 WildGuard is an AI-powered platform dedicated to wildlife and flora conservation. It enables users to identify animals and plants via photo analysis, track habitat loss, and access conservation resources across Karnataka and India. The platform features AI identification systems, a deforestation tracking dashboard, directories for botanical gardens and wildlife centers, and educational content to foster conservation efforts and community engagement. Key capabilities include AI-powered poaching detection, population trend prediction, automatic health assessment for wildlife, satellite habitat monitoring, and a wildlife sightings heatmap.
 
-# Recent Changes (November 6, 2025 - Latest Update)
+# Recent Changes (November 7, 2025 - Latest Update)
+
+## Animal Sighting Report Enhancements (November 7, 2025)
+- ✅ **Interactive Current Location Map**: Added Leaflet map displaying user's geolocation
+  - Shows pulsing green marker at captured location
+  - Interactive map with zoom, pan, and OSM tiles
+  - Auto-initializes when "Capture Current Location" succeeds
+  - 10-second geolocation timeout prevents stuck loading state
+  - Comprehensive error handling with user-visible toast notifications
+  - Proper cleanup prevents memory leaks
+  - Manual coordinates remain as fallback for form submission
+
+# Previous Major Update (November 6, 2025)
 
 ## MAJOR EXPANSION: 9 AI-Powered Conservation Features Complete
 WildGuard has expanded from 5 to **9 comprehensive AI conservation tools**, all fully integrated with real AI APIs and production-ready:
