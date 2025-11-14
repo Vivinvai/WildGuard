@@ -125,6 +125,30 @@ export function Header() {
             </Link>
             
             <Link 
+              href="/discover" 
+              className={`px-3 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
+                location === "/discover" 
+                  ? "bg-gradient-to-r from-teal-100 to-cyan-100 dark:from-teal-900/40 dark:to-cyan-900/40 text-teal-700 dark:text-teal-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-teal-700 dark:hover:text-teal-300"
+              }`}
+              data-testid="link-nav-discover"
+            >
+              Discover
+            </Link>
+            
+            <Link 
+              href="/community" 
+              className={`px-3 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
+                location === "/community" 
+                  ? "bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/40 dark:to-rose-900/40 text-pink-700 dark:text-pink-300 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-pink-700 dark:hover:text-pink-300"
+              }`}
+              data-testid="link-nav-community"
+            >
+              Community
+            </Link>
+            
+            <Link 
               href="/deforestation" 
               className={`px-3 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
                 location === "/deforestation" 

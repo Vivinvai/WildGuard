@@ -1,645 +1,462 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Header } from "@/components/header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Search, Eye, MapPin, Heart, Play, BookOpen, Sparkles, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Shield, Users, Heart, PawPrint, Phone, Mail, MapPin, ExternalLink, Calendar, HandHeart, Leaf } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Ngo } from "@shared/schema";
+import type { DiscoverAnimal } from "@shared/schema";
 
-// Import animal images
-import elephantImg from "@assets/stock_images/asian_elephant_wildl_d783d82b.jpg";
-import tigerImg from "@assets/stock_images/bengal_tiger_wildlif_f41ab7a4.jpg";
-import leopardImg from "@assets/stock_images/indian_leopard_wildl_95762e17.jpg";
-import bearImg from "@assets/stock_images/sloth_bear_wildlife__cc92a9ff.jpg";
-import deerImg from "@assets/stock_images/spotted_deer_chital__13c3d594.jpg";
-import peafowlImg from "@assets/stock_images/indian_peafowl_peaco_ade86f32.jpg";
+export default function DiscoverPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedAnimal, setSelectedAnimal] = useState<DiscoverAnimal | null>(null);
 
-export default function Discover() {
-  const [volunteerFormOpen, setVolunteerFormOpen] = useState(false);
-  const [adoptionFormOpen, setAdoptionFormOpen] = useState(false);
-  const [selectedAnimal, setSelectedAnimal] = useState<string>("");
-  const { toast } = useToast();
-
-  const { data: ngos } = useQuery<Ngo[]>({
-    queryKey: ["/api/ngos"],
+  // Fetch all animals
+  const { data: animals = [], isLoading } = useQuery<DiscoverAnimal[]>({
+    queryKey: ["/api/discover-animals"],
   });
 
-  // Mock NGO data if API doesn't return data
-  const mockNgos: Ngo[] = [
-    {
-      id: "1",
-      name: "Wildlife Conservation Trust Karnataka",
-      description: "Leading organization working on wildlife protection, habitat restoration, and community-based conservation across Karnataka's forests and protected areas.",
-      focus: ["Tiger Conservation", "Elephant Protection", "Habitat Restoration"],
-      address: "Bangalore, Karnataka",
-      email: "contact@wctkarnata.org",
-      phone: "+91 80 1234 5678",
-      website: "www.wctkarnataka.org",
-      latitude: 12.9716,
-      longitude: 77.5946,
-      volunteerOpportunities: ["Field Research", "Community Outreach"],
-      established: "1995",
-      rating: 4.8
-    },
-    {
-      id: "2",
-      name: "Karnataka Forest Department Conservation Wing",
-      description: "Government body responsible for protecting Karnataka's 38,720 km² of forest area, managing wildlife sanctuaries, and anti-poaching operations.",
-      focus: ["Forest Protection", "Wildlife Surveys", "Community Engagement"],
-      address: "Bangalore, Karnataka",
-      email: "info@karnatakaforest.gov.in",
-      phone: "+91 80 2222 3333",
-      website: "www.aranya.gov.in",
-      latitude: 12.9716,
-      longitude: 77.5946,
-      volunteerOpportunities: ["Forest Patrols", "Wildlife Monitoring"],
-      established: "1975",
-      rating: 4.6
-    },
-    {
-      id: "3",
-      name: "Green Earth Volunteers",
-      description: "Youth-led environmental organization conducting tree plantation drives, wildlife awareness programs, and eco-tourism initiatives across Karnataka.",
-      focus: ["Reforestation", "Youth Education", "Eco-Tourism"],
-      address: "Mysore, Karnataka",
-      email: "hello@greenearthvolunteers.org",
-      phone: "+91 821 4567 8901",
-      website: "www.greenearthvolunteers.org",
-      latitude: 12.2958,
-      longitude: 76.6394,
-      volunteerOpportunities: ["Tree Planting", "Educational Programs"],
-      established: "2010",
-      rating: 4.5
-    },
-    {
-      id: "4",
-      name: "Bandipur Wildlife Rescue Center",
-      description: "Dedicated rescue and rehabilitation facility for injured wildlife, specializing in elephant care, leopard rescue, and bird sanctuary operations.",
-      focus: ["Animal Rescue", "Wildlife Rehabilitation", "Veterinary Care"],
-      address: "Bandipur, Karnataka",
-      email: "rescue@bandipurwildlife.org",
-      phone: "+91 8229 123456",
-      website: "www.bandipurrescue.org",
-      latitude: 11.7401,
-      longitude: 76.5026,
-      volunteerOpportunities: ["Animal Care", "Rescue Operations"],
-      established: "2005",
-      rating: 4.7
-    }
-  ];
-
-  const displayNgos = (ngos && ngos.length > 0) ? ngos : mockNgos;
-
-  // Animals available for adoption
-  const adoptableAnimals = [
-    { id: "elephant-1", name: "Raja (Asian Elephant)", age: "8 years", status: "Rescued from conflict zone", monthlySupport: "₹5,000", image: elephantImg },
-    { id: "tiger-1", name: "Shakti (Bengal Tiger)", age: "4 years", status: "Orphaned cub under care", monthlySupport: "₹8,000", image: tigerImg },
-    { id: "leopard-1", name: "Chitra (Leopard)", age: "3 years", status: "Recovering from injury", monthlySupport: "₹6,000", image: leopardImg },
-    { id: "sloth-1", name: "Bhalu (Sloth Bear)", age: "5 years", status: "Rescued from poachers", monthlySupport: "₹4,500", image: bearImg },
-    { id: "deer-1", name: "Mrigi (Spotted Deer)", age: "2 years", status: "Orphaned fawn", monthlySupport: "₹2,500", image: deerImg },
-    { id: "peacock-1", name: "Mayura (Indian Peafowl)", age: "1 year", status: "Injured wing recovery", monthlySupport: "₹1,500", image: peafowlImg }
-  ];
-
-  const volunteerMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return apiRequest("/api/volunteer-applications", "POST", data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Application Submitted!",
-        description: "Thank you for your interest! We'll contact you soon.",
-      });
-      setVolunteerFormOpen(false);
-    },
-    onError: () => {
-      toast({
-        title: "Submission Failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    }
+  // Fetch featured animals
+  const { data: featuredAnimals = [] } = useQuery<DiscoverAnimal[]>({
+    queryKey: ["/api/discover-animals/featured"],
   });
 
-  const adoptionMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return apiRequest("/api/animal-adoptions", "POST", data);
+  // Mutation to track views (GET endpoint increments views as a side effect)
+  const incrementViewMutation = useMutation({
+    mutationFn: async (animalId: string) => {
+      const response = await fetch(`/api/discover-animals/${animalId}`);
+      if (!response.ok) throw new Error("Failed to fetch animal details");
+      return response.json() as Promise<DiscoverAnimal>;
     },
-    onSuccess: () => {
-      toast({
-        title: "Adoption Request Received!",
-        description: "We'll send you the adoption details and payment information soon.",
-      });
-      setAdoptionFormOpen(false);
+    onSuccess: (updatedAnimal) => {
+      // Update selected animal state with fresh view count
+      setSelectedAnimal(updatedAnimal);
+      // Invalidate queries to refresh view counts across the page
+      queryClient.invalidateQueries({ queryKey: ["/api/discover-animals"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/discover-animals/featured"] });
     },
-    onError: () => {
-      toast({
-        title: "Request Failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    }
+    onError: (error) => {
+      console.error("Failed to track animal view:", error);
+    },
   });
 
-  const handleVolunteerSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    volunteerMutation.mutate({
-      name: formData.get("name"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      ngoId: formData.get("ngo"),
-      availability: formData.get("availability"),
-      skills: formData.get("skills"),
-      message: formData.get("message")
-    });
+  const handleAnimalClick = (animal: DiscoverAnimal) => {
+    setSelectedAnimal(animal);
+    // Fetch animal details and increment view count
+    incrementViewMutation.mutate(animal.id);
   };
 
-  const handleAdoptionSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    adoptionMutation.mutate({
-      name: formData.get("name"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      animalId: formData.get("animal"),
-      adoptionType: formData.get("adoptionType"),
-      message: formData.get("message")
-    });
+  const filteredAnimals = animals.filter(animal => {
+    const matchesSearch = !searchQuery ||
+      animal.speciesName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      animal.scientificName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      animal.commonNames.some(name => name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      animal.shortDescription.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory = !selectedCategory || animal.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = Array.from(new Set(animals.map(a => a.category)));
+
+  const conservationColors: Record<string, string> = {
+    "Endangered": "bg-red-500",
+    "Critically Endangered": "bg-red-700",
+    "Vulnerable": "bg-orange-500",
+    "Near Threatened": "bg-yellow-500",
+    "Least Concern": "bg-green-500",
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gray-950">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <div className="bg-gradient-to-br from-green-500 to-green-700 dark:from-green-600 dark:to-green-800 p-4 rounded-full shadow-lg">
-              <Users className="w-12 h-12 text-white" />
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-emerald-950 dark:to-teal-950">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-900 dark:via-teal-900 dark:to-cyan-900 text-white py-20">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDItNC00LTRzLTQgMi00IDRjMCAyIDIgNCA0IDRzNC0yIDQtNHptMCAwYzAtMiAyLTQgNC00czQgMiA0IDRjMCAyLTIgNC00IDRzLTQtMi00LTR6bS0yMCAwYzAtMiAyLTQgNC00czQgMiA0IDRjMCAyLTIgNC00IDRzLTQtMi00LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center space-y-6">
+            <div className="flex justify-center items-center gap-2">
+              <Sparkles className="w-12 h-12 animate-pulse" />
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
+                Discover Wildlife
+              </h1>
+              <Sparkles className="w-12 h-12 animate-pulse" />
+            </div>
+            <p className="text-xl md:text-2xl text-emerald-100 max-w-3xl mx-auto">
+              Explore Karnataka's magnificent wildlife through videos, fascinating facts, and comprehensive information
+            </p>
+            
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto mt-8">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  type="text"
+                  placeholder="Search for tigers, elephants, leopards..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 pr-4 py-6 text-lg rounded-full border-2 border-white/30 bg-white/95 dark:bg-gray-900/95 shadow-2xl focus:border-white transition-all"
+                  data-testid="input-discover-search"
+                />
+              </div>
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-foreground dark:text-white mb-2">
-            NGOs & Volunteer
-          </h1>
-          <p className="text-xl text-muted-foreground dark:text-gray-400 max-w-3xl mx-auto">
-            Join the conservation movement! Work with NGOs, volunteer for wildlife protection, and adopt animals to support their care.
-          </p>
         </div>
+      </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Dialog open={volunteerFormOpen} onOpenChange={setVolunteerFormOpen}>
-            <DialogTrigger asChild>
-              <Card className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 border-blue-200 dark:border-blue-800" data-testid="card-volunteer-cta">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <HandHeart className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-                    <div>
-                      <CardTitle className="text-xl text-foreground dark:text-white">Apply to Volunteer</CardTitle>
-                      <CardDescription className="text-blue-700 dark:text-blue-300">Join conservation efforts in your area</CardDescription>
+      {/* Featured Animals Carousel */}
+      {featuredAnimals.length > 0 && (
+        <div className="container mx-auto px-4 -mt-12 relative z-20 mb-12">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <Heart className="w-6 h-6 text-red-500 fill-red-500" />
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Animals</h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {featuredAnimals.map((animal) => (
+                <Card
+                  key={animal.id}
+                  className="group hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
+                  onClick={() => handleAnimalClick(animal)}
+                  data-testid={`card-featured-animal-${animal.id}`}
+                >
+                  <CardContent className="p-0">
+                    <div className="relative h-48 overflow-hidden rounded-t-lg">
+                      <img
+                        src={animal.imageUrl}
+                        alt={animal.speciesName}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 right-3">
+                        <Badge className={`${conservationColors[animal.conservationStatus] || 'bg-gray-500'} text-white font-semibold`}>
+                          {animal.conservationStatus}
+                        </Badge>
+                      </div>
+                      <div className="absolute bottom-3 left-3 flex gap-2">
+                        <Badge className="bg-black/70 text-white flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          {animal.viewCount}
+                        </Badge>
+                        {animal.videoUrls.length > 0 && (
+                          <Badge className="bg-red-600 text-white flex items-center gap-1">
+                            <Play className="w-3 h-3" />
+                            {animal.videoUrls.length}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">{animal.speciesName}</h3>
+                      <p className="text-sm italic text-gray-600 dark:text-gray-400 mb-2">{animal.scientificName}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{animal.shortDescription}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter Categories */}
+      <div className="container mx-auto px-4 mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <Filter className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          <h3 className="font-semibold text-gray-900 dark:text-white">Filter by Category:</h3>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant={selectedCategory === null ? "default" : "outline"}
+            onClick={() => setSelectedCategory(null)}
+            className="rounded-full"
+            data-testid="button-category-all"
+          >
+            All Animals ({animals.length})
+          </Button>
+          {categories.map((category) => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              onClick={() => setSelectedCategory(category)}
+              className="rounded-full"
+              data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              {category} ({animals.filter(a => a.category === category).length})
+            </Button>
+          ))}
+        </div>
+        {selectedCategory && (
+          <Button
+            variant="ghost"
+            onClick={() => setSelectedCategory(null)}
+            className="mt-4 text-sm"
+            data-testid="button-clear-filter"
+          >
+            <X className="w-4 h-4 mr-2" />
+            Clear filter
+          </Button>
+        )}
+      </div>
+
+      {/* Animals Grid */}
+      <div className="container mx-auto px-4 pb-20">
+        {isLoading ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-0">
+                  <Skeleton className="h-56 w-full rounded-t-lg" />
+                  <div className="p-4 space-y-2">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-16 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : filteredAnimals.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAnimals.map((animal) => (
+              <Card
+                key={animal.id}
+                className="group hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                onClick={() => handleAnimalClick(animal)}
+                data-testid={`card-animal-${animal.id}`}
+              >
+                <CardContent className="p-0">
+                  <div className="relative h-56 overflow-hidden rounded-t-lg">
+                    <img
+                      src={animal.imageUrl}
+                      alt={animal.speciesName}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <Badge className={`${conservationColors[animal.conservationStatus] || 'bg-gray-500'} text-white font-semibold`}>
+                        {animal.conservationStatus}
+                      </Badge>
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
+                      <Badge className="bg-black/70 text-white flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {animal.viewCount}
+                      </Badge>
+                      {animal.videoUrls.length > 0 && (
+                        <Badge className="bg-red-600 text-white flex items-center gap-1">
+                          <Play className="w-3 h-3" />
+                          Watch Videos
+                        </Badge>
+                      )}
                     </div>
                   </div>
-                </CardHeader>
-              </Card>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card dark:bg-gray-900">
-              <DialogHeader>
-                <DialogTitle className="text-foreground dark:text-white">Volunteer Application</DialogTitle>
-                <DialogDescription className="text-muted-foreground dark:text-gray-400">
-                  Fill out this form to apply for volunteer opportunities with wildlife conservation organizations.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleVolunteerSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="volunteer-name" className="text-foreground dark:text-white">Full Name *</Label>
-                  <Input id="volunteer-name" name="name" required className="bg-background dark:bg-gray-800 text-foreground dark:text-white" />
-                </div>
-                <div>
-                  <Label htmlFor="volunteer-email" className="text-foreground dark:text-white">Email *</Label>
-                  <Input id="volunteer-email" name="email" type="email" required className="bg-background dark:bg-gray-800 text-foreground dark:text-white" />
-                </div>
-                <div>
-                  <Label htmlFor="volunteer-phone" className="text-foreground dark:text-white">Phone Number *</Label>
-                  <Input id="volunteer-phone" name="phone" type="tel" required className="bg-background dark:bg-gray-800 text-foreground dark:text-white" />
-                </div>
-                <div>
-                  <Label htmlFor="volunteer-ngo" className="text-foreground dark:text-white">Preferred Organization *</Label>
-                  <Select name="ngo" required>
-                    <SelectTrigger className="bg-background dark:bg-gray-800 text-foreground dark:text-white">
-                      <SelectValue placeholder="Select an NGO" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card dark:bg-gray-900">
-                      {displayNgos.map(ngo => (
-                        <SelectItem key={ngo.id} value={ngo.id}>{ngo.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="volunteer-availability" className="text-foreground dark:text-white">Availability *</Label>
-                  <Select name="availability" required>
-                    <SelectTrigger className="bg-background dark:bg-gray-800 text-foreground dark:text-white">
-                      <SelectValue placeholder="Select your availability" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card dark:bg-gray-900">
-                      <SelectItem value="weekends">Weekends Only</SelectItem>
-                      <SelectItem value="weekdays">Weekdays Only</SelectItem>
-                      <SelectItem value="fulltime">Full-time (40 hrs/week)</SelectItem>
-                      <SelectItem value="parttime">Part-time (20 hrs/week)</SelectItem>
-                      <SelectItem value="flexible">Flexible Schedule</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="volunteer-skills" className="text-foreground dark:text-white">Skills & Experience</Label>
-                  <Textarea 
-                    id="volunteer-skills" 
-                    name="skills" 
-                    placeholder="E.g., Photography, Social Media, Field Work, Veterinary Skills, Teaching, etc."
-                    className="bg-background dark:bg-gray-800 text-foreground dark:text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="volunteer-message" className="text-foreground dark:text-white">Why do you want to volunteer?</Label>
-                  <Textarea 
-                    id="volunteer-message" 
-                    name="message" 
-                    placeholder="Tell us about your passion for wildlife conservation..."
-                    className="bg-background dark:bg-gray-800 text-foreground dark:text-white"
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={volunteerMutation.isPending}>
-                  {volunteerMutation.isPending ? "Submitting..." : "Submit Application"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={adoptionFormOpen} onOpenChange={setAdoptionFormOpen}>
-            <DialogTrigger asChild>
-              <Card className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/40 dark:to-green-900/40 border-green-200 dark:border-green-800" data-testid="card-adoption-cta">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <Heart className="w-10 h-10 text-green-600 dark:text-green-400" />
-                    <div>
-                      <CardTitle className="text-xl text-foreground dark:text-white">Adopt an Animal</CardTitle>
-                      <CardDescription className="text-green-700 dark:text-green-300">Support wildlife through monthly sponsorship</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card dark:bg-gray-900">
-              <DialogHeader>
-                <DialogTitle className="text-foreground dark:text-white">Adopt an Animal</DialogTitle>
-                <DialogDescription className="text-muted-foreground dark:text-gray-400">
-                  Your monthly support helps provide food, medical care, and habitat for rescued wildlife.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleAdoptionSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="adoption-name" className="text-foreground dark:text-white">Full Name *</Label>
-                  <Input id="adoption-name" name="name" required className="bg-background dark:bg-gray-800 text-foreground dark:text-white" />
-                </div>
-                <div>
-                  <Label htmlFor="adoption-email" className="text-foreground dark:text-white">Email *</Label>
-                  <Input id="adoption-email" name="email" type="email" required className="bg-background dark:bg-gray-800 text-foreground dark:text-white" />
-                </div>
-                <div>
-                  <Label htmlFor="adoption-phone" className="text-foreground dark:text-white">Phone Number *</Label>
-                  <Input id="adoption-phone" name="phone" type="tel" required className="bg-background dark:bg-gray-800 text-foreground dark:text-white" />
-                </div>
-                <div>
-                  <Label htmlFor="adoption-animal" className="text-foreground dark:text-white">Select Animal to Adopt *</Label>
-                  <Select name="animal" required onValueChange={setSelectedAnimal}>
-                    <SelectTrigger className="bg-background dark:bg-gray-800 text-foreground dark:text-white">
-                      <SelectValue placeholder="Choose an animal" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card dark:bg-gray-900">
-                      {adoptableAnimals.map(animal => (
-                        <SelectItem key={animal.id} value={animal.id}>
-                          {animal.name} - {animal.monthlySupport}/month
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {selectedAnimal && (
-                    <div className="mt-2 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg text-sm">
-                      {adoptableAnimals.find(a => a.id === selectedAnimal)?.status}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="adoption-type" className="text-foreground dark:text-white">Adoption Type *</Label>
-                  <Select name="adoptionType" required>
-                    <SelectTrigger className="bg-background dark:bg-gray-800 text-foreground dark:text-white">
-                      <SelectValue placeholder="Select adoption duration" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card dark:bg-gray-900">
-                      <SelectItem value="monthly">Monthly Support</SelectItem>
-                      <SelectItem value="yearly">Yearly Support (10% discount)</SelectItem>
-                      <SelectItem value="lifetime">Lifetime Support</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="adoption-message" className="text-foreground dark:text-white">Message (Optional)</Label>
-                  <Textarea 
-                    id="adoption-message" 
-                    name="message" 
-                    placeholder="Any special message or questions..."
-                    className="bg-background dark:bg-gray-800 text-foreground dark:text-white"
-                  />
-                </div>
-                <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                  <p className="text-sm text-blue-900 dark:text-blue-300">
-                    <strong>Benefits of Adoption:</strong> Monthly updates with photos, adoption certificate, 
-                    visiting rights, and tax deduction eligibility.
-                  </p>
-                </div>
-                <Button type="submit" className="w-full" disabled={adoptionMutation.isPending}>
-                  {adoptionMutation.isPending ? "Processing..." : "Submit Adoption Request"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* Tabs for different content */}
-        <Tabs defaultValue="ngos" className="mb-8">
-          <TabsList className="grid w-full grid-cols-3 bg-card dark:bg-gray-900">
-            <TabsTrigger value="ngos">NGOs Directory</TabsTrigger>
-            <TabsTrigger value="animals">Animals for Adoption</TabsTrigger>
-            <TabsTrigger value="how-to-help">How to Help</TabsTrigger>
-          </TabsList>
-
-          {/* NGOs Directory Tab */}
-          <TabsContent value="ngos" className="space-y-6">
-            <div className="grid grid-cols-1 gap-6">
-              {displayNgos.map(ngo => (
-                <Card key={ngo.id} className="hover:shadow-lg transition-shadow bg-card dark:bg-gray-900 border-border dark:border-gray-800">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <CardTitle className="text-2xl text-foreground dark:text-white mb-2">{ngo.name}</CardTitle>
-                        <CardDescription className="text-base text-muted-foreground dark:text-gray-400">
-                          {ngo.description}
-                        </CardDescription>
+                        <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-1">
+                          {animal.speciesName}
+                        </h3>
+                        <p className="text-sm italic text-gray-600 dark:text-gray-400">{animal.scientificName}</p>
                       </div>
-                      <Shield className="w-12 h-12 text-primary flex-shrink-0 ml-4" />
+                      <Badge variant="outline" className="ml-2">{animal.category}</Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-foreground dark:text-gray-300">{ngo.address}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-foreground dark:text-gray-300">Established: {ngo.established}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-foreground dark:text-gray-300">{ngo.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-foreground dark:text-gray-300">{ngo.phone}</span>
-                      </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3 mb-3">
+                      {animal.shortDescription}
+                    </p>
+                    <div className="flex gap-2 flex-wrap">
+                      {animal.tags.slice(0, 3).map((tag, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>
+                      ))}
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <Search className="w-20 h-20 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No animals found</h3>
+            <p className="text-gray-600 dark:text-gray-400">Try adjusting your search or filters</p>
+          </div>
+        )}
+      </div>
 
-                    <div className="mb-4">
-                      <h4 className="font-semibold text-foreground dark:text-white mb-2">Focus Areas:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {ngo.focus?.map((area: string, idx: number) => (
-                          <span key={idx} className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
-                            {area}
-                          </span>
+      {/* Animal Detail Modal */}
+      {selectedAnimal && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 overflow-y-auto"
+          onClick={() => setSelectedAnimal(null)}
+          data-testid="modal-animal-detail"
+        >
+          <div
+            className="container mx-auto px-4 py-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-5xl mx-auto overflow-hidden">
+              {/* Header with Image */}
+              <div className="relative h-96 bg-gradient-to-br from-emerald-600 to-teal-600">
+                <img
+                  src={selectedAnimal.imageUrl}
+                  alt={selectedAnimal.speciesName}
+                  className="w-full h-full object-cover opacity-90"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white"
+                  onClick={() => setSelectedAnimal(null)}
+                  data-testid="button-close-modal"
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+                <div className="absolute bottom-6 left-6 right-6">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h2 className="text-4xl font-bold text-white mb-2">{selectedAnimal.speciesName}</h2>
+                      <p className="text-xl italic text-emerald-200">{selectedAnimal.scientificName}</p>
+                      <div className="flex gap-2 mt-3">
+                        {selectedAnimal.commonNames.slice(0, 3).map((name, idx) => (
+                          <Badge key={idx} variant="outline" className="bg-white/20 text-white border-white/40">
+                            {name}
+                          </Badge>
                         ))}
                       </div>
                     </div>
-
-                    <div className="flex gap-2">
-                      <Button variant="default" size="sm" onClick={() => setVolunteerFormOpen(true)}>
-                        <Users className="w-4 h-4 mr-2" />
-                        Volunteer Here
-                      </Button>
-                      {ngo.website && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={`https://${ngo.website}`} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            Visit Website
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Animals for Adoption Tab */}
-          <TabsContent value="animals" className="space-y-6">
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 p-6 rounded-lg mb-6 border border-green-200 dark:border-green-800">
-              <h3 className="text-xl font-bold text-foreground dark:text-white mb-2">About Animal Adoption</h3>
-              <p className="text-muted-foreground dark:text-gray-400">
-                When you adopt an animal, you're providing crucial financial support for their food, medical care, 
-                and habitat maintenance. All animals in our program are rescues that cannot be released back to the wild. 
-                Your monthly contribution ensures they live with dignity and proper care.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {adoptableAnimals.map(animal => (
-                <Card key={animal.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 bg-card dark:bg-gray-900 border-border dark:border-gray-800 group" data-testid={`adoption-card-${animal.id}`}>
-                  {/* Animal Image */}
-                  <div className="aspect-video overflow-hidden bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30">
-                    <img 
-                      src={animal.image} 
-                      alt={animal.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      data-testid={`adoption-image-${animal.id}`}
-                    />
-                  </div>
-                  
-                  <CardHeader>
-                    <div className="flex items-center gap-2 mb-2">
-                      <PawPrint className="w-6 h-6 text-primary" />
-                      <CardTitle className="text-foreground dark:text-white">{animal.name.split('(')[0]}</CardTitle>
-                    </div>
-                    <CardDescription className="text-muted-foreground dark:text-gray-400">
-                      {animal.name.split('(')[1]?.replace(')', '')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground dark:text-gray-400">Age:</span>
-                        <span className="font-medium text-foreground dark:text-white">{animal.age}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground dark:text-gray-400">Monthly Support:</span>
-                        <span className="font-bold text-primary">{animal.monthlySupport}</span>
-                      </div>
-                      <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
-                        <p className="text-sm text-amber-900 dark:text-amber-300">{animal.status}</p>
-                      </div>
-                      <Button 
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg" 
-                        onClick={() => {
-                          setSelectedAnimal(animal.id);
-                          setAdoptionFormOpen(true);
-                        }}
-                        data-testid={`button-adopt-${animal.id}`}
-                      >
-                        <Heart className="w-4 h-4 mr-2" />
-                        Adopt {animal.name.split('(')[0]}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* How to Help Tab */}
-          <TabsContent value="how-to-help" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-card dark:bg-gray-900 border-border dark:border-gray-800">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground dark:text-white">
-                    <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                    Volunteer Opportunities
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <h4 className="font-semibold text-foreground dark:text-white mb-1">Field Work</h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Participate in wildlife surveys, habitat monitoring, and conservation patrols in forests and sanctuaries.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground dark:text-white mb-1">Animal Care</h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Help feed animals, clean enclosures, and assist veterinarians at rescue centers.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground dark:text-white mb-1">Education & Outreach</h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Conduct awareness programs in schools and communities about wildlife protection.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground dark:text-white mb-1">Documentation</h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Photography, videography, and social media management to spread awareness.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-card dark:bg-gray-900 border-border dark:border-gray-800">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground dark:text-white">
-                    <Heart className="w-6 h-6 text-red-600 dark:text-red-400" />
-                    Other Ways to Contribute
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <h4 className="font-semibold text-foreground dark:text-white mb-1">Donations</h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Financial contributions for medical equipment, food supplies, and habitat restoration projects.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground dark:text-white mb-1">Sponsor a Program</h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Fund specific initiatives like anti-poaching units, veterinary camps, or reforestation drives.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground dark:text-white mb-1">Spread Awareness</h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Share conservation messages on social media and educate others about wildlife protection.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground dark:text-white mb-1">Report Wildlife Crime</h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Contact forest departments immediately if you witness poaching or illegal wildlife trade.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30">
-              <CardHeader>
-                <CardTitle className="text-2xl text-foreground dark:text-white">Raising Wildlife: What Volunteers Do</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground dark:text-gray-400">
-                  Volunteers play a crucial role in caring for rescued, orphaned, and injured wildlife. Here's what the process involves:
-                </p>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-background dark:bg-gray-800/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
-                      <PawPrint className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                      Rescue & Intake
-                    </h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Animals are brought in from conflict zones, accidents, or abandonment. Initial health assessment, 
-                      quarantine, and emergency medical treatment.
-                    </p>
-                  </div>
-                  <div className="p-4 bg-background dark:bg-gray-800/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
-                      <Heart className="w-5 h-5 text-red-600 dark:text-red-400" />
-                      Daily Care
-                    </h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Feeding according to species-specific diets, cleaning enclosures, monitoring behavior, 
-                      and providing enrichment activities for mental stimulation.
-                    </p>
-                  </div>
-                  <div className="p-4 bg-background dark:bg-gray-800/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      Rehabilitation
-                    </h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Teaching survival skills, building strength, and preparing animals for potential release 
-                      back to their natural habitat when possible.
-                    </p>
-                  </div>
-                  <div className="p-4 bg-background dark:bg-gray-800/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
-                      <Leaf className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      Long-term Care
-                    </h4>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      For animals that cannot be released, providing lifetime sanctuary care with proper nutrition, 
-                      medical attention, and quality of life.
-                    </p>
+                    <Badge className={`${conservationColors[selectedAnimal.conservationStatus] || 'bg-gray-500'} text-white font-bold text-lg px-4 py-2`}>
+                      {selectedAnimal.conservationStatus}
+                    </Badge>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-8 space-y-8">
+                {/* Videos Section */}
+                {selectedAnimal.videoUrls.length > 0 && (
+                  <div data-testid="section-videos">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                      <Play className="w-6 h-6 text-red-600" />
+                      Watch Videos
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {selectedAnimal.videoUrls.map((url, idx) => (
+                        <div key={idx} className="aspect-video rounded-lg overflow-hidden shadow-lg" data-testid={`video-${idx}`}>
+                          <iframe
+                            src={url}
+                            title={`${selectedAnimal.speciesName} Video ${idx + 1}`}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Description */}
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">About</h3>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{selectedAnimal.fullDescription}</p>
+                </div>
+
+                {/* Quick Facts Grid */}
+                <div className="grid md:grid-cols-2 gap-6" data-testid="section-quick-facts">
+                  <div className="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-lg" data-testid="fact-habitat">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">🏠 Habitat</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{selectedAnimal.habitat}</p>
+                  </div>
+                  <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg" data-testid="fact-diet">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">🍽️ Diet</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{selectedAnimal.diet}</p>
+                  </div>
+                  <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg" data-testid="fact-size">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">📏 Size</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{selectedAnimal.size}</p>
+                  </div>
+                  <div className="bg-orange-50 dark:bg-orange-950/30 p-4 rounded-lg" data-testid="fact-lifespan">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">⏳ Lifespan</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{selectedAnimal.lifespan}</p>
+                  </div>
+                </div>
+
+                {/* Fun Facts */}
+                <div className="bg-yellow-50 dark:bg-yellow-950/20 p-6 rounded-lg" data-testid="section-fun-facts">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <Sparkles className="w-6 h-6 text-yellow-600" />
+                    Fun Facts
+                  </h3>
+                  <ul className="space-y-2">
+                    {selectedAnimal.funFacts.map((fact, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <span className="text-2xl">•</span>
+                        <span className="text-gray-700 dark:text-gray-300">{fact}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Did You Know */}
+                {selectedAnimal.didYouKnow && (
+                  <div className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20 p-6 rounded-lg border-l-4 border-cyan-600" data-testid="section-did-you-know">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-cyan-600" />
+                      Did You Know?
+                    </h3>
+                    <p className="text-gray-700 dark:text-gray-300">{selectedAnimal.didYouKnow}</p>
+                  </div>
+                )}
+
+                {/* Cultural Significance */}
+                {selectedAnimal.culturalSignificance && (
+                  <div data-testid="section-cultural">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Cultural Significance</h3>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{selectedAnimal.culturalSignificance}</p>
+                  </div>
+                )}
+
+                {/* Conservation */}
+                <div className="border-t pt-6" data-testid="section-conservation">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Conservation</h3>
+                  
+                  <div className="mb-4" data-testid="conservation-threats">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Threats</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedAnimal.threats.map((threat, idx) => (
+                        <Badge key={idx} variant="destructive" data-testid={`threat-${idx}`}>{threat}</Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-4" data-testid="conservation-efforts">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Conservation Efforts</h4>
+                    <p className="text-gray-700 dark:text-gray-300">{selectedAnimal.conservationEfforts}</p>
+                  </div>
+
+                  {selectedAnimal.protectedAreas && selectedAnimal.protectedAreas.length > 0 && (
+                    <div data-testid="conservation-protected-areas">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        Protected Areas
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedAnimal.protectedAreas.map((area, idx) => (
+                          <Badge key={idx} variant="secondary" data-testid={`protected-area-${idx}`}>{area}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

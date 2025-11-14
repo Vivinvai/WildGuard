@@ -3,6 +3,7 @@ import {
   type WildlifeCenter, type InsertWildlifeCenter, 
   type AnimalIdentification, type InsertAnimalIdentification, 
   type SupportedAnimal, type InsertSupportedAnimal,
+  type DiscoverAnimal, type InsertDiscoverAnimal,
   type FloraIdentification, type InsertFloraIdentification,
   type BotanicalGarden, type InsertBotanicalGarden,
   type AnimalSighting, type InsertAnimalSighting,
@@ -43,6 +44,16 @@ export interface IStorage {
   getSupportedAnimals(filters?: { region?: string; category?: string; conservationStatus?: string }): Promise<SupportedAnimal[]>;
   createSupportedAnimal(animal: InsertSupportedAnimal): Promise<SupportedAnimal>;
   seedSupportedAnimals(): Promise<void>;
+  
+  // Discover Animals Encyclopedia
+  getDiscoverAnimals(filters?: { category?: string; region?: string; featured?: boolean; search?: string }): Promise<DiscoverAnimal[]>;
+  getDiscoverAnimalById(id: string): Promise<DiscoverAnimal | undefined>;
+  getDiscoverAnimalByName(name: string): Promise<DiscoverAnimal | undefined>;
+  createDiscoverAnimal(animal: InsertDiscoverAnimal): Promise<DiscoverAnimal>;
+  updateDiscoverAnimalViews(id: string): Promise<void>;
+  getFeaturedDiscoverAnimals(limit?: number): Promise<DiscoverAnimal[]>;
+  searchDiscoverAnimals(query: string): Promise<DiscoverAnimal[]>;
+  seedDiscoverAnimals(): Promise<void>;
   
   createFloraIdentification(identification: InsertFloraIdentification, userId?: string): Promise<FloraIdentification>;
   getRecentFloraIdentifications(limit?: number): Promise<FloraIdentification[]>;
@@ -93,6 +104,7 @@ export class MemStorage implements IStorage {
   private wildlifeCenters: Map<string, WildlifeCenter> = new Map();
   private animalIdentifications: Map<string, AnimalIdentification> = new Map();
   private supportedAnimals: Map<string, SupportedAnimal> = new Map();
+  private discoverAnimals: Map<string, DiscoverAnimal> = new Map();
   private floraIdentifications: Map<string, FloraIdentification> = new Map();
   private botanicalGardens: Map<string, BotanicalGarden> = new Map();
   private animalSightings: Map<string, AnimalSighting> = new Map();
@@ -214,6 +226,9 @@ export class MemStorage implements IStorage {
       };
       this.animalSightings.set(sightingId, animalSighting);
     });
+    
+    // Seed discover animals data
+    this.seedDiscoverAnimals();
     
     this.isInitialized = true;
   }
@@ -880,6 +895,146 @@ export class MemStorage implements IStorage {
 
     for (const animal of animalsData) {
       await this.createSupportedAnimal(animal);
+    }
+  }
+
+  // ===== DISCOVER ANIMALS ENCYCLOPEDIA METHODS =====
+  
+  async getDiscoverAnimals(filters?: { category?: string; region?: string; featured?: boolean; search?: string }): Promise<DiscoverAnimal[]> {
+    let animals = Array.from(this.discoverAnimals.values());
+    
+    if (filters) {
+      if (filters.category) {
+        animals = animals.filter(a => a.category === filters.category);
+      }
+      if (filters.region) {
+        animals = animals.filter(a => a.region === filters.region);
+      }
+      if (filters.featured !== undefined) {
+        animals = animals.filter(a => a.featured === filters.featured);
+      }
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase().trim();
+        animals = animals.filter(a => 
+          a.speciesName.toLowerCase().includes(searchLower) ||
+          a.scientificName.toLowerCase().includes(searchLower) ||
+          a.commonNames.some(name => name.toLowerCase().includes(searchLower)) ||
+          a.shortDescription.toLowerCase().includes(searchLower) ||
+          a.fullDescription.toLowerCase().includes(searchLower) ||
+          (a.tags || []).some(tag => tag.toLowerCase().includes(searchLower))
+        );
+      }
+    }
+    
+    // Sort by featured status, then view count, then name
+    return animals.sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
+      if (b.viewCount !== a.viewCount) return b.viewCount - a.viewCount;
+      return a.speciesName.localeCompare(b.speciesName);
+    });
+  }
+  
+  async getDiscoverAnimalById(id: string): Promise<DiscoverAnimal | undefined> {
+    return this.discoverAnimals.get(id);
+  }
+  
+  async getDiscoverAnimalByName(name: string): Promise<DiscoverAnimal | undefined> {
+    const nameLower = name.toLowerCase().trim();
+    return Array.from(this.discoverAnimals.values()).find(a => 
+      a.speciesName.toLowerCase() === nameLower ||
+      a.scientificName.toLowerCase() === nameLower ||
+      a.commonNames.some(n => n.toLowerCase() === nameLower)
+    );
+  }
+  
+  async createDiscoverAnimal(animal: InsertDiscoverAnimal): Promise<DiscoverAnimal> {
+    const result: DiscoverAnimal = {
+      id: randomUUID(),
+      ...animal,
+      population: animal.population || null,
+      videoUrls: animal.videoUrls || [],
+      galleryImages: animal.galleryImages || [],
+      tags: animal.tags || [],
+      protectedAreas: animal.protectedAreas || null,
+      culturalSignificance: animal.culturalSignificance || null,
+      didYouKnow: animal.didYouKnow || null,
+      featured: animal.featured ?? false,
+      viewCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.discoverAnimals.set(result.id, result);
+    return result;
+  }
+  
+  async updateDiscoverAnimalViews(id: string): Promise<void> {
+    const animal = this.discoverAnimals.get(id);
+    if (animal) {
+      animal.viewCount += 1;
+      animal.updatedAt = new Date();
+      this.discoverAnimals.set(id, animal);
+    }
+  }
+  
+  async getFeaturedDiscoverAnimals(limit = 6): Promise<DiscoverAnimal[]> {
+    return Array.from(this.discoverAnimals.values())
+      .filter(a => a.featured)
+      .sort((a, b) => b.viewCount - a.viewCount)
+      .slice(0, limit);
+  }
+  
+  async searchDiscoverAnimals(query: string): Promise<DiscoverAnimal[]> {
+    const queryLower = query.toLowerCase().trim();
+    const animals = Array.from(this.discoverAnimals.values()).filter(a => 
+      a.speciesName.toLowerCase().includes(queryLower) ||
+      a.scientificName.toLowerCase().includes(queryLower) ||
+      a.commonNames.some(name => name.toLowerCase().includes(queryLower)) ||
+      a.shortDescription.toLowerCase().includes(queryLower) ||
+      a.fullDescription.toLowerCase().includes(queryLower) ||
+      (a.tags || []).some(tag => tag.toLowerCase().includes(queryLower)) ||
+      a.category.toLowerCase().includes(queryLower)
+    );
+    
+    // Sort by relevance (name matches first, then description matches)
+    return animals.sort((a, b) => {
+      const aNameMatch = a.speciesName.toLowerCase().includes(queryLower) || 
+                         a.commonNames.some(n => n.toLowerCase().includes(queryLower));
+      const bNameMatch = b.speciesName.toLowerCase().includes(queryLower) || 
+                         b.commonNames.some(n => n.toLowerCase().includes(queryLower));
+      
+      if (aNameMatch !== bNameMatch) return aNameMatch ? -1 : 1;
+      return b.viewCount - a.viewCount;
+    });
+  }
+  
+  async seedDiscoverAnimals(): Promise<void> {
+    // Only seed if no discover animals exist
+    if (this.discoverAnimals.size > 0) return;
+    
+    const { discoverAnimalsData } = await import("./data/discover-animals-data");
+    
+    // Seed featured animals
+    const featuredSpecies = ["Bengal Tiger", "Asian Elephant", "Indian Leopard"];
+    
+    for (const animalData of discoverAnimalsData) {
+      const animal: DiscoverAnimal = {
+        id: randomUUID(),
+        ...animalData,
+        population: animalData.population || null,
+        featured: featuredSpecies.includes(animalData.speciesName),
+        viewCount: Math.floor(Math.random() * 1000), // Random initial views
+        videoUrls: animalData.videoUrls || [],
+        galleryImages: animalData.galleryImages || [],
+        tags: animalData.tags || [],
+        protectedAreas: animalData.protectedAreas || null,
+        culturalSignificance: animalData.culturalSignificance || null,
+        didYouKnow: animalData.didYouKnow || null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      this.discoverAnimals.set(animal.id, animal);
     }
   }
 

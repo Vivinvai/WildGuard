@@ -101,8 +101,8 @@ export const discoverAnimals = pgTable("discover_animals", {
   
   // Media
   imageUrl: text("image_url").notNull(),
-  videoUrls: text("video_urls").array(), // YouTube/Vimeo embed URLs
-  galleryImages: text("gallery_images").array(),
+  videoUrls: text("video_urls").array().default(sql`ARRAY[]::text[]`), // YouTube/Vimeo embed URLs
+  galleryImages: text("gallery_images").array().default(sql`ARRAY[]::text[]`),
   
   // Fun Facts & Educational
   funFacts: text("fun_facts").array().notNull(),
@@ -111,8 +111,8 @@ export const discoverAnimals = pgTable("discover_animals", {
   
   // Metadata
   featured: boolean("featured").default(false),
-  viewCount: real("view_count").default(0),
-  tags: text("tags").array(),
+  viewCount: real("view_count").default(0).notNull(),
+  tags: text("tags").array().default(sql`ARRAY[]::text[]`),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({

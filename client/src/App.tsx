@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import GetStarted from "@/pages/get-started";
 import Home from "@/pages/home";
 import Discover from "@/pages/discover";
+import Community from "@/pages/community";
 import Centers from "@/pages/centers";
 import Learn from "@/pages/learn";
 import About from "@/pages/about";
@@ -49,6 +50,7 @@ function Router() {
         <Route path="/" component={GetStarted} />
         <Route path="/home" component={Home} />
         <Route path="/discover" component={Discover} />
+        <Route path="/community" component={Community} />
         <Route path="/centers" component={Centers} />
         <Route path="/learn" component={Learn} />
         <Route path="/about" component={About} />

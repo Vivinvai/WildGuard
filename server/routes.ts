@@ -510,6 +510,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== DISCOVER ANIMALS ENCYCLOPEDIA =====
+  
+  // Get all discover animals with optional filters
+  app.get("/api/discover-animals", async (req, res) => {
+    try {
+      const filters: { category?: string; region?: string; featured?: boolean; search?: string } = {};
+      
+      if (req.query.category) filters.category = req.query.category as string;
+      if (req.query.region) filters.region = req.query.region as string;
+      if (req.query.featured !== undefined) filters.featured = req.query.featured === 'true';
+      if (req.query.search) filters.search = req.query.search as string;
+      
+      const animals = await storage.getDiscoverAnimals(filters);
+      res.json(animals);
+    } catch (error) {
+      console.error("Error fetching discover animals:", error);
+      res.status(500).json({ error: "Failed to fetch discover animals" });
+    }
+  });
+  
+  // Get featured discover animals
+  app.get("/api/discover-animals/featured", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 6;
+      const animals = await storage.getFeaturedDiscoverAnimals(limit);
+      res.json(animals);
+    } catch (error) {
+      console.error("Error fetching featured discover animals:", error);
+      res.status(500).json({ error: "Failed to fetch featured discover animals" });
+    }
+  });
+  
+  // Search discover animals
+  app.get("/api/discover-animals/search", async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query) {
+        return res.status(400).json({ error: "Search query is required" });
+      }
+      
+      const animals = await storage.searchDiscoverAnimals(query);
+      res.json(animals);
+    } catch (error) {
+      console.error("Error searching discover animals:", error);
+      res.status(500).json({ error: "Failed to search discover animals" });
+    }
+  });
+  
+  // Get single discover animal by ID
+  app.get("/api/discover-animals/:id", async (req, res) => {
+    try {
+      const animal = await storage.getDiscoverAnimalById(req.params.id);
+      if (!animal) {
+        return res.status(404).json({ error: "Animal not found" });
+      }
+      
+      // Increment view count
+      await storage.updateDiscoverAnimalViews(req.params.id);
+      
+      res.json(animal);
+    } catch (error) {
+      console.error("Error fetching discover animal:", error);
+      res.status(500).json({ error: "Failed to fetch discover animal" });
+    }
+  });
+  
+  // Seed discover animals
+  app.post("/api/discover-animals/seed", async (req, res) => {
+    try {
+      await storage.seedDiscoverAnimals();
+      res.json({ message: "Discover animals seeded successfully" });
+    } catch (error) {
+      console.error("Error seeding discover animals:", error);
+      res.status(500).json({ error: "Failed to seed discover animals" });
+    }
+  });
+
   // Upload and analyze plant photo
   app.post("/api/identify-flora", upload.single('image'), async (req, res) => {
     try {
