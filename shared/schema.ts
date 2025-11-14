@@ -74,6 +74,55 @@ export const supportedAnimals = pgTable("supported_animals", {
   conservationStatusIdx: index("supported_animals_conservation_status_idx").on(table.conservationStatus),
 }));
 
+export const discoverAnimals = pgTable("discover_animals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  speciesName: text("species_name").notNull().unique(),
+  scientificName: text("scientific_name").notNull(),
+  commonNames: text("common_names").array().notNull(),
+  category: text("category").notNull(), // 'Mammal', 'Bird', 'Reptile', 'Amphibian', 'Fish', 'Insect'
+  conservationStatus: text("conservation_status").notNull(),
+  population: text("population"),
+  region: text("region").notNull(), // 'Karnataka', 'India', 'Asia', 'Global'
+  
+  // Detailed Information
+  shortDescription: text("short_description").notNull(),
+  fullDescription: text("full_description").notNull(),
+  habitat: text("habitat").notNull(),
+  diet: text("diet").notNull(),
+  lifespan: text("lifespan").notNull(),
+  size: text("size").notNull(), // "Length: X, Weight: Y"
+  behavior: text("behavior").notNull(),
+  reproduction: text("reproduction").notNull(),
+  
+  // Conservation
+  threats: text("threats").array().notNull(),
+  conservationEfforts: text("conservation_efforts").notNull(),
+  protectedAreas: text("protected_areas").array(),
+  
+  // Media
+  imageUrl: text("image_url").notNull(),
+  videoUrls: text("video_urls").array(), // YouTube/Vimeo embed URLs
+  galleryImages: text("gallery_images").array(),
+  
+  // Fun Facts & Educational
+  funFacts: text("fun_facts").array().notNull(),
+  culturalSignificance: text("cultural_significance"),
+  didYouKnow: text("did_you_know"),
+  
+  // Metadata
+  featured: boolean("featured").default(false),
+  viewCount: real("view_count").default(0),
+  tags: text("tags").array(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("discover_animals_category_idx").on(table.category),
+  regionIdx: index("discover_animals_region_idx").on(table.region),
+  conservationStatusIdx: index("discover_animals_conservation_status_idx").on(table.conservationStatus),
+  featuredIdx: index("discover_animals_featured_idx").on(table.featured),
+  speciesNameIdx: index("discover_animals_species_name_idx").on(table.speciesName),
+}));
+
 export const floraIdentifications = pgTable("flora_identifications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
@@ -269,6 +318,13 @@ export const insertAnimalIdentificationSchema = createInsertSchema(animalIdentif
 export const insertSupportedAnimalSchema = createInsertSchema(supportedAnimals).omit({
   id: true,
   createdAt: true,
+});
+
+export const insertDiscoverAnimalSchema = createInsertSchema(discoverAnimals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  viewCount: true,
 });
 
 export const insertFloraIdentificationSchema = createInsertSchema(floraIdentifications).omit({
@@ -502,6 +558,8 @@ export type AnimalIdentification = typeof animalIdentifications.$inferSelect;
 export type InsertAnimalIdentification = z.infer<typeof insertAnimalIdentificationSchema>;
 export type SupportedAnimal = typeof supportedAnimals.$inferSelect;
 export type InsertSupportedAnimal = z.infer<typeof insertSupportedAnimalSchema>;
+export type DiscoverAnimal = typeof discoverAnimals.$inferSelect;
+export type InsertDiscoverAnimal = z.infer<typeof insertDiscoverAnimalSchema>;
 export type FloraIdentification = typeof floraIdentifications.$inferSelect;
 export type InsertFloraIdentification = z.infer<typeof insertFloraIdentificationSchema>;
 export type BotanicalGarden = typeof botanicalGardens.$inferSelect;
