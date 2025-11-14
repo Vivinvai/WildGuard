@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Header } from "@/components/header";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { DiscoverAnimal } from "@shared/schema";
 
@@ -72,6 +73,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-emerald-950 dark:to-teal-950">
+      <Header />
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-900 dark:via-teal-900 dark:to-cyan-900 text-white py-20">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDItNC00LTRzLTQgMi00IDRjMCAyIDIgNCA0IDRzNC0yIDQtNHptMCAwYzAtMiAyLTQgNC00czQgMiA0IDRjMCAyLTIgNC00IDRzLTQtMi00LTR6bS0yMCAwYzAtMiAyLTQgNC00czQgMiA0IDRjMCAyLTIgNC00IDRzLTQtMi00LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
@@ -140,7 +142,7 @@ export default function DiscoverPage() {
                           <Eye className="w-3 h-3" />
                           {animal.viewCount}
                         </Badge>
-                        {animal.videoUrls.length > 0 && (
+                        {animal.videoUrls && animal.videoUrls.length > 0 && (
                           <Badge className="bg-red-600 text-white flex items-center gap-1">
                             <Play className="w-3 h-3" />
                             {animal.videoUrls.length}
@@ -244,7 +246,7 @@ export default function DiscoverPage() {
                         <Eye className="w-3 h-3" />
                         {animal.viewCount}
                       </Badge>
-                      {animal.videoUrls.length > 0 && (
+                      {animal.videoUrls && animal.videoUrls.length > 0 && (
                         <Badge className="bg-red-600 text-white flex items-center gap-1">
                           <Play className="w-3 h-3" />
                           Watch Videos
@@ -266,7 +268,7 @@ export default function DiscoverPage() {
                       {animal.shortDescription}
                     </p>
                     <div className="flex gap-2 flex-wrap">
-                      {animal.tags.slice(0, 3).map((tag, idx) => (
+                      {animal.tags && animal.tags.slice(0, 3).map((tag, idx) => (
                         <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>
                       ))}
                     </div>
@@ -336,7 +338,7 @@ export default function DiscoverPage() {
               {/* Content */}
               <div className="p-8 space-y-8">
                 {/* Videos Section */}
-                {selectedAnimal.videoUrls.length > 0 && (
+                {selectedAnimal.videoUrls && selectedAnimal.videoUrls.length > 0 && (
                   <div data-testid="section-videos">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                       <Play className="w-6 h-6 text-red-600" />
