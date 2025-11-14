@@ -1,6 +1,6 @@
 # Overview
 
-WildGuard is an AI-powered platform dedicated to wildlife and flora conservation, primarily focusing on Karnataka, India. It leverages AI for identifying animals and plants from photos, tracking habitat loss, and providing access to conservation resources. The platform's core capabilities include AI identification systems, a **Discover Animals encyclopedia** with videos and comprehensive information, a deforestation tracking dashboard, directories for botanical gardens and wildlife centers, **community engagement portal for NGOs and volunteering**, and educational content. Its ambition is to foster conservation efforts and community engagement through advanced features like AI-powered poaching detection, population trend prediction, automatic wildlife health assessment, satellite habitat monitoring, and a wildlife sightings heatmap, along with new tools for live habitat monitoring, bioacoustic analysis, footprint recognition, and partial image enhancement.
+WildGuard is an AI-powered platform dedicated to wildlife and flora conservation, primarily focusing on Karnataka, India. It leverages AI for identifying animals and plants from photos, tracking habitat loss, and providing access to conservation resources. The platform's core capabilities include **hybrid AI identification systems with free API integration**, a **Discover Animals encyclopedia with 10+ species featuring videos and comprehensive information**, a deforestation tracking dashboard, directories for botanical gardens and wildlife centers, **community engagement portal for NGOs and volunteering**, and educational content. Its ambition is to foster conservation efforts and community engagement through advanced features like AI-powered poaching detection, population trend prediction, automatic wildlife health assessment, satellite habitat monitoring, and a wildlife sightings heatmap, along with new tools for live habitat monitoring, bioacoustic analysis, footprint recognition, and partial image enhancement.
 
 # User Preferences
 
@@ -35,8 +35,12 @@ Preferred communication style: Simple, everyday language.
 - **Migration Strategy**: Drizzle Kit for schema migrations.
 
 ## AI Integration
-- **Animal Identification**: OpenAI GPT-5 API for image analysis.
-- **Flora Identification**: Google Gemini 2.0 Flash API for plant image analysis.
+- **Animal Identification**: Hybrid pipeline - Gemini 2.0 Flash (primary) → OpenAI GPT-5 (fallback) → Educational data (transparent fallback with real conservation information).
+- **Flora Identification**: Hybrid pipeline - PlantNet API (free, 71,520+ species) → Gemini 2.0 Flash (fallback) → Educational data (transparent fallback with Karnataka flora conservation data).
+- **Free API Integration**: 
+    - **PlantNet API**: Free plant identification service, specialized botanical database, no API key cost
+    - **iNaturalist API**: Free species enrichment for additional conservation data
+    - **Educational Fallback**: When APIs unavailable, system provides real Karnataka wildlife/flora conservation data with transparent messaging
 - **Conservation Features**: Nine AI-powered tools, including:
     1. Poaching Detection (Gemini 2.0 Flash)
     2. Population Trend Prediction (Linear regression on historical data)
@@ -48,8 +52,8 @@ Preferred communication style: Simple, everyday language.
     8. AI Footprint Recognition (Gemini 2.0 Flash)
     9. Partial Image Enhancement (Gemini 2.0 Flash)
 - **Enhanced Chatbot**: Real-time data integration with sightings, weather, population stats, and conservation resources.
-- **Processing Flow**: Base64 encoding, multimodal AI analysis (vision/audio), structured JSON responses.
-- **Multi-Provider Strategy**: OpenAI for fauna, Gemini for flora and conservation features, NASA FIRMS for satellite data.
+- **Processing Flow**: Base64 encoding, multimodal AI analysis (vision/audio), structured JSON responses, graceful error handling with fallback chains.
+- **Multi-Provider Strategy**: Prioritizes free APIs (PlantNet, iNaturalist), then paid APIs (Gemini, OpenAI) when available, with educational fallbacks ensuring users always receive valuable information.
 
 ## Authentication & Security
 - **Session Management**: PostgreSQL session store.
@@ -66,8 +70,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Core Services
 - **Neon Database**: PostgreSQL hosting.
-- **OpenAI API**: GPT-5 for animal identification.
-- **Google Gemini API**: Gemini 2.0 Flash for flora identification and six AI conservation features (poaching detection, health assessment, sound detection, footprint recognition, partial image enhancement, chatbot).
+- **PlantNet API**: Free plant identification (71,520+ species), primary for flora identification.
+- **iNaturalist API**: Free species enrichment and conservation data.
+- **OpenAI API**: GPT-5 for animal identification (fallback).
+- **Google Gemini API**: Gemini 2.0 Flash for animal/flora identification fallback and six AI conservation features (poaching detection, health assessment, sound detection, footprint recognition, partial image enhancement, chatbot).
 - **NASA FIRMS API**: Real-time satellite data for forest fire and vegetation monitoring.
 
 ## Development Tools
