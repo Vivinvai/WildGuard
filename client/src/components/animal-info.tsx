@@ -102,6 +102,38 @@ export function AnimalInfo({ identification }: AnimalInfoProps) {
           </div>
         </div>
         
+        {/* Location Section - Animal was seen here */}
+        {identification.latitude && identification.longitude && (
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 p-4 rounded-xl border border-blue-200 dark:border-blue-800 mb-4">
+            <div className="flex items-start">
+              <MapPin className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
+              <div className="flex-1">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-1">Animal was seen here</h4>
+                <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <p data-testid="text-location-coordinates">
+                    📍 Location: {identification.latitude.toFixed(6)}, {identification.longitude.toFixed(6)}
+                  </p>
+                  {identification.locationName && (
+                    <p data-testid="text-location-name" className="font-medium">
+                      {identification.locationName}
+                    </p>
+                  )}
+                  <a 
+                    href={`https://www.google.com/maps?q=${identification.latitude},${identification.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline mt-2"
+                    data-testid="link-view-on-map"
+                  >
+                    <Navigation className="w-4 h-4 mr-1" />
+                    View on Map
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="space-y-4">
           <div>
             <h4 className="font-medium mb-2">Habitat & Distribution</h4>

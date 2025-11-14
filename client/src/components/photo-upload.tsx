@@ -20,10 +20,40 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
     queryKey: ["/api/recent-identifications"],
   });
 
+  const getLocation = (): Promise<{ latitude: number; longitude: number } | null> => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        console.log('Geolocation not supported');
+        resolve(null);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.log('Location permission denied or error:', error);
+          resolve(null);
+        },
+        { timeout: 5000, enableHighAccuracy: true }
+      );
+    });
+  };
+
   const identifyMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('image', file);
+      
+      const location = await getLocation();
+      if (location) {
+        formData.append('latitude', location.latitude.toString());
+        formData.append('longitude', location.longitude.toString());
+      }
       
       const response = await fetch('/api/identify-animal', {
         method: 'POST',

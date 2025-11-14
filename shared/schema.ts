@@ -50,6 +50,9 @@ export const animalIdentifications = pgTable("animal_identifications", {
   threats: text("threats").array().notNull(),
   imageUrl: text("image_url").notNull(),
   confidence: real("confidence").notNull(),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  locationName: text("location_name"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   userIdCreatedAtIdx: index("animal_identifications_user_id_created_at_idx").on(table.userId, table.createdAt),

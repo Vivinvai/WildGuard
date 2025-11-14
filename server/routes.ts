@@ -384,6 +384,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get userId from session if authenticated
       const userId = req.session.user?.id;
 
+      // Parse location data from request
+      const latitude = req.body.latitude ? parseFloat(req.body.latitude) : undefined;
+      const longitude = req.body.longitude ? parseFloat(req.body.longitude) : undefined;
+
       // Store the identification result
       const identification = await storage.createAnimalIdentification({
         speciesName: analysisResult.speciesName,
@@ -394,6 +398,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         threats: analysisResult.threats,
         imageUrl: `data:${req.file.mimetype};base64,${base64Image}`,
         confidence: analysisResult.confidence,
+        latitude,
+        longitude,
       }, userId);
 
       res.json(identification);
