@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { IStorage } from "../storage";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 export interface ChatbotResponse {
   message: string;
@@ -15,8 +15,8 @@ export async function getWildlifeChatbotResponse(
   storage: IStorage
 ): Promise<ChatbotResponse> {
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY not configured");
+    if (!process.env.GOOGLE_API_KEY) {
+      throw new Error("GOOGLE_API_KEY not configured");
     }
 
     // Get live data from database

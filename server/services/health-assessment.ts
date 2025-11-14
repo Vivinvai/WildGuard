@@ -18,12 +18,12 @@ export interface HealthAssessmentResult {
   detailedAnalysis: string;
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 export async function assessAnimalHealth(imageBase64: string): Promise<HealthAssessmentResult> {
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY not configured");
+    if (!process.env.GOOGLE_API_KEY) {
+      throw new Error("GOOGLE_API_KEY not configured");
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });

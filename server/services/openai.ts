@@ -32,7 +32,7 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
   }
 
   // Try Gemini first if preferred (to avoid OpenAI quota issues)
-  if (process.env.PREFER_GEMINI === "true" && process.env.GEMINI_API_KEY) {
+  if (process.env.PREFER_GEMINI === "true" && process.env.GOOGLE_API_KEY) {
     console.log("Using Gemini as primary AI provider...");
     try {
       const { analyzeAnimalWithGemini } = await import("./gemini");
@@ -110,7 +110,7 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
   }
 
   // Try Gemini AI as fallback when OpenAI is unavailable or fails
-  if (process.env.GEMINI_API_KEY) {
+  if (process.env.GOOGLE_API_KEY) {
     console.log("Attempting Gemini AI fallback...");
     try {
       const { analyzeAnimalWithGemini } = await import("./gemini");

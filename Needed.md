@@ -42,7 +42,7 @@ postgresql://postgres:postgres@localhost:5432/wildguard
 ### API Keys (You Need to Get Your Own)
 ```
 OPENAI_API_KEY=sk-your-key-here
-GEMINI_API_KEY=your-key-here
+GOOGLE_API_KEY=your-google-api-key-here
 LOCATIONIQ_API_KEY=your-key-here
 FIRMS_API_KEY=your-key-here (optional)
 SESSION_SECRET=generate-random-string
@@ -50,7 +50,7 @@ SESSION_SECRET=generate-random-string
 
 **Get API Keys From:**
 - OpenAI: https://platform.openai.com/api-keys
-- Gemini: https://aistudio.google.com/app/apikey
+- Google Gemini: https://aistudio.google.com/app/apikey
 - LocationIQ: https://locationiq.com/
 - NASA FIRMS: https://firms.modaps.eosdis.nasa.gov/api/area/
 
@@ -1787,7 +1787,7 @@ Response:
 OPENAI_API_KEY=sk-your-openai-key-here
 
 # Google Gemini - Flora + 6 AI Features
-GEMINI_API_KEY=your-gemini-key-here
+GOOGLE_API_KEY=your-google-api-key-here
 
 # LocationIQ - Maps and Geocoding
 LOCATIONIQ_API_KEY=your-locationiq-key-here

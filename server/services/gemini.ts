@@ -25,12 +25,12 @@ export interface FloraAnalysisResult {
 // DON'T DELETE THIS COMMENT - Based on javascript_gemini blueprint
 // Using Gemini 2.5 Flash for animal identification
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 export async function analyzeAnimalWithGemini(imageBase64: string): Promise<AnimalAnalysisResult> {
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY not configured");
+    if (!process.env.GOOGLE_API_KEY) {
+      throw new Error("GOOGLE_API_KEY not configured");
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
@@ -98,8 +98,8 @@ Be as accurate as possible in your identification. If you cannot clearly identif
 
 export async function analyzeFloraWithGemini(imageBase64: string): Promise<FloraAnalysisResult> {
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY not configured");
+    if (!process.env.GOOGLE_API_KEY) {
+      throw new Error("GOOGLE_API_KEY not configured");
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
