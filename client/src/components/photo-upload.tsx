@@ -20,7 +20,24 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
     queryKey: ["/api/recent-identifications"],
   });
 
-  const getLocation = (): Promise<{ latitude: number; longitude: number } | null> => {
+  const getLocationName = async (latitude: number, longitude: number): Promise<string | null> => {
+    try {
+      // Use backend endpoint for reverse geocoding
+      const response = await fetch(
+        `/api/reverse-geocode?lat=${latitude}&lon=${longitude}`
+      );
+      
+      if (!response.ok) return null;
+      
+      const data = await response.json();
+      return data.locationName || null;
+    } catch (error) {
+      console.log('Reverse geocoding failed:', error);
+      return null;
+    }
+  };
+
+  const getLocation = (): Promise<{ latitude: number; longitude: number; locationName?: string } | null> => {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
         console.log('Geolocation not supported');
@@ -29,10 +46,16 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
       }
 
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          
+          const locationName = await getLocationName(latitude, longitude);
+          
           resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            latitude,
+            longitude,
+            locationName: locationName || undefined
           });
         },
         (error) => {
@@ -53,6 +76,16 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
       if (location) {
         formData.append('latitude', location.latitude.toString());
         formData.append('longitude', location.longitude.toString());
+        if (location.locationName) {
+          formData.append('locationName', location.locationName);
+        }
+      } else {
+        // Notify user that location tracking is unavailable
+        toast({
+          title: "Location Unavailable",
+          description: "Location tracking is disabled. Continuing with identification...",
+          variant: "default",
+        });
       }
       
       const response = await fetch('/api/identify-animal', {

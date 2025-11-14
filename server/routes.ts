@@ -371,6 +371,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Reverse geocoding endpoint
+  app.get("/api/reverse-geocode", async (req, res) => {
+    try {
+      const lat = parseFloat(req.query.lat as string);
+      const lon = parseFloat(req.query.lon as string);
+
+      if (isNaN(lat) || isNaN(lon)) {
+        return res.status(400).json({ error: "Valid latitude and longitude are required" });
+      }
+
+      // Use LocationIQ API if available
+      if (process.env.LOCATIONIQ_API_KEY) {
+        try {
+          const response = await fetch(
+            `https://us1.locationiq.com/v1/reverse?key=${process.env.LOCATIONIQ_API_KEY}&lat=${lat}&lon=${lon}&format=json`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            // Check for errors in response
+            if (data.error) {
+              console.log('LocationIQ error:', data.error);
+            } else if (data.address) {
+              const { city, town, village, county, state, country } = data.address;
+              const parts = [city || town || village, county, state, country].filter(Boolean);
+              if (parts.length > 0) {
+                return res.json({ locationName: parts.join(', ') });
+              }
+            }
+          }
+        } catch (locationiqError) {
+          console.log('LocationIQ failed, trying Nominatim fallback');
+        }
+      }
+
+      // Fallback to Nominatim
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
+        {
+          headers: {
+            'User-Agent': 'WildGuard/1.0 (Wildlife Conservation Platform)'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        return res.json({ locationName: null });
+      }
+
+      const data = await response.json();
+      const { city, town, village, county, state, country } = data.address || {};
+      const parts = [city || town || village, county, state, country].filter(Boolean);
+      
+      res.json({ locationName: parts.length > 0 ? parts.join(', ') : null });
+    } catch (error) {
+      console.error("Error reverse geocoding:", error);
+      res.json({ locationName: null });
+    }
+  });
+
   // Upload and analyze animal photo
   app.post("/api/identify-animal", upload.single('image'), async (req, res) => {
     try {

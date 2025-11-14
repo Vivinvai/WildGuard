@@ -103,7 +103,7 @@ export function AnimalInfo({ identification }: AnimalInfoProps) {
         </div>
         
         {/* Location Section - Animal was seen here */}
-        {identification.latitude && identification.longitude && (
+        {identification.latitude != null && identification.longitude != null && (
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 p-4 rounded-xl border border-blue-200 dark:border-blue-800 mb-4">
             <div className="flex items-start">
               <MapPin className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
