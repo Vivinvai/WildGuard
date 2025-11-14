@@ -27,8 +27,7 @@ export default function DiscoverPage() {
   // Mutation to track views (GET endpoint increments views as a side effect)
   const incrementViewMutation = useMutation({
     mutationFn: async (animalId: string) => {
-      const response = await fetch(`/api/discover-animals/${animalId}`);
-      if (!response.ok) throw new Error("Failed to fetch animal details");
+      const response = await apiRequest("GET", `/api/discover-animals/${animalId}`);
       return response.json() as Promise<DiscoverAnimal>;
     },
     onSuccess: (updatedAnimal) => {
