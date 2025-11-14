@@ -298,7 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "Admin not found" });
       }
       
-      const updatedSighting = await storage.verifySighting(id, admin.email);
+      const updatedSighting = await storage.verifySighting(id, admin.email || admin.username);
       
       if (!updatedSighting) {
         return res.status(404).json({ error: "Sighting not found" });
@@ -387,6 +387,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Parse location data from request
       const latitude = req.body.latitude ? parseFloat(req.body.latitude) : undefined;
       const longitude = req.body.longitude ? parseFloat(req.body.longitude) : undefined;
+      const locationName = req.body.locationName || undefined;
 
       // Store the identification result
       const identification = await storage.createAnimalIdentification({
@@ -400,6 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         confidence: analysisResult.confidence,
         latitude,
         longitude,
+        locationName,
       }, userId);
 
       res.json(identification);
