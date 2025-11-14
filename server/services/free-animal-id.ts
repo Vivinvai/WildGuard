@@ -81,32 +81,20 @@ function identifyAnimalFromPattern(base64Image: string): AnimalAnalysisResult | 
 }
 
 export async function identifyAnimalFree(base64Image: string): Promise<AnimalAnalysisResult> {
-  console.log("Using free animal identification service");
+  console.log("=== Educational Mode (No API Keys Configured) ===");
+  console.log("ℹ For accurate animal identification, add GOOGLE_API_KEY");
+  console.log("ℹ Showing educational example of Karnataka wildlife instead");
   
-  // Try Gemini if API key is available
-  if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_API_KEY !== "") {
-    try {
-      const { analyzeAnimalWithGemini } = await import("./gemini");
-      console.log("Enhancing with Gemini AI (API key detected)");
-      return await analyzeAnimalWithGemini(base64Image);
-    } catch (error) {
-      console.log("Gemini enhancement not available, using fallback");
-    }
-  }
+  // Return an educational example with clear disclaimer
+  const animals = Object.values(karnatakaWildlife);
+  const educationalExample = animals[Math.floor(Math.random() * animals.length)];
   
-  // Use educational fallback with realistic Karnataka wildlife data
-  console.log("Using educational identification mode");
-  const result = identifyAnimalFromPattern(base64Image);
-  
-  if (result) {
-    return {
-      ...result,
-      confidence: result.confidence,
-    };
-  }
-  
-  // Default fallback
-  return karnatakaWildlife.tiger;
+  return {
+    ...educationalExample,
+    speciesName: `EDUCATIONAL MODE: ${educationalExample.speciesName}`,
+    habitat: `⚠️ NO IMAGE ANALYSIS PERFORMED - API key required for identification.\n\nEducational Example:\n${educationalExample.habitat}`,
+    confidence: 0.0, // Zero confidence = no actual identification
+  };
 }
 
 export { karnatakaWildlife };

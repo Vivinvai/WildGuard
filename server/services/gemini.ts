@@ -96,6 +96,38 @@ Be as accurate as possible in your identification. If you cannot clearly identif
   }
 }
 
+export async function analyzeFlora(imageBase64: string): Promise<FloraAnalysisResult> {
+  console.log("=== Plant Identification Pipeline ===");
+  
+  // PRIORITY 1: Try PlantNet API if key is available (free, specialized for plants)
+  if (process.env.PLANTNET_API_KEY && process.env.PLANTNET_API_KEY !== "") {
+    console.log("✓ Using PlantNet API (Free, 71,520+ plant species database)");
+    try {
+      const { identifyPlantWithPlantNet } = await import("./plantnet");
+      const plantnetResult = await identifyPlantWithPlantNet(imageBase64);
+      console.log(`✓ PlantNet identified: ${plantnetResult.speciesName} (${(plantnetResult.confidence * 100).toFixed(1)}% confidence)`);
+      return plantnetResult;
+    } catch (plantnetError) {
+      console.log("✗ PlantNet failed, trying fallback:", (plantnetError as Error).message);
+    }
+  } else {
+    console.log("ℹ No PLANTNET_API_KEY configured - get free key from https://my.plantnet.org/");
+  }
+  
+  // PRIORITY 2: Try Gemini if API key is available
+  if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_API_KEY !== "") {
+    console.log("✓ Using Gemini AI for plant identification");
+    return analyzeFloraWithGemini(imageBase64);
+  } else {
+    console.log("ℹ No GOOGLE_API_KEY configured - add for AI-powered identification");
+  }
+  
+  // PRIORITY 3: Use educational fallback with Karnataka flora data
+  console.log("→ Using educational mode: Real Karnataka flora conservation data");
+  const { getEducationalPlantData } = await import("./plantnet");
+  return getEducationalPlantData();
+}
+
 export async function analyzeFloraWithGemini(imageBase64: string): Promise<FloraAnalysisResult> {
   try {
     if (!process.env.GOOGLE_API_KEY) {

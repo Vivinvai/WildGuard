@@ -150,8 +150,20 @@ const karnatakaFlora: Record<string, FloraAnalysisResult> = {
 };
 
 export function getEducationalPlantData(): FloraAnalysisResult {
+  console.log("=== Educational Mode (No API Keys Configured) ===");
+  console.log("ℹ For accurate plant identification, add PLANTNET_API_KEY (free from https://my.plantnet.org/)");
+  console.log("ℹ Or add GOOGLE_API_KEY for AI-powered identification");
+  console.log("ℹ Showing educational example of Karnataka flora instead");
+  
   const plants = Object.values(karnatakaFlora);
-  return plants[Math.floor(Math.random() * plants.length)];
+  const educationalExample = plants[Math.floor(Math.random() * plants.length)];
+  
+  return {
+    ...educationalExample,
+    speciesName: `EDUCATIONAL MODE: ${educationalExample.speciesName}`,
+    habitat: `⚠️ NO IMAGE ANALYSIS PERFORMED - API key required for identification.\n\nEducational Example:\n${educationalExample.habitat}`,
+    confidence: 0.0, // Zero confidence = no actual identification
+  };
 }
 
 export { karnatakaFlora };

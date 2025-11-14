@@ -15,37 +15,26 @@ export interface AnimalAnalysisResult {
 }
 
 export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAnalysisResult> {
-  // Only use mock data if explicitly requested for testing
-  const useMockData = process.env.USE_MOCK_AI === "true";
+  console.log("=== Animal Identification Pipeline ===");
   
-  if (useMockData) {
-    console.log("Using mock animal identification data for testing");
-    return {
-      speciesName: "American Black Bear",
-      scientificName: "Ursus americanus",
-      conservationStatus: "Least Concern",
-      population: "600,000 - 900,000 individuals",
-      habitat: "Forests, swamps, and mountainous regions across North America. Prefers dense forest areas with abundant vegetation for foraging and denning sites.",
-      threats: ["Habitat Loss", "Human-Wildlife Conflict", "Climate Change"],
-      confidence: 0.85,
-    };
-  }
-
-  // Try Gemini first if preferred (to avoid OpenAI quota issues)
-  if (process.env.PREFER_GEMINI === "true" && process.env.GOOGLE_API_KEY) {
-    console.log("Using Gemini as primary AI provider...");
+  // PRIORITY 1: Try Gemini if API key is available (works well, free tier available)
+  if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_API_KEY !== "") {
+    console.log("✓ Using Gemini AI (Free tier available, accurate identification)");
     try {
       const { analyzeAnimalWithGemini } = await import("./gemini");
       const geminiResult = await analyzeAnimalWithGemini(base64Image);
-      console.log(`Gemini identified: ${geminiResult.speciesName}`);
+      console.log(`✓ Gemini identified: ${geminiResult.speciesName} (${(geminiResult.confidence * 100).toFixed(1)}% confidence)`);
       return geminiResult;
     } catch (geminiError) {
-      console.error("Primary Gemini AI failed:", geminiError);
+      console.log("✗ Gemini AI failed, trying fallback...");
     }
+  } else {
+    console.log("ℹ No GOOGLE_API_KEY configured - add for AI-powered identification");
   }
 
-  // Try OpenAI first if API key is available and Gemini is not preferred
-  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "default_key" && process.env.PREFER_GEMINI !== "true") {
+  // PRIORITY 2: Try OpenAI if API key is available
+  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "default_key") {
+    console.log("✓ Using OpenAI GPT-5 for identification");
     try {
       // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
     const response = await openai.chat.completions.create({
@@ -94,6 +83,7 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
+    console.log(`✓ OpenAI identified: ${result.speciesName}`);
     
     return {
       speciesName: result.speciesName || "Unknown Species",
@@ -105,51 +95,20 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
       confidence: typeof result.confidence === 'number' ? Math.max(0, Math.min(1, result.confidence)) : 0.5,
       };
     } catch (error) {
-      console.error("OpenAI failed to analyze animal image:", error);
+      console.log("✗ OpenAI failed, trying fallback...");
     }
+  } else {
+    console.log("ℹ No OPENAI_API_KEY configured");
   }
 
-  // Try Gemini AI as fallback when OpenAI is unavailable or fails
-  if (process.env.GOOGLE_API_KEY) {
-    console.log("Attempting Gemini AI fallback...");
-    try {
-      const { analyzeAnimalWithGemini } = await import("./gemini");
-      const geminiResult = await analyzeAnimalWithGemini(base64Image);
-      console.log(`Gemini identified: ${geminiResult.speciesName}`);
-      return geminiResult;
-    } catch (geminiError) {
-      console.error("Gemini AI also failed:", geminiError);
-    }
-  }
+  // PRIORITY 3: Use educational fallback (transparent about no image analysis)
+  console.log("→ Using educational mode: Real Karnataka wildlife conservation data");
+  const { identifyAnimalFree } = await import("./free-animal-id");
+  return identifyAnimalFree(base64Image);
+}
 
-  // Final fallback: try AI database for variety
-  console.log("Both AI services failed, falling back to AI database variety");
-  try {
-    const { storage } = await import("../storage");
-    const recentIdentifications = await storage.getRecentAnimalIdentifications(20);
-    
-    if (recentIdentifications.length > 0) {
-      // Randomly select from recent AI-generated identifications
-      const randomIdentification = recentIdentifications[Math.floor(Math.random() * recentIdentifications.length)];
-      console.log(`Using AI database entry: ${randomIdentification.speciesName}`);
-      
-      return {
-        speciesName: randomIdentification.speciesName,
-        scientificName: randomIdentification.scientificName,
-        conservationStatus: randomIdentification.conservationStatus,
-        population: randomIdentification.population || "Population data unavailable",
-        habitat: randomIdentification.habitat,
-        threats: randomIdentification.threats,
-        confidence: randomIdentification.confidence,
-      };
-    }
-  } catch (dbError) {
-    console.error("Error accessing AI database for fallback:", dbError);
-  }
-  
-  // If no AI database entries available, fall back to Karnataka and India animals as last resort
-  console.log("No AI database entries found, using Karnataka/India animals as last resort");
-  const indianAnimals = [
+// Legacy code below - preserved but unused after refactoring
+const LEGACY_indianAnimals = [
     // Karnataka Wildlife
     {
       speciesName: "Bengal Tiger",
@@ -613,9 +572,3 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
       confidence: 0.87,
     }
   ];
-  
-  // Randomly select one of the Karnataka/India animals
-  const randomAnimal = indianAnimals[Math.floor(Math.random() * indianAnimals.length)];
-  console.log(`Using Karnataka/India animal as final fallback: ${randomAnimal.speciesName}`);
-  return randomAnimal;
-}
