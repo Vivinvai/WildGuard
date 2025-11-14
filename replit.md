@@ -28,6 +28,7 @@ Preferred communication style: Simple, everyday language.
 - **Services Layer**: Dedicated AI services.
 - **Admin System**: Secure login (bcrypt), session management (PostgreSQL store), rate limiting, and a dashboard for managing animal sighting reports with verification controls.
 - **Animal Sighting Reporting System**: Supports live camera capture, photo upload, automatic geolocation, and manual coordinate entry.
+- **Live Location Tracking**: Automatic geolocation capture during animal identification with reverse geocoding (LocationIQ/Nominatim) to provide human-readable location names. Displays "Animal was seen here" with coordinates and Google Maps integration.
 
 ## Database Design
 - **ORM**: Drizzle ORM with PostgreSQL dialect.
@@ -75,6 +76,7 @@ Preferred communication style: Simple, everyday language.
 - **OpenAI API**: GPT-5 for animal identification (fallback).
 - **Google Gemini API**: Gemini 2.0 Flash for animal/flora identification fallback and six AI conservation features (poaching detection, health assessment, sound detection, footprint recognition, partial image enhancement, chatbot).
 - **NASA FIRMS API**: Real-time satellite data for forest fire and vegetation monitoring.
+- **LocationIQ API**: Primary reverse geocoding service for converting coordinates to human-readable location names (with Nominatim fallback).
 
 ## Development Tools
 - **Replit Platform**: Integrated development environment.
