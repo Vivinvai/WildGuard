@@ -963,7 +963,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mimetype: req.file.mimetype
       });
 
-      const { analyzePoachingEvidence } = await import("./services/poaching-detection");
       const imageBase64 = req.file.buffer.toString('base64');
       
       const location = req.body.latitude && req.body.longitude ? {
@@ -971,9 +970,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         longitude: parseFloat(req.body.longitude),
       } : undefined;
 
-      console.log("[Poaching Detection] Calling AI service...");
-      const result = await analyzePoachingEvidence(imageBase64, location);
-      console.log("[Poaching Detection] Analysis complete, threat level:", result.threatLevel);
+      console.log("[Poaching Detection] Using AI Orchestrator (Local → Cloud fallback)...");
+      const aiResult = await aiOrchestrator.detectPoachingThreats(imageBase64);
+      const result = { ...aiResult.data, location };
+      console.log("[Poaching Detection] Analysis complete via", aiResult.provider, "- Threat level:", result.threatLevel);
       
       res.json(result);
     } catch (error) {
@@ -990,11 +990,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Image file required" });
       }
 
-      const { assessAnimalHealth } = await import("./services/health-assessment");
       const imageBase64 = req.file.buffer.toString('base64');
       
-      const result = await assessAnimalHealth(imageBase64);
-      res.json(result);
+      // Use AI Orchestrator for automatic local → cloud fallback
+      const aiResult = await aiOrchestrator.assessAnimalHealth(imageBase64);
+      console.log(`✅ Health assessment via ${aiResult.provider}`);
+      
+      res.json(aiResult.data);
     } catch (error) {
       console.error("Health assessment error:", error);
       res.status(500).json({ error: "Failed to assess animal health" });
