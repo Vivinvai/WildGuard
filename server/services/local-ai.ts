@@ -12,6 +12,7 @@ import { karnatakaWildlife } from './free-animal-id';
 
 // Cache for loaded models
 let animalModel: mobilenet.MobileNet | null = null;
+let modelLoadingPromise: Promise<mobilenet.MobileNet> | null = null;
 
 // Karnataka-specific mappings from MobileNet classes to local species
 const ANIMAL_MAPPINGS: Record<string, string> = {
@@ -65,19 +66,56 @@ const FLORA_MAPPINGS: Record<string, string> = {
 
 /**
  * Load MobileNet model (cached after first load)
+ * WITH TIMEOUT to prevent hanging requests
  */
 async function loadModel(): Promise<mobilenet.MobileNet> {
   if (animalModel) {
+    console.log('✅ Using cached TensorFlow.js model');
     return animalModel;
+  }
+  
+  // If already loading, wait for that promise instead of starting a new load
+  if (modelLoadingPromise) {
+    console.log('⏳ Waiting for ongoing model load...');
+    return modelLoadingPromise;
   }
   
   console.log('🤖 Loading local TensorFlow.js MobileNet model...');
   console.log('📦 Model size: ~5MB, one-time download, cached for future use');
+  console.log('⏱️  This may take 10-20 seconds on first load...');
   
-  animalModel = await mobilenet.load();
-  console.log('✅ Local AI model loaded successfully!');
+  // Add 30-second timeout to model loading
+  modelLoadingPromise = (async () => {
+    try {
+      const modelPromise = mobilenet.load();
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Model loading timeout (30s)')), 30000)
+      );
+      
+      const model = await Promise.race([modelPromise, timeoutPromise]);
+      animalModel = model;
+      console.log('✅ Local AI model loaded successfully!');
+      return model;
+    } finally {
+      modelLoadingPromise = null;
+    }
+  })();
   
-  return animalModel;
+  return modelLoadingPromise;
+}
+
+/**
+ * Pre-warm the model on server startup (optional)
+ * Call this on server initialization to avoid first-request delays
+ */
+export async function warmupLocalAI(): Promise<void> {
+  console.log('🔥 Pre-warming local TensorFlow.js models...');
+  try {
+    await loadModel();
+    console.log('✅ Local AI warmup complete');
+  } catch (error) {
+    console.error('⚠️  Local AI warmup failed (will fallback to cloud):', (error as Error).message);
+  }
 }
 
 /**

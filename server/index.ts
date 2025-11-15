@@ -111,5 +111,12 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Pre-warm local AI models in background (non-blocking)
+    import('./services/local-ai').then(({ warmupLocalAI }) => {
+      warmupLocalAI().catch((err) => {
+        log(`Local AI warmup failed: ${err.message}`);
+      });
+    });
   });
 })();
