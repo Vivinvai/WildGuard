@@ -36,39 +36,40 @@ export interface AIResult {
 export class AIOrchestrator {
   /**
    * Identify animal using cascading fallback chain
-   * Local TF.js → Cloud AI (Gemini/OpenAI) → Educational
+   * Cloud AI (Gemini/OpenAI) → Local TF.js → Educational
+   * Cloud AI prioritized for accuracy, Local AI as free backup
    */
   async identifyAnimal(base64Image: string): Promise<AIResult> {
     const feature = 'animal_identification';
     
-    // Tier 1: Local TensorFlow.js (FREE, offline)
+    // Tier 1: Cloud AI (Gemini/OpenAI/Anthropic) - HIGHEST ACCURACY
     try {
-      console.log(`[${feature}] 🎯 Tier 1: Attempting Local TensorFlow.js (FREE, offline)...`);
-      const data = await identifyAnimalLocally(base64Image);
-      console.log(`[${feature}] ✅ Local AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
-      return {
-        data,
-        provider: 'local_ai',
-        confidence: data.confidence,
-        method: 'Local TensorFlow.js MobileNet',
-      };
-    } catch (localError) {
-      console.log(`[${feature}] ⚠️ Tier 1 failed:`, (localError as Error).message);
-    }
-    
-    // Tier 2: Cloud AI (Gemini/OpenAI/Anthropic with unified fallback)
-    try {
-      console.log(`[${feature}] 🌐 Tier 2: Attempting Cloud AI (Gemini → OpenAI → Anthropic)...`);
+      console.log(`[${feature}] 🌐 Tier 1: Attempting Cloud AI (Gemini → OpenAI → Anthropic) for accuracy...`);
       const data = await analyzeAnimalImage(base64Image);
-      console.log(`[${feature}] ✅ Cloud AI success: ${data.speciesName}`);
+      console.log(`[${feature}] ✅ Cloud AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
       return {
         data,
         provider: 'cloud_ai',
         confidence: data.confidence,
-        method: 'Cloud AI (multi-provider)',
+        method: 'Cloud AI (Gemini/OpenAI multi-provider)',
       };
     } catch (cloudError) {
-      console.log(`[${feature}] ⚠️ Tier 2 failed:`, (cloudError as Error).message);
+      console.log(`[${feature}] ⚠️ Tier 1 failed:`, (cloudError as Error).message);
+    }
+    
+    // Tier 2: Local TensorFlow.js (FREE backup when cloud unavailable)
+    try {
+      console.log(`[${feature}] 🎯 Tier 2: Attempting Local TensorFlow.js (FREE fallback)...`);
+      const data = await identifyAnimalLocally(base64Image);
+      console.log(`[${feature}] ⚠️ Local AI fallback: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%) - accuracy may be limited`);
+      return {
+        data,
+        provider: 'local_ai',
+        confidence: data.confidence * 0.7, // Reduce confidence to indicate lower accuracy
+        method: 'Local TensorFlow.js MobileNet (Fallback)',
+      };
+    } catch (localError) {
+      console.log(`[${feature}] ⚠️ Tier 2 failed:`, (localError as Error).message);
     }
     
     // Tier 3: Educational fallback (ALWAYS WORKS)
@@ -87,49 +88,35 @@ export class AIOrchestrator {
   
   /**
    * Identify flora using cascading fallback chain
-   * Local TF.js → PlantNet (free) → Cloud AI → Educational
+   * PlantNet (free specialist) → Cloud AI (Gemini) → Local TF.js → Educational
+   * Prioritizes specialized free API, then cloud for accuracy
    */
   async identifyFlora(base64Image: string): Promise<AIResult> {
     const feature = 'flora_identification';
     
-    // Tier 1: Local TensorFlow.js (FREE, offline)
-    try {
-      console.log(`[${feature}] 🎯 Tier 1: Attempting Local TensorFlow.js (FREE, offline)...`);
-      const data = await identifyFloraLocally(base64Image);
-      console.log(`[${feature}] ✅ Local AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
-      return {
-        data,
-        provider: 'local_ai',
-        confidence: data.confidence,
-        method: 'Local TensorFlow.js MobileNet',
-      };
-    } catch (localError) {
-      console.log(`[${feature}] ⚠️ Tier 1 failed:`, (localError as Error).message);
-    }
-    
-    // Tier 2: PlantNet API (FREE, specialized botanical database)
+    // Tier 1: PlantNet API (FREE, specialized botanical database - BEST for plants!)
     if (process.env.PLANTNET_API_KEY) {
       try {
-        console.log(`[${feature}] 🌿 Tier 2: Attempting PlantNet API (FREE, 71k+ species)...`);
+        console.log(`[${feature}] 🌿 Tier 1: Attempting PlantNet API (FREE, 71k+ species)...`);
         const data = await identifyPlantWithPlantNet(base64Image);
         console.log(`[${feature}] ✅ PlantNet success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
         return {
           data,
           provider: 'free_api',
           confidence: data.confidence,
-          method: 'PlantNet API (Free)',
+          method: 'PlantNet API (Free Specialist)',
         };
       } catch (plantnetError) {
-        console.log(`[${feature}] ⚠️ Tier 2 failed:`, (plantnetError as Error).message);
+        console.log(`[${feature}] ⚠️ Tier 1 failed:`, (plantnetError as Error).message);
       }
     }
     
-    // Tier 3: Cloud AI (Gemini/OpenAI/Anthropic)
+    // Tier 2: Cloud AI (Gemini/OpenAI/Anthropic - HIGH ACCURACY)
     if (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) {
       try {
-        console.log(`[${feature}] 🌐 Tier 3: Attempting Cloud AI (Gemini)...`);
+        console.log(`[${feature}] 🌐 Tier 2: Attempting Cloud AI (Gemini)...`);
         const data = await analyzeFloraWithGemini(base64Image);
-        console.log(`[${feature}] ✅ Cloud AI success: ${data.speciesName}`);
+        console.log(`[${feature}] ✅ Cloud AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
         return {
           data,
           provider: 'cloud_ai',
@@ -137,8 +124,23 @@ export class AIOrchestrator {
           method: 'Google Gemini Vision',
         };
       } catch (cloudError) {
-        console.log(`[${feature}] ⚠️ Tier 3 failed:`, (cloudError as Error).message);
+        console.log(`[${feature}] ⚠️ Tier 2 failed:`, (cloudError as Error).message);
       }
+    }
+    
+    // Tier 3: Local TensorFlow.js (FREE backup when APIs unavailable)
+    try {
+      console.log(`[${feature}] 🎯 Tier 3: Attempting Local TensorFlow.js (FREE fallback)...`);
+      const data = await identifyFloraLocally(base64Image);
+      console.log(`[${feature}] ⚠️ Local AI fallback: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%) - accuracy may be limited`);
+      return {
+        data,
+        provider: 'local_ai',
+        confidence: data.confidence * 0.7, // Reduce confidence to indicate lower accuracy
+        method: 'Local TensorFlow.js MobileNet (Fallback)',
+      };
+    } catch (localError) {
+      console.log(`[${feature}] ⚠️ Tier 3 failed:`, (localError as Error).message);
     }
     
     // Tier 4: Educational fallback (ALWAYS WORKS)
