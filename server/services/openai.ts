@@ -34,11 +34,10 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
 
   // PRIORITY 2: Try OpenAI if API key is available
   if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "default_key") {
-    console.log("✓ Using OpenAI GPT-5 for identification");
+    console.log("✓ Using OpenAI GPT-4o for identification");
     try {
-      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -95,13 +94,84 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
       confidence: typeof result.confidence === 'number' ? Math.max(0, Math.min(1, result.confidence)) : 0.5,
       };
     } catch (error) {
-      console.log("✗ OpenAI failed, trying fallback...");
+      console.log("✗ OpenAI failed, trying Anthropic...", (error as Error).message);
     }
   } else {
     console.log("ℹ No OPENAI_API_KEY configured");
   }
 
-  // PRIORITY 3: Use educational fallback (transparent about no image analysis)
+  // PRIORITY 3: Try Anthropic as final cloud option
+  if (process.env.ANTHROPIC_API_KEY) {
+    console.log("✓ Using Anthropic Claude for identification");
+    try {
+      const Anthropic = (await import("@anthropic-ai/sdk")).default;
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+      const message = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 2048,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: "image/jpeg",
+                  data: base64Image,
+                },
+              },
+              {
+                type: "text",
+                text: `You are a wildlife identification expert. Analyze the uploaded image and identify the animal species. Provide detailed information about the animal including:
+- Species name (common name)
+- Scientific name
+- Conservation status (Critically Endangered, Endangered, Vulnerable, Near Threatened, Least Concern, or Data Deficient)
+- Population estimate if available
+- Habitat description
+- Main conservation threats
+- Confidence level (0-1) in your identification
+
+Respond with JSON in this exact format:
+{
+  "speciesName": "Common Name",
+  "scientificName": "Scientific Name",
+  "conservationStatus": "Conservation Status",
+  "population": "Population estimate or 'Unknown'",
+  "habitat": "Habitat description",
+  "threats": ["Threat 1", "Threat 2", "Threat 3"],
+  "confidence": 0.95
+}`,
+              },
+            ],
+          },
+        ],
+      });
+
+      const responseText = message.content[0].type === 'text' ? message.content[0].text : "{}";
+      const cleanedText = responseText.replace(/```json\n?|\n?```/g, '').trim();
+      const result = JSON.parse(cleanedText);
+      
+      console.log(`✓ Anthropic identified: ${result.speciesName}`);
+      
+      return {
+        speciesName: result.speciesName || "Unknown Species",
+        scientificName: result.scientificName || "Unknown",
+        conservationStatus: result.conservationStatus || "Data Deficient",
+        population: result.population || "Unknown",
+        habitat: result.habitat || "Information not available",
+        threats: Array.isArray(result.threats) ? result.threats : ["Information not available"],
+        confidence: typeof result.confidence === 'number' ? Math.max(0, Math.min(1, result.confidence)) : 0.5,
+      };
+    } catch (error) {
+      console.log("✗ Anthropic failed, using educational fallback...", (error as Error).message);
+    }
+  } else {
+    console.log("ℹ No ANTHROPIC_API_KEY configured");
+  }
+
+  // PRIORITY 4: Use educational fallback (transparent about no image analysis)
   console.log("→ Using educational mode: Real Karnataka wildlife conservation data");
   const { identifyAnimalFree } = await import("./free-animal-id");
   return identifyAnimalFree(base64Image);
