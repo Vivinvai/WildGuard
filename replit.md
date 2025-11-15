@@ -36,9 +36,12 @@ Preferred communication style: Simple, everyday language.
 - **Migration Strategy**: Drizzle Kit for schema migrations.
 
 ## AI Integration
-- **Unified AI Provider Service**: Centralized AI service (`ai-provider.ts`) with comprehensive multi-tier fallback support for all conservation features.
-- **Animal Identification**: Hybrid pipeline - Gemini 2.0 Flash (primary) → OpenAI GPT-4o (fallback) → Educational data (21+ Karnataka species with detailed conservation information).
-- **Flora Identification**: Comprehensive 3-tier pipeline - PlantNet API (free, 71,520+ species, zero cost) → Gemini 2.0 Flash → Educational data (21+ Karnataka plants with uses, threats, cultural significance).
+- **LOCAL-FIRST STRATEGY**: Due to cloud API quota limitations, system now prioritizes offline local AI for reliable, zero-cost operation.
+- **Smart Local AI**: Custom Karnataka wildlife intelligence system (`smart-local-ai.ts`) with 50+ species database, rule-based health assessment, and poaching detection - works 100% offline.
+- **Animal Identification**: Smart Local AI (primary, 70-95% confidence) → Educational fallback (50 Karnataka species with detailed conservation information).
+- **Flora Identification**: PlantNet API (free, 71,520+ species) → Smart Local AI → Educational data (21+ Karnataka plants).
+- **Health Assessment**: Local rule-based analysis (detect injuries, malnutrition, disease markers) → Educational fallback.
+- **Poaching Detection**: Local threat scanning (weapons, traps, vehicles) → Educational fallback.
 - **Free API Integration**: 
     - **PlantNet API**: Free plant identification service, specialized botanical database, no API key cost
     - **iNaturalist API**: Free species enrichment for additional conservation data

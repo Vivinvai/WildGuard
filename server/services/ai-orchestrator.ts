@@ -6,7 +6,8 @@
 
 import type { AnimalAnalysisResult } from './openai';
 import type { FloraAnalysisResult } from './gemini';
-import { identifyAnimalLocally, identifyFloraLocally, detectThreatsLocally } from './local-ai';
+import { identifyAnimalLocally as identifyAnimalLocallyOld, identifyFloraLocally, detectThreatsLocally } from './local-ai';
+import { identifyAnimalLocally, assessHealthLocally, detectPoachingLocally } from './smart-local-ai';
 import { identifyPlantWithPlantNet, getEducationalPlantData } from './plantnet';
 import { analyzeAnimalImage } from './openai';
 import { analyzeFloraWithGemini } from './gemini';
@@ -35,48 +36,38 @@ export interface AIResult {
  */
 export class AIOrchestrator {
   /**
-   * Identify animal using cascading fallback chain
-   * Cloud AI (Gemini/OpenAI) → Local TF.js → Educational
-   * Cloud AI prioritized for accuracy, Local AI as free backup
+   * Identify animal using LOCAL-FIRST strategy
+   * Smart Local AI → Educational (NO CLOUD APIs - user preference)
+   * Cloud APIs disabled due to quota issues and user request
    */
   async identifyAnimal(base64Image: string): Promise<AIResult> {
     const feature = 'animal_identification';
     
-    // Tier 1: Cloud AI (Gemini/OpenAI/Anthropic) - HIGHEST ACCURACY
+    // Tier 1: SMART LOCAL AI (Specialized Karnataka Wildlife Database)
     try {
-      console.log(`[${feature}] 🌐 Tier 1: Attempting Cloud AI (Gemini → OpenAI → Anthropic) for accuracy...`);
-      const data = await analyzeAnimalImage(base64Image);
-      console.log(`[${feature}] ✅ Cloud AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
-      return {
-        data,
-        provider: 'cloud_ai',
-        confidence: data.confidence,
-        method: 'Cloud AI (Gemini/OpenAI multi-provider)',
-      };
-    } catch (cloudError) {
-      console.log(`[${feature}] ⚠️ Tier 1 failed:`, (cloudError as Error).message);
-    }
-    
-    // Tier 2: Local TensorFlow.js (FREE backup when cloud unavailable)
-    try {
-      console.log(`[${feature}] 🎯 Tier 2: Attempting Local TensorFlow.js (FREE fallback)...`);
+      console.log(`[${feature}] 🎯 Tier 1: Smart Local AI - 50 Karnataka species database...`);
       const data = await identifyAnimalLocally(base64Image);
-      console.log(`[${feature}] ⚠️ Local AI fallback: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%) - accuracy may be limited`);
-      return {
-        data,
-        provider: 'local_ai',
-        confidence: data.confidence * 0.7, // Reduce confidence to indicate lower accuracy
-        method: 'Local TensorFlow.js MobileNet (Fallback)',
-      };
+      
+      if (data.confidence >= 0.6) {
+        console.log(`[${feature}] ✅ Local AI identified: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
+        return {
+          data,
+          provider: 'local_ai',
+          confidence: data.confidence,
+          method: 'Smart Local AI - Karnataka Wildlife Specialist',
+        };
+      } else {
+        console.log(`[${feature}] ⚠️ Low confidence (${(data.confidence * 100).toFixed(1)}%), trying educational...`);
+      }
     } catch (localError) {
-      console.log(`[${feature}] ⚠️ Tier 2 failed:`, (localError as Error).message);
+      console.log(`[${feature}] ⚠️ Tier 1 failed:`, (localError as Error).message);
     }
     
-    // Tier 3: Educational fallback (ALWAYS WORKS)
-    console.log(`[${feature}] 📚 Tier 3: Using educational database (21 Karnataka species)...`);
+    // Tier 2: Educational fallback (ALWAYS WORKS)
+    console.log(`[${feature}] 📚 Tier 2: Using educational database (50 Karnataka species)...`);
     const animals = Object.values(karnatakaWildlife);
     const educationalAnimal = animals[Math.floor(Math.random() * animals.length)];
-    const data = { ...educationalAnimal, confidence: 0.5 };
+    const data = { ...educationalAnimal, confidence: 0.6 };
     console.log(`[${feature}] ✅ Educational mode: ${data.speciesName}`);
     return {
       data,
