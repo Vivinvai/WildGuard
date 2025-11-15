@@ -705,7 +705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isEndangered: analysisResult.isEndangered,
         endangeredAlert: analysisResult.endangeredAlert,
         habitat: analysisResult.habitat,
-        uses: analysisResult.uses,
+        uses: analysisResult.uses, // Now always an array per schema
         threats: analysisResult.threats,
         imageUrl: `data:${req.file.mimetype};base64,${base64Image}`,
         confidence: analysisResult.confidence,

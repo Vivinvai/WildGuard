@@ -135,7 +135,7 @@ export const floraIdentifications = pgTable("flora_identifications", {
   isEndangered: boolean("is_endangered").notNull().default(false),
   endangeredAlert: text("endangered_alert"),
   habitat: text("habitat").notNull(),
-  uses: text("uses").notNull(), // Changed from array to text
+  uses: text("uses").array().notNull(), // Array of uses (medicinal, cultural, economic, etc.)
   threats: text("threats").array().notNull(),
   imageUrl: text("image_url").notNull(),
   confidence: real("confidence").notNull(),

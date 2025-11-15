@@ -17,7 +17,7 @@ export interface FloraAnalysisResult {
   endangeredAlert: string | null; // Alert message if endangered
   isEndangered: boolean;
   habitat: string;
-  uses: string;
+  uses: string[]; // Array of uses (medicinal, cultural, economic, ecological)
   threats: string[];
   confidence: number;
 }

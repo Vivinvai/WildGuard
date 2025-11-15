@@ -75,7 +75,11 @@ export async function identifyPlantWithPlantNet(imageBase64: string): Promise<Fl
       endangeredAlert: null,
       isEndangered: false,
       habitat: "Information available via external databases",
-      uses: `Common name: ${species.commonNames?.join(", ") || "Unknown"}. Family: ${species.family?.scientificName || "Unknown"}`,
+      uses: [
+        `Common names: ${species.commonNames?.join(", ") || "Unknown"}`,
+        `Family: ${species.family?.scientificName || "Unknown"}`,
+        "Information about traditional, medicinal, or economic uses available via external databases"
+      ],
       threats: ["Habitat Loss", "Climate Change"],
       confidence: topResult.score,
     };
@@ -99,7 +103,7 @@ const karnatakaFlora: Record<string, FloraAnalysisResult> = {
     endangeredAlert: "This species is threatened due to over-exploitation for its valuable aromatic wood. Protected under CITES Appendix II.",
     isEndangered: true,
     habitat: "Dry deciduous and scrub forests of Karnataka, particularly in Marayur, Kollegal, and MM Hills regions. Requires host plants for parasitic roots.",
-    uses: "Highly valued for fragrant heartwood used in perfumes, incense, and traditional medicine. Essential oil used in aromatherapy. Sacred wood in Hindu and Buddhist traditions.",
+    uses: ["Fragrant heartwood for perfumes and incense", "Essential oil for aromatherapy", "Traditional medicine", "Sacred wood in Hindu and Buddhist traditions"],
     threats: ["Illegal Harvesting", "Smuggling", "Habitat Loss", "Lack of Natural Regeneration"],
     confidence: 0.80,
   },
@@ -110,7 +114,7 @@ const karnatakaFlora: Record<string, FloraAnalysisResult> = {
     endangeredAlert: null,
     isEndangered: false,
     habitat: "Native to Western Ghats of India, widely cultivated across Karnataka in home gardens and commercial plantations. Thrives in humid tropical lowlands.",
-    uses: "State fruit of Kerala and Tamil Nadu. Fruits consumed fresh or cooked, seeds roasted. Wood used for furniture and musical instruments. Young fruits used as vegetable.",
+    uses: ["State fruit of Kerala and Tamil Nadu", "Fruits consumed fresh or cooked", "Seeds roasted and eaten", "Wood for furniture and musical instruments", "Young fruits as vegetable"],
     threats: ["Climate Change", "Pests and Diseases"],
     confidence: 0.92,
   },
@@ -121,7 +125,7 @@ const karnatakaFlora: Record<string, FloraAnalysisResult> = {
     endangeredAlert: null,
     isEndangered: false,
     habitat: "Native to South Asia, extensively cultivated throughout Karnataka. Prefers tropical and subtropical climates with distinct dry season.",
-    uses: "National fruit of India. Fruits consumed fresh, dried, or pickled. Leaves used in ceremonies. Traditional medicine uses include bark for diarrhea, leaves for diabetes.",
+    uses: ["National fruit of India", "Fruits eaten fresh, dried, or pickled", "Leaves used in religious ceremonies", "Bark for diarrhea treatment", "Leaves for diabetes management"],
     threats: ["Pests", "Climate Variability", "Diseases"],
     confidence: 0.95,
   },
@@ -369,6 +373,15 @@ const karnatakaFlora: Record<string, FloraAnalysisResult> = {
   },
 };
 
+// Helper to normalize uses to array format
+function normalizeUsesToArray(uses: string | string[]): string[] {
+  if (Array.isArray(uses)) {
+    return uses;
+  }
+  // Split string by sentence boundaries and clean up
+  return uses.split(/[.!]\s+/).map(s => s.trim()).filter(s => s.length > 0);
+}
+
 export function getEducationalPlantData(): FloraAnalysisResult {
   console.log("=== Educational Mode (No API Keys Configured) ===");
   console.log("ℹ For accurate plant identification, add PLANTNET_API_KEY (free from https://my.plantnet.org/)");
@@ -382,6 +395,7 @@ export function getEducationalPlantData(): FloraAnalysisResult {
     ...educationalExample,
     speciesName: `EDUCATIONAL MODE: ${educationalExample.speciesName}`,
     habitat: `⚠️ NO IMAGE ANALYSIS PERFORMED - API key required for identification.\n\nEducational Example:\n${educationalExample.habitat}`,
+    uses: normalizeUsesToArray(educationalExample.uses as any), // Normalize to array
     confidence: 0.0, // Zero confidence = no actual identification
   };
 }
