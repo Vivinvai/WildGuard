@@ -36,25 +36,35 @@ Preferred communication style: Simple, everyday language.
 - **Migration Strategy**: Drizzle Kit for schema migrations.
 
 ## AI Integration
-- **Animal Identification**: Hybrid pipeline - Gemini 2.0 Flash (primary) → OpenAI GPT-5 (fallback) → Educational data (transparent fallback with real conservation information).
-- **Flora Identification**: Hybrid pipeline - PlantNet API (free, 71,520+ species) → Gemini 2.0 Flash (fallback) → Educational data (transparent fallback with Karnataka flora conservation data).
+- **Unified AI Provider Service**: Centralized AI service (`ai-provider.ts`) with comprehensive multi-tier fallback support for all conservation features.
+- **Animal Identification**: Hybrid pipeline - Gemini 2.0 Flash (primary) → OpenAI GPT-4o (fallback) → Educational data (21+ Karnataka species with detailed conservation information).
+- **Flora Identification**: Comprehensive 3-tier pipeline - PlantNet API (free, 71,520+ species, zero cost) → Gemini 2.0 Flash → Educational data (21+ Karnataka plants with uses, threats, cultural significance).
 - **Free API Integration**: 
     - **PlantNet API**: Free plant identification service, specialized botanical database, no API key cost
     - **iNaturalist API**: Free species enrichment for additional conservation data
     - **Educational Fallback**: When APIs unavailable, system provides real Karnataka wildlife/flora conservation data with transparent messaging
-- **Conservation Features**: Nine AI-powered tools, including:
-    1. Poaching Detection (Gemini 2.0 Flash)
-    2. Population Trend Prediction (Linear regression on historical data)
-    3. Automatic Health Assessment (Gemini 2.0 Flash)
-    4. Satellite Habitat Monitoring (NDVI calculations)
-    5. Wildlife Sightings Heatmap (Database-driven)
-    6. Live Habitat Health Monitor (NASA FIRMS API)
-    7. Wildlife Sound Detection (Gemini 2.0 Flash bioacoustic analysis)
-    8. AI Footprint Recognition (Gemini 2.0 Flash)
-    9. Partial Image Enhancement (Gemini 2.0 Flash)
-- **Enhanced Chatbot**: Real-time data integration with sightings, weather, population stats, and conservation resources.
-- **Processing Flow**: Base64 encoding, multimodal AI analysis (vision/audio), structured JSON responses, graceful error handling with fallback chains.
-- **Multi-Provider Strategy**: Prioritizes free APIs (PlantNet, iNaturalist), then paid APIs (Gemini, OpenAI) when available, with educational fallbacks ensuring users always receive valuable information.
+- **Conservation Features**: Nine AI-powered tools with comprehensive fallback support:
+    1. Poaching Detection (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude)
+    2. Population Trend Prediction (Linear regression on historical Karnataka data)
+    3. Automatic Health Assessment (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude)
+    4. Satellite Habitat Monitoring (NDVI calculations with NASA FIRMS integration)
+    5. Wildlife Sightings Heatmap (Database-driven visualization)
+    6. Live Habitat Health Monitor (NASA FIRMS API for real-time fire/vegetation data)
+    7. Wildlife Sound Detection (Gemini 2.0 Flash bioacoustic analysis → OpenAI → Anthropic)
+    8. AI Footprint Recognition (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude)
+    9. Partial Image Enhancement (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude)
+- **Enhanced Chatbot**: Multi-provider support (Gemini → OpenAI → Anthropic) with real-time data integration.
+- **Educational Databases**: 
+    - **Fauna**: 21 Karnataka species (tiger, elephant, leopard, sloth bear, gaur, dhole, sambar, chital, king cobra, python, pangolin, peafowl, hornbill, wild boar, jackal, macaque, langur, mongoose, civet, porcupine, malabar squirrel, nilgiri tahr, striped hyena, rusty-spotted cat, jungle cat, four-horned antelope, barking deer)
+    - **Flora**: 21 Karnataka plants (sandalwood, jackfruit, mango, banyan, neem, turmeric, tulsi, ashwagandha, teak, rosewood, bamboo, peepal, arjuna, amla, lotus, curry leaf, tamarind, coconut, pepper, cardamom, betel, aloe vera, hibiscus, jasmine, marigold)
+- **Processing Flow**: Base64 encoding, multimodal AI analysis (vision/audio), structured JSON responses, graceful error handling with multi-tier fallback chains.
+- **Multi-Provider Strategy**: 
+    1. **Primary**: Free APIs (PlantNet for flora, iNaturalist for enrichment)
+    2. **Tier 1**: Gemini 2.0 Flash (fast, cost-effective)
+    3. **Tier 2**: OpenAI GPT-4o (high accuracy)
+    4. **Tier 3**: Anthropic Claude 3.5 Sonnet (comprehensive analysis)
+    5. **Fallback**: Educational databases (always available, 21+ species each)
+- **Guaranteed Success**: All features work "at any cost" - system never fails completely, always provides valuable conservation information.
 
 ## Authentication & Security
 - **Session Management**: PostgreSQL session store.
@@ -73,8 +83,9 @@ Preferred communication style: Simple, everyday language.
 - **Neon Database**: PostgreSQL hosting.
 - **PlantNet API**: Free plant identification (71,520+ species), primary for flora identification.
 - **iNaturalist API**: Free species enrichment and conservation data.
-- **OpenAI API**: GPT-5 for animal identification (fallback).
-- **Google Gemini API**: Gemini 2.0 Flash for animal/flora identification fallback and six AI conservation features (poaching detection, health assessment, sound detection, footprint recognition, partial image enhancement, chatbot).
+- **Google Gemini API**: Gemini 2.0 Flash for primary AI analysis across all features.
+- **OpenAI API**: GPT-4o for secondary fallback across all AI features.
+- **Anthropic API**: Claude 3.5 Sonnet for tertiary fallback across all AI features.
 - **NASA FIRMS API**: Real-time satellite data for forest fire and vegetation monitoring.
 - **LocationIQ API**: Primary reverse geocoding service for converting coordinates to human-readable location names (with Nominatim fallback).
 
