@@ -7,6 +7,8 @@ import { analyzeAnimalImage } from "./services/openai";
 import { analyzeFloraWithGemini } from "./services/gemini";
 import { identifyPlantWithPlantNet, getEducationalPlantData } from "./services/plantnet";
 import { generateChatResponse } from "./services/chat";
+import { identifyAnimalLocally, identifyFloraLocally, detectThreatsLocally } from "./services/local-ai";
+import { aiOrchestrator } from "./services/ai-orchestrator";
 import { 
   insertAnimalIdentificationSchema, 
   insertFloraIdentificationSchema,
@@ -441,7 +443,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const base64Image = req.file.buffer.toString('base64');
-      const analysisResult = await analyzeAnimalImage(base64Image);
+      
+      // Use AI Orchestrator for automatic fallback: Local → Cloud → Educational
+      const aiResult = await aiOrchestrator.identifyAnimal(base64Image);
+      const analysisResult = aiResult.data;
+      
+      console.log(`✅ Identification via ${aiResult.provider}: ${analysisResult.speciesName}`);
 
       // Get userId from session if authenticated
       const userId = req.session.user?.id;
@@ -665,36 +672,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const base64Image = req.file.buffer.toString('base64');
-      let analysisResult;
-      let identificationMethod = "educational";
-
-      // Comprehensive fallback pipeline: PlantNet (free) → Gemini → Educational
-      try {
-        if (process.env.PLANTNET_API_KEY) {
-          console.log("🌿 Attempting PlantNet identification (Free API)...");
-          analysisResult = await identifyPlantWithPlantNet(base64Image);
-          identificationMethod = "plantnet";
-          console.log(`✅ PlantNet success: ${analysisResult.speciesName} (${(analysisResult.confidence * 100).toFixed(1)}%)`);
-        } else {
-          throw new Error("PlantNet API key not configured");
-        }
-      } catch (plantnetError) {
-        console.log("❌ PlantNet failed, trying Gemini fallback...");
-        try {
-          if (process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY) {
-            analysisResult = await analyzeFloraWithGemini(base64Image);
-            identificationMethod = "gemini";
-            console.log(`✅ Gemini success: ${analysisResult.speciesName} (${(analysisResult.confidence * 100).toFixed(1)}%)`);
-          } else {
-            throw new Error("Gemini API key not configured");
-          }
-        } catch (geminiError) {
-          console.log("❌ Gemini failed, using educational fallback...");
-          analysisResult = getEducationalPlantData();
-          identificationMethod = "educational";
-          console.log(`ℹ️ Educational mode: ${analysisResult.speciesName}`);
-        }
-      }
+      
+      // Use AI Orchestrator for automatic fallback: Local → PlantNet → Cloud → Educational
+      const aiResult = await aiOrchestrator.identifyFlora(base64Image);
+      const analysisResult = aiResult.data;
+      const identificationMethod = aiResult.provider;
+      
+      console.log(`✅ Flora identification via ${aiResult.provider}: ${analysisResult.speciesName}`);
 
       const userId = req.session.user?.id;
 
