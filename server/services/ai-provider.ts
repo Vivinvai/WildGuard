@@ -27,6 +27,8 @@ export interface AIAnalysisRequest {
   audioBase64?: string;
   mimeType?: string;
   expectedJsonSchema?: any;
+  featureType?: "poaching" | "health" | "sound" | "footprint" | "enhancement" | "chat" | "general";
+  fallbackData?: any; // Fallback data when all AI providers fail
 }
 
 export interface AIAnalysisResponse {
@@ -165,12 +167,89 @@ async function tryAnthropic(request: AIAnalysisRequest): Promise<any> {
 }
 
 /**
+ * Generate educational fallback data based on feature type
+ */
+function generateEducationalFallback(request: AIAnalysisRequest): any {
+  console.log(`ℹ️ Generating educational fallback for feature: ${request.featureType || 'general'}`);
+  
+  // If custom fallback data provided, use it
+  if (request.fallbackData) {
+    return request.fallbackData;
+  }
+  
+  // Default educational responses by feature type
+  switch (request.featureType) {
+    case "poaching":
+      return {
+        threatDetected: false,
+        threatLevel: "none",
+        confidence: 0.0,
+        detectedActivities: [],
+        suspiciousObjects: [],
+        evidenceDescription: "⚠️ EDUCATIONAL MODE - No AI analysis performed. For accurate poaching detection, configure GOOGLE_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY. This feature uses computer vision to detect illegal activities in protected areas.",
+        recommendations: ["Configure AI provider keys for real-time analysis", "Review camera trap footage manually", "Contact local forest department for support"],
+      };
+    
+    case "health":
+      return {
+        healthStatus: "unknown",
+        confidence: 0.0,
+        symptoms: [],
+        diagnosis: "⚠️ EDUCATIONAL MODE - No AI analysis performed. For accurate health assessment, configure GOOGLE_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY. This feature analyzes animal images for signs of injury, disease, or distress.",
+        recommendations: ["Configure AI provider keys for real-time analysis", "Consult wildlife veterinarian", "Monitor animal behavior regularly"],
+        severity: "unknown",
+      };
+    
+    case "sound":
+      return {
+        speciesDetected: [],
+        confidence: 0.0,
+        soundType: "unknown",
+        analysis: "⚠️ EDUCATIONAL MODE - No AI analysis performed. For accurate bioacoustic analysis, configure GOOGLE_API_KEY. This feature identifies wildlife from audio recordings using AI-powered sound pattern recognition.",
+        recommendations: ["Configure Gemini API key for audio analysis", "Use high-quality recording equipment", "Record during peak wildlife activity hours"],
+      };
+    
+    case "footprint":
+      return {
+        speciesName: "Unknown",
+        confidence: 0.0,
+        footprintCharacteristics: [],
+        analysis: "⚠️ EDUCATIONAL MODE - No AI analysis performed. For accurate footprint recognition, configure GOOGLE_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY. This feature identifies wildlife species from track and scat images.",
+        recommendations: ["Configure AI provider keys for real-time analysis", "Ensure clear, well-lit photos of tracks", "Include size reference in image"],
+      };
+    
+    case "enhancement":
+      return {
+        enhanced: false,
+        confidence: 0.0,
+        speciesName: "Unknown",
+        analysis: "⚠️ EDUCATIONAL MODE - No AI analysis performed. For partial image enhancement and identification, configure GOOGLE_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY. This feature reconstructs obscured wildlife images.",
+        recommendations: ["Configure AI provider keys for real-time analysis", "Provide best available image quality", "Try multiple angles if possible"],
+      };
+    
+    case "chat":
+      return {
+        message: "⚠️ Educational Mode Active - For AI-powered conservation assistance, please configure GOOGLE_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY. I can still help you access platform data like wildlife sightings, botanical gardens, and conservation resources!",
+        sources: ["Platform documentation", "Educational databases"],
+      };
+    
+    default:
+      return {
+        success: false,
+        confidence: 0.0,
+        message: "⚠️ EDUCATIONAL MODE - No AI analysis performed. Configure GOOGLE_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY for AI-powered analysis.",
+      };
+  }
+}
+
+/**
  * Main AI analysis function with comprehensive fallback support
+ * GUARANTEES SUCCESS - never throws, always returns educational data as last resort
  */
 export async function analyzeWithAI(request: AIAnalysisRequest): Promise<AIAnalysisResponse> {
   const errors: string[] = [];
 
-  // Try Gemini first (free tier available, fast)
+  // Try Gemini first (free tier available, fast, supports audio)
   if (geminiClient) {
     try {
       console.log("🤖 Attempting Gemini 2.0 Flash analysis...");
@@ -188,8 +267,8 @@ export async function analyzeWithAI(request: AIAnalysisRequest): Promise<AIAnaly
     }
   }
 
-  // Try OpenAI as second option
-  if (openaiClient && !request.audioBase64) { // OpenAI doesn't support audio in vision API
+  // Try OpenAI as second option (no audio support)
+  if (openaiClient && !request.audioBase64) {
     try {
       console.log("🤖 Attempting OpenAI GPT-4 analysis...");
       const result = await tryOpenAI(request);
@@ -206,8 +285,8 @@ export async function analyzeWithAI(request: AIAnalysisRequest): Promise<AIAnaly
     }
   }
 
-  // Try Anthropic as third option
-  if (anthropicClient && !request.audioBase64) { // Anthropic doesn't support audio
+  // Try Anthropic as third option (no audio support)
+  if (anthropicClient && !request.audioBase64) {
     try {
       console.log("🤖 Attempting Anthropic Claude analysis...");
       const result = await tryAnthropic(request);
@@ -224,8 +303,17 @@ export async function analyzeWithAI(request: AIAnalysisRequest): Promise<AIAnaly
     }
   }
 
-  // All AI providers failed
-  throw new Error(`All AI providers failed. Errors: ${errors.join("; ")}`);
+  // FINAL FALLBACK: Educational mode - ALWAYS succeeds
+  console.log("⚠️ All AI providers unavailable or failed");
+  console.log(`📚 Returning educational fallback data (feature: ${request.featureType || 'general'})`);
+  
+  const educationalResult = generateEducationalFallback(request);
+  
+  return {
+    result: educationalResult,
+    provider: "educational",
+    confidence: 0.0, // Zero confidence indicates educational mode
+  };
 }
 
 /**
