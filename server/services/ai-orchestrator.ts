@@ -11,6 +11,7 @@ import { identifyPlantWithPlantNet, getEducationalPlantData } from './plantnet';
 import { analyzeAnimalImage } from './openai';
 import { analyzeFloraWithGemini } from './gemini';
 import { identifyAnimalFree, karnatakaWildlife } from './free-animal-id';
+import { crossVerifyAnimal, shouldUseCrossVerification } from './ai-cross-verification';
 
 export type AIFeature = 
   | 'animal_identification'
@@ -35,13 +36,34 @@ export interface AIResult {
  */
 export class AIOrchestrator {
   /**
-   * Identify animal using GEMINI-FIRST strategy
-   * Gemini AI (accurate) → OpenAI → Anthropic → Local AI → Educational
-   * User wants Gemini to work accurately for all features
+   * Identify animal using GEMINI-FIRST strategy with CROSS-VERIFICATION
+   * Strategy: Use multiple AI providers to verify each other for higher accuracy
+   * Gemini AI (primary) + Cross-verification → Local AI → Educational
    */
   async identifyAnimal(base64Image: string): Promise<AIResult> {
     const feature = 'animal_identification';
     
+    // SMART MODE: Use cross-verification for ~30% of requests (higher accuracy)
+    if (shouldUseCrossVerification()) {
+      console.log(`[${feature}] 🔬 CROSS-VERIFICATION MODE: Using multiple AI providers for consensus-based identification`);
+      try {
+        const verification = await crossVerifyAnimal(base64Image);
+        console.log(`[${feature}] ✅ Cross-verification complete: ${verification.finalResult.speciesName}`);
+        console.log(`[${feature}]    Providers: ${verification.providersUsed.join(', ')}`);
+        console.log(`[${feature}]    Consensus: ${verification.consensusLevel} (${(verification.confidence * 100).toFixed(1)}% confidence)`);
+        
+        return {
+          data: verification.finalResult,
+          provider: 'cloud_ai',
+          confidence: verification.confidence,
+          method: `Multi-AI Verification (${verification.providersUsed.join(' + ')}) - ${verification.consensusLevel} consensus`,
+        };
+      } catch (verificationError) {
+        console.log(`[${feature}] ⚠️ Cross-verification failed, falling back to standard mode:`, (verificationError as Error).message);
+      }
+    }
+    
+    // STANDARD MODE: Single provider cascade (faster)
     // Tier 1: Gemini AI (PRIMARY - Most accurate for wildlife)
     try {
       console.log(`[${feature}] 🌐 Tier 1: Attempting Gemini AI (Google's most accurate vision model)...`);
