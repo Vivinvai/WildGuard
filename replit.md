@@ -42,13 +42,14 @@ Preferred communication style: Simple, everyday language.
   - **Confidence Boosting**: +15% confidence for full agreement, +5% for majority
   - **High/Medium/Low Consensus Levels**: Clear indication of agreement between providers
   - **Gemini as Both Primary & Verification**: Used in both standard and verification modes
-- **Multi-Provider Fallback**: Gemini 2.0 Flash → TensorFlow.js Local AI → Educational database.
+- **Multi-Provider Fallback**: Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude → TensorFlow.js Local AI → Educational database.
 - **Animal Identification**: 
   - **Smart Mode (30%)**: Cross-verification with Gemini + OpenAI + Anthropic for consensus
-  - **Standard Mode (70%)**: Gemini AI (primary, 90-95% confidence) → TensorFlow.js MobileNet (free, offline) → Educational fallback (21 Karnataka species)
+  - **Standard Mode (70%)**: Gemini AI → OpenAI → Anthropic → TensorFlow.js MobileNet (free, offline, real AI) → Educational fallback (21 Karnataka species)
+  - **Fallback Implementation**: When cloud APIs fail, system throws error to trigger Local AI tier before falling back to educational mode
 - **Flora Identification**: PlantNet API (free, 71,520+ species) → Gemini AI → TensorFlow.js Local AI → Educational data (21+ Karnataka plants).
-- **Health Assessment**: Gemini multi-provider (detects wounds, injuries, malnutrition, disease) → TensorFlow.js Local analysis → Educational.
-- **Poaching Detection**: Gemini AI (detects weapons, traps, suspicious activity) → TensorFlow.js Local scanning → Educational fallback.
+- **Health Assessment**: Gemini → OpenAI → Anthropic (detects wounds, injuries, malnutrition, disease) → TensorFlow.js Local analysis → Educational.
+- **Poaching Detection**: Gemini → OpenAI → Anthropic (detects weapons, traps, suspicious activity) → TensorFlow.js Local scanning → Educational fallback.
 - **TensorFlow.js Local AI**: Real AI backup using MobileNet model for offline operation when cloud APIs unavailable. Model loads on server startup (~5MB, cached). Provides actual computer vision analysis, not pattern matching.
 - **Free API Integration**: 
     - **PlantNet API**: Free plant identification service, specialized botanical database, no API key cost
