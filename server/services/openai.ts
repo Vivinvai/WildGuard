@@ -166,16 +166,15 @@ Respond with JSON in this exact format:
         confidence: typeof result.confidence === 'number' ? Math.max(0, Math.min(1, result.confidence)) : 0.5,
       };
     } catch (error) {
-      console.log("✗ Anthropic failed, using educational fallback...", (error as Error).message);
+      console.log("✗ Anthropic failed:", (error as Error).message);
     }
   } else {
     console.log("ℹ No ANTHROPIC_API_KEY configured");
   }
 
-  // PRIORITY 4: Use educational fallback (transparent about no image analysis)
-  console.log("→ Using educational mode: Real Karnataka wildlife conservation data");
-  const { identifyAnimalFree } = await import("./free-animal-id");
-  return identifyAnimalFree(base64Image);
+  // All cloud AI providers failed - throw error so orchestrator can try Local AI
+  console.log("✗ All cloud AI providers failed or unavailable");
+  throw new Error("All cloud AI providers failed - falling back to local processing");
 }
 
 // Legacy code below - preserved but unused after refactoring
