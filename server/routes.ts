@@ -175,6 +175,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test API keys endpoint
+  app.get("/api/test-api-keys", async (req, res) => {
+    try {
+      const { testAllAPIKeys } = await import("./test-api-keys");
+      const results = await testAllAPIKeys();
+      
+      const workingCount = results.filter(r => r.status === 'success').length;
+      const allWorking = workingCount === results.length;
+      
+      res.json({
+        success: allWorking,
+        workingCount,
+        totalCount: results.length,
+        results,
+        summary: allWorking 
+          ? '✅ All API keys working!' 
+          : `⚠️ ${workingCount}/${results.length} API keys working`,
+      });
+    } catch (error) {
+      console.error("Error testing API keys:", error);
+      res.status(500).json({ 
+        error: "Failed to test API keys",
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+
   // Admin authentication middleware
   function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
     if (!req.session.adminUser) {

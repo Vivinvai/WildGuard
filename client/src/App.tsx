@@ -30,6 +30,7 @@ import HabitatMonitoring from "@/pages/features/habitat-monitoring";
 import SoundDetection from "@/pages/features/sound-detection";
 import FootprintRecognition from "@/pages/features/footprint-recognition";
 import PartialImageEnhancement from "@/pages/features/partial-image-enhancement";
+import APISetupPage from "@/pages/APISetupPage";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -72,6 +73,7 @@ function Router() {
         <Route path="/features/sound-detection" component={SoundDetection} />
         <Route path="/features/footprint-recognition" component={FootprintRecognition} />
         <Route path="/features/partial-image-enhancement" component={PartialImageEnhancement} />
+        <Route path="/api-setup" component={APISetupPage} />
         <Route component={NotFound} />
       </Switch>
     </>
