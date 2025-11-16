@@ -37,8 +37,15 @@ Preferred communication style: Simple, everyday language.
 
 ## AI Integration
 - **GEMINI-FIRST STRATEGY**: Google Gemini AI prioritized for maximum accuracy across all wildlife conservation features.
+- **CROSS-VERIFICATION SYSTEM** (NEW): For ~30% of animal identifications, system uses multiple AI providers (Gemini + OpenAI + Anthropic) to verify each other and reach consensus. This significantly improves accuracy through:
+  - **Consensus Analysis**: Compares results from multiple providers
+  - **Confidence Boosting**: +15% confidence for full agreement, +5% for majority
+  - **High/Medium/Low Consensus Levels**: Clear indication of agreement between providers
+  - **Gemini as Both Primary & Verification**: Used in both standard and verification modes
 - **Multi-Provider Fallback**: Gemini 2.0 Flash → TensorFlow.js Local AI → Educational database.
-- **Animal Identification**: Gemini AI (primary, 90-95% confidence) → TensorFlow.js MobileNet (free, offline) → Educational fallback (21 Karnataka species).
+- **Animal Identification**: 
+  - **Smart Mode (30%)**: Cross-verification with Gemini + OpenAI + Anthropic for consensus
+  - **Standard Mode (70%)**: Gemini AI (primary, 90-95% confidence) → TensorFlow.js MobileNet (free, offline) → Educational fallback (21 Karnataka species)
 - **Flora Identification**: PlantNet API (free, 71,520+ species) → Gemini AI → TensorFlow.js Local AI → Educational data (21+ Karnataka plants).
 - **Health Assessment**: Gemini multi-provider (detects wounds, injuries, malnutrition, disease) → TensorFlow.js Local analysis → Educational.
 - **Poaching Detection**: Gemini AI (detects weapons, traps, suspicious activity) → TensorFlow.js Local scanning → Educational fallback.
