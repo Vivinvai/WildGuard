@@ -45,7 +45,7 @@ Preferred communication style: Simple, everyday language.
 - **Multi-Provider Fallback**: Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude → TensorFlow.js Local AI → Educational database.
 - **Animal Identification**: 
   - **Smart Mode (30%)**: Cross-verification with Gemini + OpenAI + Anthropic for consensus
-  - **Standard Mode (70%)**: Gemini AI → OpenAI → Anthropic → TensorFlow.js MobileNet (free, offline, real AI) → Educational fallback (21 Karnataka species)
+  - **Standard Mode (70%)**: Gemini AI → OpenAI → Anthropic → TensorFlow.js MobileNet (free, offline, real AI) → Educational fallback (29 Karnataka species)
   - **Fallback Implementation**: When cloud APIs fail, system throws error to trigger Local AI tier before falling back to educational mode
 - **Flora Identification**: PlantNet API (free, 71,520+ species) → Gemini AI → TensorFlow.js Local AI → Educational data (21+ Karnataka plants).
 - **Health Assessment**: Gemini → OpenAI → Anthropic (detects wounds, injuries, malnutrition, disease) → TensorFlow.js Local analysis → Educational.
@@ -56,18 +56,18 @@ Preferred communication style: Simple, everyday language.
     - **iNaturalist API**: Free species enrichment for additional conservation data
     - **Educational Fallback**: When APIs unavailable, system provides real Karnataka wildlife/flora conservation data with transparent messaging
 - **Conservation Features**: Nine AI-powered tools with comprehensive fallback support:
-    1. Poaching Detection (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude)
-    2. Population Trend Prediction (Linear regression on historical Karnataka data)
-    3. Automatic Health Assessment (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude)
-    4. Satellite Habitat Monitoring (NDVI calculations with NASA FIRMS integration)
-    5. Wildlife Sightings Heatmap (Database-driven visualization)
-    6. Live Habitat Health Monitor (NASA FIRMS API for real-time fire/vegetation data)
-    7. Wildlife Sound Detection (Gemini 2.0 Flash bioacoustic analysis → OpenAI → Anthropic)
-    8. AI Footprint Recognition (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude)
-    9. Partial Image Enhancement (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude)
+    1. **Poaching Detection** (Local TensorFlow.js → Gemini 2.0 Flash → OpenAI → Anthropic) - Enhanced with Local AI weapon/trap detection
+    2. **Population Trend Prediction** (Linear regression on historical Karnataka data) - Statistical analysis
+    3. **Automatic Health Assessment** (Cloud AI → **Local TensorFlow.js Wound Detection** → Educational) - **NEW: Real wound detection, health status classification, injury analysis**
+    4. **Satellite Habitat Monitoring** (NDVI calculations with NASA FIRMS integration) - Real-time forest monitoring
+    5. **Wildlife Sightings Heatmap** (Database-driven visualization) - Geographic clustering
+    6. **Live Habitat Health Monitor** (NASA FIRMS API for real-time fire/vegetation data) - Active fire detection
+    7. **Wildlife Sound Detection** (**Local TensorFlow.js Bioacoustics** → Gemini → OpenAI → Anthropic) - **NEW: Local AI sound pattern recognition**
+    8. **AI Footprint Recognition** (**Local TensorFlow.js Pattern Analysis** → Cloud AI) - **NEW: Track identification for 29 species with detailed characteristics**
+    9. **Partial Image Enhancement** (Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude) - Image quality improvement
 - **Enhanced Chatbot**: Multi-provider support (Gemini → OpenAI → Anthropic) with real-time data integration.
 - **Educational Databases**: 
-    - **Fauna**: 21 Karnataka species (tiger, elephant, leopard, sloth bear, gaur, dhole, sambar, chital, king cobra, python, pangolin, peafowl, hornbill, wild boar, jackal, macaque, langur, mongoose, civet, porcupine, malabar squirrel, nilgiri tahr, striped hyena, rusty-spotted cat, jungle cat, four-horned antelope, barking deer)
+    - **Fauna**: **29 Karnataka species** with Indian names - Bengal Tiger, Asiatic Lion, Asian Elephant, Indian Leopard, Sloth Bear, Indian Gaur (State Animal), Indian Wild Dog (Dhole), Sambar Deer, Spotted Deer (Chital), King Cobra, Indian Rock Python, Indian Pangolin, Indian Peafowl, Great Indian Hornbill, Indian Wild Boar, Golden Jackal, Bonnet Macaque, Gray Langur, Indian Gray Mongoose, Small Indian Civet, Indian Crested Porcupine, Malabar Giant Squirrel, Nilgiri Tahr, Striped Hyena, Rusty-Spotted Cat, Jungle Cat, Four-Horned Antelope (Chousingha), Indian Barking Deer (Muntjac), **Great Indian Bustard**, **Indian Blackbuck**, **Mugger Crocodile**, **Indian Gharial**, **Indian Gray Wolf**, **Indian Fox (Bengal Fox)**
     - **Flora**: 21 Karnataka plants (sandalwood, jackfruit, mango, banyan, neem, turmeric, tulsi, ashwagandha, teak, rosewood, bamboo, peepal, arjuna, amla, lotus, curry leaf, tamarind, coconut, pepper, cardamom, betel, aloe vera, hibiscus, jasmine, marigold)
 - **Processing Flow**: Base64 encoding, multimodal AI analysis (vision/audio), structured JSON responses, graceful error handling with multi-tier fallback chains.
 - **Multi-Provider Strategy**: 

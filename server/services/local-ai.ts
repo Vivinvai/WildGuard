@@ -213,9 +213,9 @@ export async function identifyFloraLocally(base64Image: string): Promise<FloraAn
           console.log(`✅ Matched to Karnataka flora: ${plantData.speciesName}`);
           
           // Normalize uses to array
-          const usesArray = typeof plantData.uses === 'string' 
-            ? plantData.uses.split(/[.!]\s+/).filter((s: string) => s.trim().length > 0)
-            : Array.isArray(plantData.uses) ? plantData.uses : [];
+          const usesArray: string[] = typeof plantData.uses === 'string' 
+            ? (plantData.uses as string).split(/[.!]\s+/).filter((s: string) => s.trim().length > 0)
+            : Array.isArray(plantData.uses) ? plantData.uses as string[] : [];
           
           return {
             ...plantData,

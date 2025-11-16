@@ -372,20 +372,12 @@ export class AIOrchestrator {
       console.log(`[${feature}] ⚠️ Tier 1 failed:`, (localError as Error).message);
     }
     
-    // Tier 2: Cloud AI analysis (use existing service if available)
+    // Tier 2: Cloud AI analysis (reserved for future implementation)
     try {
-      console.log(`[${feature}] 🌐 Tier 2: Attempting Cloud AI footprint analysis...`);
-      const { analyzeFootprintPattern } = await import('./footprint-recognition');
-      const result = await analyzeFootprintPattern(base64Image);
-      console.log(`[${feature}] ✅ Cloud AI complete: ${result.species}`);
-      return {
-        data: result,
-        provider: 'cloud_ai',
-        confidence: result.confidence,
-        method: 'Cloud AI Multi-provider',
-      };
+      console.log(`[${feature}] 🌐 Tier 2: Cloud AI footprint analysis not yet implemented, skipping...`);
+      throw new Error('Cloud AI footprint analysis not implemented');
     } catch (cloudError) {
-      console.log(`[${feature}] ⚠️ Tier 2 failed:`, (cloudError as Error).message);
+      console.log(`[${feature}] ⚠️ Tier 2 not available:`, (cloudError as Error).message);
     }
     
     // Tier 3: Educational fallback
@@ -427,20 +419,12 @@ export class AIOrchestrator {
       console.log(`[${feature}] ⚠️ Tier 1 failed:`, (localError as Error).message);
     }
     
-    // Tier 2: Cloud AI analysis (use existing service if available)
+    // Tier 2: Cloud AI analysis (reserved for future implementation)
     try {
-      console.log(`[${feature}] 🌐 Tier 2: Attempting Cloud AI sound detection...`);
-      const { detectWildlifeSound } = await import('./sound-detection');
-      const result = await detectWildlifeSound(audioData);
-      console.log(`[${feature}] ✅ Cloud AI complete: ${result.species}`);
-      return {
-        data: result,
-        provider: 'cloud_ai',
-        confidence: result.confidence,
-        method: 'Cloud AI Bioacoustic Analysis',
-      };
+      console.log(`[${feature}] 🌐 Tier 2: Cloud AI sound analysis not yet implemented, skipping...`);
+      throw new Error('Cloud AI sound analysis not implemented');
     } catch (cloudError) {
-      console.log(`[${feature}] ⚠️ Tier 2 failed:`, (cloudError as Error).message);
+      console.log(`[${feature}] ⚠️ Tier 2 not available:`, (cloudError as Error).message);
     }
     
     // Tier 3: Educational fallback
