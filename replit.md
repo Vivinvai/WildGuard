@@ -36,12 +36,13 @@ Preferred communication style: Simple, everyday language.
 - **Migration Strategy**: Drizzle Kit for schema migrations.
 
 ## AI Integration
-- **LOCAL-FIRST STRATEGY**: Due to cloud API quota limitations, system now prioritizes offline local AI for reliable, zero-cost operation.
-- **Smart Local AI**: Custom Karnataka wildlife intelligence system (`smart-local-ai.ts`) with 50+ species database, rule-based health assessment, and poaching detection - works 100% offline.
-- **Animal Identification**: Smart Local AI (primary, 70-95% confidence) → Educational fallback (50 Karnataka species with detailed conservation information).
-- **Flora Identification**: PlantNet API (free, 71,520+ species) → Smart Local AI → Educational data (21+ Karnataka plants).
-- **Health Assessment**: Local rule-based analysis (detect injuries, malnutrition, disease markers) → Educational fallback.
-- **Poaching Detection**: Local threat scanning (weapons, traps, vehicles) → Educational fallback.
+- **GEMINI-FIRST STRATEGY**: Google Gemini AI prioritized for maximum accuracy across all wildlife conservation features.
+- **Multi-Provider Fallback**: Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude → Smart Local AI → Educational database.
+- **Animal Identification**: Gemini AI (primary, 90-95% confidence) → Local AI → Educational fallback (50 Karnataka species).
+- **Flora Identification**: PlantNet API (free, 71,520+ species) → Gemini AI → Educational data (21+ Karnataka plants).
+- **Health Assessment**: Gemini multi-provider (detects wounds, injuries, malnutrition, disease) → Local analysis → Educational.
+- **Poaching Detection**: Gemini AI (detects weapons, traps, suspicious activity) → Local scanning → Educational fallback.
+- **Smart Local AI**: Backup Karnataka wildlife system (20+ species) for offline operation when cloud APIs unavailable.
 - **Free API Integration**: 
     - **PlantNet API**: Free plant identification service, specialized botanical database, no API key cost
     - **iNaturalist API**: Free species enrichment for additional conservation data

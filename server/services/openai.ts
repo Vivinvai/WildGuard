@@ -18,7 +18,8 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
   console.log("=== Animal Identification Pipeline ===");
   
   // PRIORITY 1: Try Gemini if API key is available (works well, free tier available)
-  if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_API_KEY !== "") {
+  const geminiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  if (geminiKey && geminiKey !== "") {
     console.log("✓ Using Gemini AI (Free tier available, accurate identification)");
     try {
       const { analyzeAnimalWithGemini } = await import("./gemini");
@@ -26,10 +27,10 @@ export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAna
       console.log(`✓ Gemini identified: ${geminiResult.speciesName} (${(geminiResult.confidence * 100).toFixed(1)}% confidence)`);
       return geminiResult;
     } catch (geminiError) {
-      console.log("✗ Gemini AI failed, trying fallback...");
+      console.log("✗ Gemini AI failed, trying OpenAI...", (geminiError as Error).message);
     }
   } else {
-    console.log("ℹ No GOOGLE_API_KEY configured - add for AI-powered identification");
+    console.log("ℹ No GOOGLE_API_KEY or GEMINI_API_KEY configured");
   }
 
   // PRIORITY 2: Try OpenAI if API key is available

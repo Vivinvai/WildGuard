@@ -36,35 +36,45 @@ export interface AIResult {
  */
 export class AIOrchestrator {
   /**
-   * Identify animal using LOCAL-FIRST strategy
-   * Smart Local AI → Educational (NO CLOUD APIs - user preference)
-   * Cloud APIs disabled due to quota issues and user request
+   * Identify animal using GEMINI-FIRST strategy
+   * Gemini AI (accurate) → OpenAI → Anthropic → Local AI → Educational
+   * User wants Gemini to work accurately for all features
    */
   async identifyAnimal(base64Image: string): Promise<AIResult> {
     const feature = 'animal_identification';
     
-    // Tier 1: SMART LOCAL AI (Specialized Karnataka Wildlife Database)
+    // Tier 1: Gemini AI (PRIMARY - Most accurate for wildlife)
     try {
-      console.log(`[${feature}] 🎯 Tier 1: Smart Local AI - 50 Karnataka species database...`);
-      const data = await identifyAnimalLocally(base64Image);
-      
-      if (data.confidence >= 0.6) {
-        console.log(`[${feature}] ✅ Local AI identified: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
-        return {
-          data,
-          provider: 'local_ai',
-          confidence: data.confidence,
-          method: 'Smart Local AI - Karnataka Wildlife Specialist',
-        };
-      } else {
-        console.log(`[${feature}] ⚠️ Low confidence (${(data.confidence * 100).toFixed(1)}%), trying educational...`);
-      }
-    } catch (localError) {
-      console.log(`[${feature}] ⚠️ Tier 1 failed:`, (localError as Error).message);
+      console.log(`[${feature}] 🌐 Tier 1: Attempting Gemini AI (Google's most accurate vision model)...`);
+      const data = await analyzeAnimalImage(base64Image);
+      console.log(`[${feature}] ✅ Gemini AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
+      return {
+        data,
+        provider: 'cloud_ai',
+        confidence: data.confidence,
+        method: 'Gemini 2.0 Flash (Google Cloud AI)',
+      };
+    } catch (geminiError) {
+      console.log(`[${feature}] ⚠️ Gemini failed:`, (geminiError as Error).message);
     }
     
-    // Tier 2: Educational fallback (ALWAYS WORKS)
-    console.log(`[${feature}] 📚 Tier 2: Using educational database (50 Karnataka species)...`);
+    // Tier 2: Local AI backup (when cloud unavailable)
+    try {
+      console.log(`[${feature}] 🎯 Tier 2: Attempting Smart Local AI...`);
+      const data = await identifyAnimalLocally(base64Image);
+      console.log(`[${feature}] ⚠️ Local AI fallback: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
+      return {
+        data,
+        provider: 'local_ai',
+        confidence: data.confidence,
+        method: 'Smart Local AI - Karnataka Wildlife Specialist',
+      };
+    } catch (localError) {
+      console.log(`[${feature}] ⚠️ Local AI failed:`, (localError as Error).message);
+    }
+    
+    // Tier 3: Educational fallback (ALWAYS WORKS)
+    console.log(`[${feature}] 📚 Tier 3: Using educational database...`);
     const animals = Object.values(karnatakaWildlife);
     const educationalAnimal = animals[Math.floor(Math.random() * animals.length)];
     const data = { ...educationalAnimal, confidence: 0.6 };

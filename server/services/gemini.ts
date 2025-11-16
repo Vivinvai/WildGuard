@@ -25,14 +25,14 @@ export interface FloraAnalysisResult {
 // DON'T DELETE THIS COMMENT - Based on javascript_gemini blueprint
 // Using Gemini 2.5 Flash for animal identification
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
-
 export async function analyzeAnimalWithGemini(imageBase64: string): Promise<AnimalAnalysisResult> {
   try {
-    if (!process.env.GOOGLE_API_KEY) {
-      throw new Error("GOOGLE_API_KEY not configured");
+    const geminiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+    if (!geminiKey) {
+      throw new Error("GOOGLE_API_KEY or GEMINI_API_KEY not configured");
     }
 
+    const genAI = new GoogleGenerativeAI(geminiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     const prompt = `You are a wildlife identification expert. Analyze this image and identify the animal species.
@@ -115,11 +115,12 @@ export async function analyzeFlora(imageBase64: string): Promise<FloraAnalysisRe
   }
   
   // PRIORITY 2: Try Gemini if API key is available
-  if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_API_KEY !== "") {
+  const geminiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  if (geminiKey && geminiKey !== "") {
     console.log("✓ Using Gemini AI for plant identification");
     return analyzeFloraWithGemini(imageBase64);
   } else {
-    console.log("ℹ No GOOGLE_API_KEY configured - add for AI-powered identification");
+    console.log("ℹ No GOOGLE_API_KEY or GEMINI_API_KEY configured");
   }
   
   // PRIORITY 3: Use educational fallback with Karnataka flora data
@@ -130,10 +131,12 @@ export async function analyzeFlora(imageBase64: string): Promise<FloraAnalysisRe
 
 export async function analyzeFloraWithGemini(imageBase64: string): Promise<FloraAnalysisResult> {
   try {
-    if (!process.env.GOOGLE_API_KEY) {
-      throw new Error("GOOGLE_API_KEY not configured");
+    const geminiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+    if (!geminiKey) {
+      throw new Error("GOOGLE_API_KEY or GEMINI_API_KEY not configured");
     }
 
+    const genAI = new GoogleGenerativeAI(geminiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     const prompt = `You are a botanical identification expert specializing in Indian flora and endangered plant species. Analyze this image and identify the plant species.
