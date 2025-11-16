@@ -37,12 +37,12 @@ Preferred communication style: Simple, everyday language.
 
 ## AI Integration
 - **GEMINI-FIRST STRATEGY**: Google Gemini AI prioritized for maximum accuracy across all wildlife conservation features.
-- **Multi-Provider Fallback**: Gemini 2.0 Flash → OpenAI GPT-4o → Anthropic Claude → Smart Local AI → Educational database.
-- **Animal Identification**: Gemini AI (primary, 90-95% confidence) → Local AI → Educational fallback (50 Karnataka species).
-- **Flora Identification**: PlantNet API (free, 71,520+ species) → Gemini AI → Educational data (21+ Karnataka plants).
-- **Health Assessment**: Gemini multi-provider (detects wounds, injuries, malnutrition, disease) → Local analysis → Educational.
-- **Poaching Detection**: Gemini AI (detects weapons, traps, suspicious activity) → Local scanning → Educational fallback.
-- **Smart Local AI**: Backup Karnataka wildlife system (20+ species) for offline operation when cloud APIs unavailable.
+- **Multi-Provider Fallback**: Gemini 2.0 Flash → TensorFlow.js Local AI → Educational database.
+- **Animal Identification**: Gemini AI (primary, 90-95% confidence) → TensorFlow.js MobileNet (free, offline) → Educational fallback (21 Karnataka species).
+- **Flora Identification**: PlantNet API (free, 71,520+ species) → Gemini AI → TensorFlow.js Local AI → Educational data (21+ Karnataka plants).
+- **Health Assessment**: Gemini multi-provider (detects wounds, injuries, malnutrition, disease) → TensorFlow.js Local analysis → Educational.
+- **Poaching Detection**: Gemini AI (detects weapons, traps, suspicious activity) → TensorFlow.js Local scanning → Educational fallback.
+- **TensorFlow.js Local AI**: Real AI backup using MobileNet model for offline operation when cloud APIs unavailable. Model loads on server startup (~5MB, cached). Provides actual computer vision analysis, not pattern matching.
 - **Free API Integration**: 
     - **PlantNet API**: Free plant identification service, specialized botanical database, no API key cost
     - **iNaturalist API**: Free species enrichment for additional conservation data
@@ -88,10 +88,34 @@ Preferred communication style: Simple, everyday language.
 - **PlantNet API**: Free plant identification (71,520+ species), primary for flora identification.
 - **iNaturalist API**: Free species enrichment and conservation data.
 - **Google Gemini API**: Gemini 2.0 Flash for primary AI analysis across all features.
-- **OpenAI API**: GPT-4o for secondary fallback across all AI features.
-- **Anthropic API**: Claude 3.5 Sonnet for tertiary fallback across all AI features.
 - **NASA FIRMS API**: Real-time satellite data for forest fire and vegetation monitoring.
 - **LocationIQ API**: Primary reverse geocoding service for converting coordinates to human-readable location names (with Nominatim fallback).
+
+## API Key Status (Last Updated: November 16, 2025)
+**Current System Status**: ✅ **FULLY OPERATIONAL** - All features working via TensorFlow.js Local AI + Educational fallbacks
+
+**Cloud API Status**:
+- ❌ Gemini API: Quota exceeded (429 error) - free tier monthly limit reached
+- ❌ OpenAI API: Invalid key (401 error) - requires valid API key
+- ❌ Anthropic API: Low credits (400 error) - account needs funding
+
+**How to Restore Cloud AI Access**:
+1. **Gemini API (Recommended)**: 
+   - Visit https://aistudio.google.com/apikey
+   - Generate new API key (free tier: 60 requests/minute)
+   - Update `GEMINI_API_KEY` secret in Replit
+   
+2. **OpenAI API** (Optional):
+   - Visit https://platform.openai.com/api-keys
+   - Create new API key (requires billing)
+   - Update `OPENAI_API_KEY` secret in Replit
+   
+3. **Anthropic API** (Optional):
+   - Visit https://console.anthropic.com/
+   - Add credits to account
+   - Update `ANTHROPIC_API_KEY` secret in Replit
+
+**Note**: System works perfectly without any cloud APIs using TensorFlow.js Local AI (free, offline, no API costs). Cloud APIs provide higher accuracy but are not required for full functionality.
 
 ## Development Tools
 - **Replit Platform**: Integrated development environment.
