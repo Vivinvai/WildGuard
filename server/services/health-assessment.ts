@@ -60,15 +60,27 @@ Health status definitions:
 Be thorough, specific, and err on the side of caution for wildlife welfare.`;
 
 /**
- * Assess animal health with multi-provider fallback
+ * Assess animal health with HYBRID approach
+ * Local AI extracts features → Gemini analyzes with context
  * Gemini → OpenAI → Anthropic for maximum reliability
  */
-export async function assessAnimalHealth(imageBase64: string): Promise<HealthAssessmentResult> {
+export async function assessAnimalHealth(
+  imageBase64: string, 
+  visualFeatures?: {
+    featureDescription: string;
+    visualCues: {
+      hasRedTones: boolean;
+      hasDarkPatches: boolean;
+      hasUnusualColors: boolean;
+    };
+    topCategories: string[];
+  }
+): Promise<HealthAssessmentResult> {
   // Try Gemini first (fastest, cost-effective)
   if (process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY) {
     try {
-      console.log("🌐 Attempting health assessment with Gemini...");
-      return await assessWithGemini(imageBase64);
+      console.log("🌐 Attempting health assessment with Gemini" + (visualFeatures ? " (with Local AI features)" : "") + "...");
+      return await assessWithGemini(imageBase64, visualFeatures);
     } catch (geminiError) {
       console.log("⚠️ Gemini failed, trying OpenAI...", (geminiError as Error).message);
     }
@@ -78,7 +90,7 @@ export async function assessAnimalHealth(imageBase64: string): Promise<HealthAss
   if (process.env.OPENAI_API_KEY) {
     try {
       console.log("🌐 Attempting health assessment with OpenAI...");
-      return await assessWithOpenAI(imageBase64);
+      return await assessWithOpenAI(imageBase64, visualFeatures);
     } catch (openaiError) {
       console.log("⚠️ OpenAI failed, trying Anthropic...", (openaiError as Error).message);
     }
@@ -88,7 +100,7 @@ export async function assessAnimalHealth(imageBase64: string): Promise<HealthAss
   if (process.env.ANTHROPIC_API_KEY) {
     try {
       console.log("🌐 Attempting health assessment with Anthropic...");
-      return await assessWithAnthropic(imageBase64);
+      return await assessWithAnthropic(imageBase64, visualFeatures);
     } catch (anthropicError) {
       console.log("❌ All cloud providers failed:", (anthropicError as Error).message);
     }
@@ -97,15 +109,40 @@ export async function assessAnimalHealth(imageBase64: string): Promise<HealthAss
   throw new Error("No cloud AI providers available for health assessment");
 }
 
-async function assessWithGemini(imageBase64: string): Promise<HealthAssessmentResult> {
+async function assessWithGemini(
+  imageBase64: string,
+  visualFeatures?: {
+    featureDescription: string;
+    visualCues: {
+      hasRedTones: boolean;
+      hasDarkPatches: boolean;
+      hasUnusualColors: boolean;
+    };
+    topCategories: string[];
+  }
+): Promise<HealthAssessmentResult> {
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("Gemini API key not configured");
   
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
+  // Enhanced prompt with Local AI features
+  let enhancedPrompt = HEALTH_PROMPT;
+  if (visualFeatures) {
+    const cues: string[] = [];
+    if (visualFeatures.visualCues.hasRedTones) cues.push("prominent red/orange tones (POSSIBLE BLOOD/WOUNDS)");
+    if (visualFeatures.visualCues.hasDarkPatches) cues.push("dark patches detected");
+    if (visualFeatures.visualCues.hasUnusualColors) cues.push("unusual color variance patterns");
+    
+    enhancedPrompt += `\n\n🔍 PRE-ANALYSIS BY LOCAL AI:\n${visualFeatures.featureDescription}\n` +
+      `Possible species: ${visualFeatures.topCategories.join(', ')}\n` +
+      (cues.length > 0 ? `⚠️ VISUAL CUES DETECTED: ${cues.join('; ')}\n` : '') +
+      `\nPlease perform detailed health assessment focusing on these pre-identified visual cues.`;
+  }
+
   const genResult = await model.generateContent([
-    HEALTH_PROMPT,
+    enhancedPrompt,
     {
       inlineData: {
         data: imageBase64,
@@ -137,10 +174,35 @@ async function assessWithGemini(imageBase64: string): Promise<HealthAssessmentRe
   };
 }
 
-async function assessWithOpenAI(imageBase64: string): Promise<HealthAssessmentResult> {
+async function assessWithOpenAI(
+  imageBase64: string,
+  visualFeatures?: {
+    featureDescription: string;
+    visualCues: {
+      hasRedTones: boolean;
+      hasDarkPatches: boolean;
+      hasUnusualColors: boolean;
+    };
+    topCategories: string[];
+  }
+): Promise<HealthAssessmentResult> {
   if (!process.env.OPENAI_API_KEY) throw new Error("OpenAI API key not configured");
   
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  // Enhanced prompt with Local AI features if available
+  let enhancedPrompt = HEALTH_PROMPT;
+  if (visualFeatures) {
+    const cues: string[] = [];
+    if (visualFeatures.visualCues.hasRedTones) cues.push("prominent red/orange tones (POSSIBLE BLOOD/WOUNDS)");
+    if (visualFeatures.visualCues.hasDarkPatches) cues.push("dark patches detected");
+    if (visualFeatures.visualCues.hasUnusualColors) cues.push("unusual color variance patterns");
+    
+    enhancedPrompt += `\n\n🔍 PRE-ANALYSIS BY LOCAL AI:\n${visualFeatures.featureDescription}\n` +
+      `Possible species: ${visualFeatures.topCategories.join(', ')}\n` +
+      (cues.length > 0 ? `⚠️ VISUAL CUES DETECTED: ${cues.join('; ')}\n` : '') +
+      `\nPlease perform detailed health assessment focusing on these pre-identified visual cues.`;
+  }
 
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -148,7 +210,7 @@ async function assessWithOpenAI(imageBase64: string): Promise<HealthAssessmentRe
       {
         role: "user",
         content: [
-          { type: "text", text: HEALTH_PROMPT },
+          { type: "text", text: enhancedPrompt },
           {
             type: "image_url",
             image_url: {
@@ -183,10 +245,35 @@ async function assessWithOpenAI(imageBase64: string): Promise<HealthAssessmentRe
   };
 }
 
-async function assessWithAnthropic(imageBase64: string): Promise<HealthAssessmentResult> {
+async function assessWithAnthropic(
+  imageBase64: string,
+  visualFeatures?: {
+    featureDescription: string;
+    visualCues: {
+      hasRedTones: boolean;
+      hasDarkPatches: boolean;
+      hasUnusualColors: boolean;
+    };
+    topCategories: string[];
+  }
+): Promise<HealthAssessmentResult> {
   if (!process.env.ANTHROPIC_API_KEY) throw new Error("Anthropic API key not configured");
   
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  // Enhanced prompt with Local AI features if available
+  let enhancedPrompt = HEALTH_PROMPT;
+  if (visualFeatures) {
+    const cues: string[] = [];
+    if (visualFeatures.visualCues.hasRedTones) cues.push("prominent red/orange tones (POSSIBLE BLOOD/WOUNDS)");
+    if (visualFeatures.visualCues.hasDarkPatches) cues.push("dark patches detected");
+    if (visualFeatures.visualCues.hasUnusualColors) cues.push("unusual color variance patterns");
+    
+    enhancedPrompt += `\n\n🔍 PRE-ANALYSIS BY LOCAL AI:\n${visualFeatures.featureDescription}\n` +
+      `Possible species: ${visualFeatures.topCategories.join(', ')}\n` +
+      (cues.length > 0 ? `⚠️ VISUAL CUES DETECTED: ${cues.join('; ')}\n` : '') +
+      `\nPlease perform detailed health assessment focusing on these pre-identified visual cues.`;
+  }
 
   const message = await anthropic.messages.create({
     model: "claude-3-5-sonnet-20241022",
@@ -205,7 +292,7 @@ async function assessWithAnthropic(imageBase64: string): Promise<HealthAssessmen
           },
           {
             type: "text",
-            text: HEALTH_PROMPT,
+            text: enhancedPrompt,
           },
         ],
       },

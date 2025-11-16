@@ -185,23 +185,38 @@ export class AIOrchestrator {
   }
   
   /**
-   * Assess animal health from image
-   * Local TF.js → Cloud AI → Basic assessment
+   * Assess animal health from image - HYBRID APPROACH
+   * 1. Local AI extracts visual features (color patterns, anomalies)
+   * 2. Features sent to Cloud AI for accurate diagnosis
+   * 3. Cloud AI → Local AI → Educational fallback
    */
   async assessAnimalHealth(base64Image: string): Promise<AIResult> {
     const feature = 'health_assessment';
     
-    // Tier 1: Cloud AI (use existing comprehensive service)
+    // Step 1: Extract visual features using Local AI
+    let visualFeatures;
     try {
-      console.log(`[${feature}] 🌐 Tier 1: Attempting Cloud AI health assessment...`);
+      console.log(`[${feature}] 🔍 Step 1: Extracting visual features with Local AI...`);
+      const { extractVisualFeatures } = await import('./local-ai');
+      visualFeatures = await extractVisualFeatures(base64Image);
+      console.log(`[${feature}] ✅ Features extracted: Red tones=${visualFeatures.visualCues.hasRedTones}, Dark patches=${visualFeatures.visualCues.hasDarkPatches}, Unusual colors=${visualFeatures.visualCues.hasUnusualColors}`);
+    } catch (featureError) {
+      console.log(`[${feature}] ⚠️ Feature extraction failed, using image only:`, (featureError as Error).message);
+    }
+    
+    // Tier 1: Cloud AI with extracted features (use existing comprehensive service)
+    try {
+      console.log(`[${feature}] 🌐 Tier 1: Attempting Cloud AI health assessment${visualFeatures ? ' WITH LOCAL AI FEATURES ⚡' : ''}...`);
       const { assessAnimalHealth } = await import('./health-assessment');
-      const result = await assessAnimalHealth(base64Image);
+      const result = await assessAnimalHealth(base64Image, visualFeatures);
       console.log(`[${feature}] ✅ Cloud AI assessment: ${result.overallHealthStatus}`);
       return {
         data: result,
         provider: 'cloud_ai',
         confidence: result.confidence,
-        method: 'Cloud AI Multi-provider Analysis',
+        method: visualFeatures 
+          ? '🔥 HYBRID: Local AI Visual Features + Cloud AI Analysis'
+          : 'Cloud AI Multi-provider Analysis',
       };
     } catch (cloudError) {
       console.log(`[${feature}] ⚠️ Tier 1 failed:`, (cloudError as Error).message);

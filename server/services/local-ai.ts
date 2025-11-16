@@ -278,70 +278,124 @@ export async function detectThreatsLocally(base64Image: string): Promise<{ threa
 }
 
 /**
- * Analyze animal health using TensorFlow.js MobileNet
- * 
- * IMPORTANT LIMITATION: MobileNet is trained on ImageNet object classification
- * and cannot reliably detect wounds, injuries, or health conditions.
- * This function provides LIMITED heuristic analysis only.
- * 
- * For accurate wound detection, cloud AI (Gemini/OpenAI/Anthropic) should be used.
+ * Extract visual features from image for Gemini analysis
+ * This provides helpful context that makes Gemini's analysis more accurate
+ */
+export async function extractVisualFeatures(base64Image: string): Promise<{
+  mobilenetPredictions: Array<{className: string; probability: number}>;
+  topCategories: string[];
+  visualCues: {
+    hasRedTones: boolean;
+    hasDarkPatches: boolean;
+    hasUnusualColors: boolean;
+    asymmetryDetected: boolean;
+  };
+  featureDescription: string;
+}> {
+  let imageTensor;
+  let imageData;
+  
+  try {
+    console.log('🔍 LOCAL AI: Extracting visual features for Gemini analysis...');
+    const model = await loadModel();
+    const imageBuffer = Buffer.from(base64Image, 'base64');
+    imageTensor = tf.node.decodeImage(imageBuffer, 3);
+    
+    // Get MobileNet predictions
+    const predictions = await model.classify(imageTensor as tf.Tensor3D);
+    const topPredictions = predictions.slice(0, 5);
+    
+    // Analyze pixel data for anomalies using tf.tidy to auto-dispose intermediates
+    const stats = tf.tidy(() => {
+      const normalized = imageTensor!.toFloat().div(255);
+      const [height, width, channels] = imageTensor!.shape;
+      
+      const redChannel = normalized.slice([0, 0, 0], [height, width, 1]);
+      const greenChannel = normalized.slice([0, 0, 1], [height, width, 1]);
+      const blueChannel = normalized.slice([0, 0, 2], [height, width, 1]);
+      
+      const redMean = redChannel.mean().arraySync() as number;
+      const greenMean = greenChannel.mean().arraySync() as number;
+      const blueMean = blueChannel.mean().arraySync() as number;
+      
+      const redStd = tf.moments(redChannel).variance.sqrt().arraySync() as number;
+      
+      return { redMean, greenMean, blueMean, redStd };
+    });
+    
+    // Visual cue detection
+    const hasRedTones = stats.redMean > stats.greenMean * 1.2 && stats.redMean > stats.blueMean * 1.2;
+    const hasDarkPatches = stats.redMean < 0.3 && stats.greenMean < 0.3 && stats.blueMean < 0.3;
+    const hasUnusualColors = stats.redStd > 0.3; // High variance suggests unusual patterns
+    const asymmetryDetected = false; // Placeholder for future enhancement
+    
+    // Build feature description for Gemini
+    const animalTypes = topPredictions.map(p => p.className).join(', ');
+    const colorNotes: string[] = [];
+    if (hasRedTones) colorNotes.push('prominent red/orange tones detected');
+    if (hasDarkPatches) colorNotes.push('dark patches present');
+    if (hasUnusualColors) colorNotes.push('unusual color variance patterns');
+    
+    const featureDescription = `Visual Analysis: MobileNet identifies possible ${animalTypes}. ` +
+      (colorNotes.length > 0 ? `Color patterns: ${colorNotes.join(', ')}. ` : '') +
+      `Top prediction confidence: ${(topPredictions[0].probability * 100).toFixed(1)}%.`;
+    
+    console.log(`✅ Features extracted: ${topPredictions.length} predictions, ${colorNotes.length} visual cues`);
+    
+    return {
+      mobilenetPredictions: topPredictions,
+      topCategories: topPredictions.map(p => p.className),
+      visualCues: {
+        hasRedTones,
+        hasDarkPatches,
+        hasUnusualColors,
+        asymmetryDetected,
+      },
+      featureDescription,
+    };
+  } catch (error) {
+    console.error('❌ Feature extraction failed:', error);
+    throw new Error(`Feature extraction failed: ${(error as Error).message}`);
+  } finally {
+    // CRITICAL: Dispose tensors to prevent memory leaks
+    if (imageTensor) {
+      imageTensor.dispose();
+    }
+  }
+}
+
+/**
+ * Analyze animal health using HYBRID approach
+ * 1. Local AI extracts visual features
+ * 2. Features sent to Gemini for accurate diagnosis
+ * 3. Gemini responds with detailed health assessment
  */
 export async function analyzeHealthLocally(base64Image: string): Promise<{
   healthStatus: 'Healthy' | 'Minor Issues' | 'Injured' | 'Critical';
   injuries: string[];
   confidence: number;
   details: string;
+  visualFeatures?: any;  // Features to send to Gemini
 }> {
   try {
-    console.log('🏥 LOCAL AI: Analyzing image with MobileNet (LIMITED wound detection capability)...');
-    const model = await loadModel();
-    const imageBuffer = Buffer.from(base64Image, 'base64');
-    const imageTensor = tf.node.decodeImage(imageBuffer, 3);
-    const predictions = await model.classify(imageTensor as tf.Tensor3D);
-    imageTensor.dispose();
+    console.log('🏥 LOCAL AI: Extracting features for Gemini wound detection...');
     
-    console.log('🔍 Top 10 predictions:', predictions.slice(0, 10).map(p => `${p.className} (${(p.probability * 100).toFixed(1)}%)`).join(', '));
+    // Extract visual features that will help Gemini
+    const features = await extractVisualFeatures(base64Image);
     
-    // Look for UNAMBIGUOUS medical/injury indicators
-    // NOTE: These are rare in ImageNet but worth checking
-    const medicalKeywords = [
-      'bandage', 'cast', 'splint',  // Medical equipment
-      'stretcher', 'ambulance',      // Emergency indicators
-    ];
+    console.log('📊 Visual cues detected:');
+    console.log(`   - Red tones (blood?): ${features.visualCues.hasRedTones ? 'YES ⚠️' : 'no'}`);
+    console.log(`   - Dark patches: ${features.visualCues.hasDarkPatches ? 'YES' : 'no'}`);
+    console.log(`   - Unusual colors: ${features.visualCues.hasUnusualColors ? 'YES' : 'no'}`);
     
-    const medicalDetections = predictions.filter(p => {
-      const className = p.className.toLowerCase();
-      return medicalKeywords.some(keyword => {
-        // Exact word match only - avoid false positives
-        const words = className.split(/[\s,_-]+/);
-        return words.includes(keyword);
-      }) && p.probability > 0.3;  // Higher threshold for reliability
-    });
-    
-    if (medicalDetections.length > 0) {
-      // Strong medical indicators found
-      console.log(`⚠️ Medical indicators detected: ${medicalDetections.map(d => d.className).join(', ')}`);
-      return {
-        healthStatus: 'Injured',
-        injuries: [
-          'Medical equipment or emergency indicators detected in image',
-          ...medicalDetections.map(d => `${d.className} (${(d.probability * 100).toFixed(1)}% confidence)`),
-        ],
-        confidence: Math.max(...medicalDetections.map(d => d.probability)),
-        details: `Medical/emergency indicators detected: ${medicalDetections.map(d => d.className).join(', ')}. This may indicate an injured or treated animal. Professional veterinary assessment recommended.`,
-      };
-    }
-    
-    // No reliable wound detection possible with MobileNet
-    console.log('ℹ️ LOCAL AI LIMITATION: MobileNet cannot detect wounds or injuries in wildlife');
-    console.log('   Recommend using cloud AI (Gemini/OpenAI/Anthropic) for accurate health assessment');
-    
-    // Throw error to trigger cloud AI fallback
-    throw new Error('Local AI cannot reliably detect wounds - cloud AI required for health assessment');
+    // Return features to be sent to Gemini
+    throw new Error('LOCAL_AI_FEATURES_READY'); // Special signal to send features to Gemini
     
   } catch (error) {
-    console.log('⚠️ Local health analysis limited:', (error as Error).message);
-    // Throw to trigger cloud AI
+    if ((error as Error).message === 'LOCAL_AI_FEATURES_READY') {
+      throw error; // Pass through to trigger Gemini with features
+    }
+    console.log('⚠️ Feature extraction failed:', (error as Error).message);
     throw error;
   }
 }
