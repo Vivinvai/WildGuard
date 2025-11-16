@@ -244,12 +244,12 @@ function analyzeConsensus<T extends AnimalAnalysisResult | FloraAnalysisResult>(
     current.confidence > best.confidence ? current : best
   );
   
-  // Boost confidence based on consensus
+  // Boost confidence based on consensus (additive, not multiplicative)
   let boostedConfidence = finalResult.confidence;
   if (consensusLevel === 'high') {
-    boostedConfidence = Math.min(1.0, finalResult.confidence * 1.15); // +15% for full agreement
+    boostedConfidence = Math.min(1.0, finalResult.confidence + 0.15); // +15% absolute for full agreement
   } else if (consensusLevel === 'medium') {
-    boostedConfidence = Math.min(1.0, finalResult.confidence * 1.05); // +5% for majority
+    boostedConfidence = Math.min(1.0, finalResult.confidence + 0.05); // +5% absolute for majority
   }
   
   const verificationNotes = generateVerificationNotes(results, providers, consensusLevel, agreementPercentage);
