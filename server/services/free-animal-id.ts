@@ -249,14 +249,23 @@ const karnatakaWildlife: Record<string, AnimalAnalysisResult> = {
     threats: ["Habitat Loss", "Hunting", "Predation"],
     confidence: 0.84,
   },
-  lion: {
+  asiaticlion: {
     speciesName: "Asiatic Lion",
     scientificName: "Panthera leo persica",
     conservationStatus: "Endangered",
-    population: "674 individuals (2020 census) in Gir Forest, Gujarat",
-    habitat: "Endemic to Gir Forest National Park and surrounding areas in Gujarat. Extinct in Karnataka, but historically ranged across India.",
-    threats: ["Limited Geographic Range", "Disease Vulnerability", "Human-Wildlife Conflict", "Habitat Fragmentation"],
+    population: "891 individuals (2024 census) in Gir Forest, Gujarat",
+    habitat: "Endemic to Gir Forest National Park and surrounding areas in Gujarat, India. NOT found in Karnataka - historically ranged across India but now limited to Gujarat. Educational listing for awareness.",
+    threats: ["Limited Geographic Range (Single Location Risk)", "Disease Vulnerability", "Human-Wildlife Conflict", "Habitat Fragmentation"],
     confidence: 0.88,
+  },
+  indianrhinoceros: {
+    speciesName: "Indian Rhinoceros (Greater One-Horned Rhino)",
+    scientificName: "Rhinoceros unicornis",
+    conservationStatus: "Vulnerable",
+    population: "Approximately 4,075 individuals globally, ~3,600 in India (2024)",
+    habitat: "Tall grasslands and wetlands of northeastern India (Assam, West Bengal) and Nepal. NOT found in Karnataka - only in Kaziranga National Park and other northeastern sanctuaries. Conservation success story recovering from near extinction (100 individuals in 1900s). Educational listing for awareness.",
+    threats: ["Poaching for Horn", "Habitat Loss", "Limited Genetic Diversity (70% in single location)", "Climate Change and Flooding"],
+    confidence: 0.85,
   },
   bustard: {
     speciesName: "Great Indian Bustard",

@@ -15,6 +15,7 @@ let animalModel: mobilenet.MobileNet | null = null;
 let modelLoadingPromise: Promise<mobilenet.MobileNet> | null = null;
 
 // Karnataka-specific mappings from MobileNet classes to local species
+// NOTE: Some species listed for educational purposes even if not in Karnataka
 const ANIMAL_MAPPINGS: Record<string, string> = {
   'tiger': 'tiger',
   'tiger cat': 'tiger',
@@ -50,6 +51,11 @@ const ANIMAL_MAPPINGS: Record<string, string> = {
   'king snake': 'kingcobra',
   'rock python': 'pythonindian',
   'indian cobra': 'kingcobra',
+  'lion': 'asiaticlion',
+  'king of beasts': 'asiaticlion',
+  'rhinoceros': 'indianrhinoceros',
+  'rhino': 'indianrhinoceros',
+  'triceratops': 'indianrhinoceros',
 };
 
 const FLORA_MAPPINGS: Record<string, string> = {
