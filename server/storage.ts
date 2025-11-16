@@ -319,6 +319,9 @@ export class MemStorage implements IStorage {
       threats: identification.threats,
       imageUrl: identification.imageUrl,
       confidence: identification.confidence,
+      latitude: identification.latitude ?? null,
+      longitude: identification.longitude ?? null,
+      locationName: identification.locationName ?? null,
       createdAt: new Date()
     };
     

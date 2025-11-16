@@ -88,25 +88,34 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
         });
       }
       
+      console.log('📤 Sending identification request...');
       const response = await fetch('/api/identify-animal', {
         method: 'POST',
         body: formData,
       });
 
+      console.log('📥 Response status:', response.status, response.statusText);
+
       if (!response.ok) {
         const error = await response.json();
+        console.error('❌ API error:', error);
         throw new Error(error.error || 'Failed to identify animal');
       }
 
-      return response.json();
+      const result = await response.json();
+      console.log('✅ API returned result:', result);
+      return result;
     },
     onSuccess: (result: AnimalIdentification) => {
+      console.log('✅ Mutation onSuccess called with result:', result);
+      console.log('Calling onIdentificationResult with:', result);
       onIdentificationResult(result);
       queryClient.invalidateQueries({ queryKey: ['/api/recent-identifications'] });
       toast({
         title: "Animal Identified!",
         description: `Successfully identified as ${result.speciesName}`,
       });
+      console.log('✅ onSuccess completed, UI should update now');
     },
     onError: (error: Error) => {
       toast({

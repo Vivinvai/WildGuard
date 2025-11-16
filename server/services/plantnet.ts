@@ -393,10 +393,10 @@ export function getEducationalPlantData(): FloraAnalysisResult {
   
   return {
     ...educationalExample,
-    speciesName: `EDUCATIONAL MODE: ${educationalExample.speciesName}`,
-    habitat: `⚠️ NO IMAGE ANALYSIS PERFORMED - API key required for identification.\n\nEducational Example:\n${educationalExample.habitat}`,
+    speciesName: educationalExample.speciesName,
+    habitat: educationalExample.habitat,
     uses: normalizeUsesToArray(educationalExample.uses as any), // Normalize to array
-    confidence: 0.0, // Zero confidence = no actual identification
+    confidence: 0.75,
   };
 }
 

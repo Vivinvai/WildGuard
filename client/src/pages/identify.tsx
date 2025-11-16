@@ -10,7 +10,9 @@ export default function Identify() {
   const [currentIdentification, setCurrentIdentification] = useState<AnimalIdentification | null>(null);
 
   const handleIdentificationResult = (result: AnimalIdentification) => {
+    console.log('🎯 handleIdentificationResult called in Identify page with:', result);
     setCurrentIdentification(result);
+    console.log('✅ State updated, currentIdentification should now be:', result);
   };
 
   return (
