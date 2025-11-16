@@ -207,13 +207,13 @@ export class AIOrchestrator {
       console.log(`[${feature}] ⚠️ Tier 1 failed:`, (cloudError as Error).message);
     }
     
-    // Tier 2: Local TensorFlow.js wound detection & health analysis
+    // Tier 2: Local TensorFlow.js (LIMITED - only detects medical equipment)
     try {
-      console.log(`[${feature}] 🎯 Tier 2: Attempting Local TensorFlow.js for wound detection & health analysis...`);
+      console.log(`[${feature}] 🎯 Tier 2: Checking for medical equipment with Local AI...`);
       const healthData = await analyzeHealthLocally(base64Image);
       const animalData = await identifyAnimalLocally(base64Image);
       
-      console.log(`[${feature}] ✅ Local AI health assessment: ${healthData.healthStatus} for ${animalData.speciesName}`);
+      console.log(`[${feature}] ✅ Local AI detected medical indicators for ${animalData.speciesName}`);
       
       // Map local AI status to service status
       const statusMap = {
@@ -228,61 +228,85 @@ export class AIOrchestrator {
         data: {
           animalIdentified: animalData.speciesName,
           overallHealthStatus: statusMap[healthData.healthStatus],
-          confidence: healthData.confidence,
+          confidence: healthData.confidence * 0.85, // Reduce confidence - local AI is limited
           visualSymptoms: {
             injuries: healthData.injuries,
-            malnutrition: healthData.healthStatus === 'Critical',
-            skinConditions: healthData.injuries.filter(i => i.toLowerCase().includes('skin') || i.toLowerCase().includes('wound')),
-            abnormalBehavior: healthData.healthStatus !== 'Healthy' ? ['Possible health issues detected - monitor closely'] : [],
+            malnutrition: false,
+            skinConditions: [],
+            abnormalBehavior: ['Medical equipment detected in vicinity'],
           },
-          detectedConditions: healthData.injuries.length > 0 ? healthData.injuries : ['No obvious health issues detected'],
+          detectedConditions: healthData.injuries,
           severity: healthData.details,
           treatmentRecommendations: [
-            healthData.healthStatus === 'Critical' ? '⚠️ URGENT: Contact wildlife veterinarian immediately' : 'Monitor animal condition',
-            healthData.healthStatus === 'Injured' ? 'Wildlife rehabilitation may be required' : 'Continue regular monitoring',
-            'Report to wildlife authorities if condition worsens',
-            'Document observations with photos for veterinary review',
+            '⚠️ Medical equipment detected - animal may be receiving treatment',
+            'Contact wildlife authorities for professional health assessment',
+            'Do not approach - animal may be under veterinary care',
+            'Document observations and location for wildlife officials',
           ],
-          veterinaryAlertRequired: healthData.healthStatus === 'Critical' || healthData.healthStatus === 'Injured',
-          followUpRequired: healthData.healthStatus !== 'Healthy',
-          detailedAnalysis: `Local AI Analysis for ${animalData.speciesName}: ${healthData.details}`,
+          veterinaryAlertRequired: true,
+          followUpRequired: true,
+          detailedAnalysis: `Local AI detected medical equipment: ${healthData.details}. Note: Local AI cannot directly detect wounds - cloud AI recommended for comprehensive health assessment.`,
         },
         provider: 'local_ai',
-        confidence: healthData.confidence,
-        method: 'Local TensorFlow.js Wound Detection & Health Analysis',
+        confidence: healthData.confidence * 0.85,
+        method: 'Local TensorFlow.js Medical Equipment Detection (Limited)',
       };
     } catch (localError) {
-      console.log(`[${feature}] ⚠️ Tier 2 failed:`, (localError as Error).message);
+      console.log(`[${feature}] ⚠️ Tier 2 skipped - Local AI limited for wound detection:`, (localError as Error).message);
     }
     
-    // Tier 3: Safe fallback - HealthAssessmentResult-compatible
-    console.log(`[${feature}] ℹ️ Providing general health monitoring guidelines`);
+    // Tier 3: Educational fallback with manual assessment prompts
+    console.log(`[${feature}] ℹ️ Providing manual health assessment guidelines (AI unavailable)`);
+    
+    // Try to identify the animal at least
+    let animalName = 'Wildlife';
+    try {
+      const animalData = await identifyAnimalLocally(base64Image);
+      animalName = animalData.speciesName;
+    } catch (e) {
+      console.log('Could not identify animal species');
+    }
+    
     return {
       data: {
-        animalIdentified: 'Unknown',
-        overallHealthStatus: 'healthy' as const,
-        confidence: 0.5,
+        animalIdentified: animalName,
+        overallHealthStatus: 'minor_issues' as const,  // Conservative: flag for attention rather than assume healthy
+        confidence: 0.40,
         visualSymptoms: {
-          injuries: [],
+          injuries: ['⚠️ AUTOMATED WOUND DETECTION UNAVAILABLE - Manual assessment required'],
           malnutrition: false,
           skinConditions: [],
-          abnormalBehavior: [],
+          abnormalBehavior: ['Cloud AI services unavailable - cannot perform automated health analysis'],
         },
-        detectedConditions: [],
-        severity: 'Unable to perform automated health assessment. Professional consultation recommended.',
-        treatmentRecommendations: [
-          'Contact local wildlife veterinarian for professional health assessment',
-          'Monitor animal behavior and report unusual signs to authorities',
-          'Maintain safe distance from wildlife',
-          'Document observations with photos and notes for veterinary review',
+        detectedConditions: [
+          '❌ Cloud AI Required: Accurate wound detection needs Gemini/OpenAI/Anthropic APIs',
+          '🔧 Setup Required: Add API keys to enable automated health assessment',
         ],
-        veterinaryAlertRequired: false,
+        severity: 'AUTOMATED HEALTH ASSESSMENT UNAVAILABLE - Manual visual inspection required',
+        treatmentRecommendations: [
+          '👁️ MANUAL INSPECTION: Carefully observe the animal for:',
+          '  • Visible wounds, cuts, or bleeding',
+          '  • Limping or abnormal movement',
+          '  • Emaciation or visible ribs (malnutrition)',
+          '  • Skin lesions, bald patches, or parasites',
+          '  • Discharge from eyes, nose, or mouth',
+          '  • Behavioral abnormalities (lethargy, aggression)',
+          '',
+          '⚠️ IF INJURED: Contact wildlife veterinarian IMMEDIATELY',
+          '📞 Emergency: Call local wildlife rescue: [Your local wildlife authority number]',
+          '',
+          '🔧 Enable Accurate AI Analysis:',
+          '  1. Add Gemini API key (FREE): https://aistudio.google.com/apikey',
+          '  2. Add OpenAI API key (paid): https://platform.openai.com/api-keys',
+          '  3. Add Anthropic API key (paid): https://console.anthropic.com/',
+        ],
+        veterinaryAlertRequired: true,  // Flag for manual review
         followUpRequired: true,
-        detailedAnalysis: 'Unable to perform automated health assessment due to system limitations. For accurate health evaluation, please consult with a qualified wildlife veterinarian. Continue monitoring the animal and report any concerning symptoms to local wildlife authorities.',
+        detailedAnalysis: `⚠️ IMPORTANT: Automated wound detection is currently UNAVAILABLE. Cloud AI services (Gemini, OpenAI, Anthropic) are required for accurate health assessment but are not configured or quota-exceeded.\n\nLocal AI (TensorFlow.js MobileNet) cannot reliably detect wounds or injuries as it's trained for object classification, not medical diagnosis.\n\nPLEASE PERFORM MANUAL VISUAL INSPECTION:\n• Look for visible wounds, blood, or injuries\n• Check for abnormal behavior or movement\n• Watch for signs of distress or illness\n\nIf you observe ANY concerning symptoms, contact a wildlife veterinarian immediately. Do not rely on automated analysis when it's unavailable - your visual assessment and professional veterinary consultation are essential for animal welfare.\n\nTo enable accurate AI-powered wound detection in the future, please add at least one cloud AI API key in the system configuration.`,
       },
       provider: 'educational',
-      confidence: 0.5,
-      method: 'General Wildlife Health Guidelines',
+      confidence: 0.40,
+      method: 'Manual Assessment Guidelines (AI Unavailable)',
     };
   }
   

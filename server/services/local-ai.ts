@@ -278,8 +278,13 @@ export async function detectThreatsLocally(base64Image: string): Promise<{ threa
 }
 
 /**
- * Analyze animal health and detect wounds using TensorFlow.js
- * Detects visible injuries, abnormalities, and health issues
+ * Analyze animal health using TensorFlow.js MobileNet
+ * 
+ * IMPORTANT LIMITATION: MobileNet is trained on ImageNet object classification
+ * and cannot reliably detect wounds, injuries, or health conditions.
+ * This function provides LIMITED heuristic analysis only.
+ * 
+ * For accurate wound detection, cloud AI (Gemini/OpenAI/Anthropic) should be used.
  */
 export async function analyzeHealthLocally(base64Image: string): Promise<{
   healthStatus: 'Healthy' | 'Minor Issues' | 'Injured' | 'Critical';
@@ -288,77 +293,56 @@ export async function analyzeHealthLocally(base64Image: string): Promise<{
   details: string;
 }> {
   try {
-    console.log('🏥 LOCAL AI: Analyzing animal health and wounds...');
+    console.log('🏥 LOCAL AI: Analyzing image with MobileNet (LIMITED wound detection capability)...');
     const model = await loadModel();
     const imageBuffer = Buffer.from(base64Image, 'base64');
     const imageTensor = tf.node.decodeImage(imageBuffer, 3);
     const predictions = await model.classify(imageTensor as tf.Tensor3D);
     imageTensor.dispose();
     
-    // Keywords indicating health issues
-    const injuryKeywords = ['bandage', 'wounded', 'injured', 'blood', 'scar', 'wound'];
-    const sicknessKeywords = ['sick', 'malnourished', 'thin', 'diseased', 'parasite'];
+    console.log('🔍 Top 10 predictions:', predictions.slice(0, 10).map(p => `${p.className} (${(p.probability * 100).toFixed(1)}%)`).join(', '));
     
-    const injuryDetections = predictions.filter(p => 
-      injuryKeywords.some(keyword => p.className.toLowerCase().includes(keyword))
-    );
+    // Look for UNAMBIGUOUS medical/injury indicators
+    // NOTE: These are rare in ImageNet but worth checking
+    const medicalKeywords = [
+      'bandage', 'cast', 'splint',  // Medical equipment
+      'stretcher', 'ambulance',      // Emergency indicators
+    ];
     
-    const sicknessDetections = predictions.filter(p => 
-      sicknessKeywords.some(keyword => p.className.toLowerCase().includes(keyword))
-    );
+    const medicalDetections = predictions.filter(p => {
+      const className = p.className.toLowerCase();
+      return medicalKeywords.some(keyword => {
+        // Exact word match only - avoid false positives
+        const words = className.split(/[\s,_-]+/);
+        return words.includes(keyword);
+      }) && p.probability > 0.3;  // Higher threshold for reliability
+    });
     
-    const allIssues = [...injuryDetections, ...sicknessDetections];
-    
-    let healthStatus: 'Healthy' | 'Minor Issues' | 'Injured' | 'Critical' = 'Healthy';
-    let injuries: string[] = [];
-    
-    if (allIssues.length > 0) {
-      const maxConfidence = Math.max(...allIssues.map(i => i.probability));
-      
-      if (maxConfidence > 0.7) {
-        healthStatus = 'Critical';
-        injuries = ['Severe injury or illness detected', ...allIssues.map(i => i.className)];
-      } else if (maxConfidence > 0.5) {
-        healthStatus = 'Injured';
-        injuries = ['Possible injury or health issue', ...allIssues.map(i => i.className)];
-      } else {
-        healthStatus = 'Minor Issues';
-        injuries = ['Minor health concerns possible'];
-      }
-    } else {
-      // Check for normal animal indicators
-      const animalDetections = predictions.filter(p => {
-        const lower = p.className.toLowerCase();
-        return lower.includes('animal') || lower.includes('mammal') || 
-               lower.includes('tiger') || lower.includes('elephant') ||
-               lower.includes('leopard') || lower.includes('deer');
-      });
-      
-      if (animalDetections.length > 0 && animalDetections[0].probability > 0.5) {
-        healthStatus = 'Healthy';
-        injuries = [];
-      }
+    if (medicalDetections.length > 0) {
+      // Strong medical indicators found
+      console.log(`⚠️ Medical indicators detected: ${medicalDetections.map(d => d.className).join(', ')}`);
+      return {
+        healthStatus: 'Injured',
+        injuries: [
+          'Medical equipment or emergency indicators detected in image',
+          ...medicalDetections.map(d => `${d.className} (${(d.probability * 100).toFixed(1)}% confidence)`),
+        ],
+        confidence: Math.max(...medicalDetections.map(d => d.probability)),
+        details: `Medical/emergency indicators detected: ${medicalDetections.map(d => d.className).join(', ')}. This may indicate an injured or treated animal. Professional veterinary assessment recommended.`,
+      };
     }
     
-    const confidence = allIssues.length > 0 
-      ? Math.max(...allIssues.map(i => i.probability))
-      : 0.70;
+    // No reliable wound detection possible with MobileNet
+    console.log('ℹ️ LOCAL AI LIMITATION: MobileNet cannot detect wounds or injuries in wildlife');
+    console.log('   Recommend using cloud AI (Gemini/OpenAI/Anthropic) for accurate health assessment');
     
-    const details = healthStatus === 'Healthy'
-      ? 'No obvious signs of injury or illness detected. Animal appears to be in normal condition.'
-      : `Potential health issues detected: ${injuries.join(', ')}. Recommend veterinary assessment.`;
+    // Throw error to trigger cloud AI fallback
+    throw new Error('Local AI cannot reliably detect wounds - cloud AI required for health assessment');
     
-    console.log(`🏥 LOCAL AI Health Assessment: ${healthStatus} (confidence: ${(confidence * 100).toFixed(1)}%)`);
-    
-    return { healthStatus, injuries, confidence, details };
   } catch (error) {
-    console.error('❌ Local health analysis failed:', error);
-    return {
-      healthStatus: 'Healthy',
-      injuries: [],
-      confidence: 0.65,
-      details: 'Health analysis completed with local AI. No critical issues detected.',
-    };
+    console.log('⚠️ Local health analysis limited:', (error as Error).message);
+    // Throw to trigger cloud AI
+    throw error;
   }
 }
 
