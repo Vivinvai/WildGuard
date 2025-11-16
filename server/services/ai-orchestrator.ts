@@ -6,8 +6,7 @@
 
 import type { AnimalAnalysisResult } from './openai';
 import type { FloraAnalysisResult } from './gemini';
-import { identifyAnimalLocally as identifyAnimalLocallyOld, identifyFloraLocally, detectThreatsLocally } from './local-ai';
-import { identifyAnimalLocally, assessHealthLocally, detectPoachingLocally } from './smart-local-ai';
+import { identifyAnimalLocally, identifyFloraLocally, detectThreatsLocally } from './local-ai';
 import { identifyPlantWithPlantNet, getEducationalPlantData } from './plantnet';
 import { analyzeAnimalImage } from './openai';
 import { analyzeFloraWithGemini } from './gemini';
@@ -58,16 +57,16 @@ export class AIOrchestrator {
       console.log(`[${feature}] ⚠️ Gemini failed:`, (geminiError as Error).message);
     }
     
-    // Tier 2: Local AI backup (when cloud unavailable)
+    // Tier 2: Local TensorFlow.js AI backup (when cloud unavailable)
     try {
-      console.log(`[${feature}] 🎯 Tier 2: Attempting Smart Local AI...`);
+      console.log(`[${feature}] 🎯 Tier 2: Attempting Local TensorFlow.js AI (FREE, offline)...`);
       const data = await identifyAnimalLocally(base64Image);
-      console.log(`[${feature}] ⚠️ Local AI fallback: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
+      console.log(`[${feature}] ✅ Local AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
       return {
         data,
         provider: 'local_ai',
         confidence: data.confidence,
-        method: 'Smart Local AI - Karnataka Wildlife Specialist',
+        method: 'TensorFlow.js MobileNet - Free Offline AI',
       };
     } catch (localError) {
       console.log(`[${feature}] ⚠️ Local AI failed:`, (localError as Error).message);
@@ -181,7 +180,7 @@ export class AIOrchestrator {
     
     // Tier 2: Local TensorFlow.js basic analysis
     try {
-      console.log(`[${feature}] 🎯 Tier 2: Attempting Local identification for basic assessment...`);
+      console.log(`[${feature}] 🎯 Tier 2: Attempting Local TensorFlow.js for basic assessment...`);
       const animalData = await identifyAnimalLocally(base64Image);
       
       console.log(`[${feature}] ✅ Local basic assessment for ${animalData.speciesName}`);
