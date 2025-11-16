@@ -48,9 +48,28 @@ Preferred communication style: Simple, everyday language.
   - **Standard Mode (70%)**: Gemini AI → OpenAI → Anthropic → TensorFlow.js MobileNet (free, offline, real AI) → Educational fallback (29 Karnataka species)
   - **Fallback Implementation**: When cloud APIs fail, system throws error to trigger Local AI tier before falling back to educational mode
 - **Flora Identification**: PlantNet API (free, 71,520+ species) → Gemini AI → TensorFlow.js Local AI → Educational data (21+ Karnataka plants).
-- **Health Assessment**: Gemini → OpenAI → Anthropic (detects wounds, injuries, malnutrition, disease) → TensorFlow.js Local analysis → Educational.
+- **Health Assessment** (HYBRID TWO-STAGE): 
+  - **Stage 1 - Local AI Feature Extraction**: MobileNet classification + pixel-level visual analysis (red tones for blood, dark patches for bruises, color variance for anomalies)
+  - **Stage 2 - Cloud AI Enhanced Analysis**: Gemini/OpenAI/Anthropic receive BOTH image + extracted features for superior accuracy
+  - **Benefits**: Lower API costs, better accuracy (two-stage verification), faster responses, graceful fallback
+  - **Fallback**: Cloud AI with features → Cloud AI without features → Local AI basic assessment → Educational
 - **Poaching Detection**: Gemini → OpenAI → Anthropic (detects weapons, traps, suspicious activity) → TensorFlow.js Local scanning → Educational fallback.
 - **TensorFlow.js Local AI**: Real AI backup using MobileNet model for offline operation when cloud APIs unavailable. Model loads on server startup (~5MB, cached). Provides actual computer vision analysis, not pattern matching.
+- **HYBRID AI ARCHITECTURE** (NEW - November 16, 2025):
+  - **Two-Stage Processing**: Local AI extracts visual features first, then Cloud AI analyzes using those features for enhanced accuracy
+  - **Feature Extraction** (`extractVisualFeatures`):
+    - MobileNet classification (top 5 predictions with confidence scores)
+    - Pixel-level RGB analysis (channel means, standard deviation)
+    - Visual anomaly detection: red tones (blood), dark patches (bruises), color variance (irregular patterns)
+    - Outputs structured feature data + human-readable description
+  - **Enhanced Prompts**: All Cloud AI providers receive "PRE-ANALYSIS" section with Local AI findings:
+    - MobileNet predictions (e.g., "tiger, panthera tigris 85% confidence")
+    - Visual cues flagged with warnings (e.g., "Red tones: YES ⚠️ POSSIBLE BLOOD/WOUNDS")
+    - Feature description for context
+  - **Memory Safety**: All TensorFlow tensors properly disposed via try/finally and tf.tidy() to prevent memory leaks
+  - **Applied To**: Currently health assessment (wound detection), planned for animal identification
+  - **Performance**: Free instant pre-processing + more focused Cloud AI = lower costs, better accuracy, faster responses
+  - **Documentation**: See HYBRID_AI_SYSTEM.md for full technical details
 - **Free API Integration**: 
     - **PlantNet API**: Free plant identification service, specialized botanical database, no API key cost
     - **iNaturalist API**: Free species enrichment for additional conservation data
