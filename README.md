@@ -1,26 +1,66 @@
-# 🦁 Wild Guard 4.0 - Wildlife Conservation Platform
+# 🦁 WildGuard 4.0 - Wildlife Conservation Platform
 
-> **AI-Powered Animal Identification & Poaching Detection System**
+> **AI-Powered Wildlife Identification, GPS Tracking, Poaching Detection & Injury Assessment System**
+
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/YOUR_USERNAME/WildGuard)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue)](https://www.python.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+---
+
+## 🌟 Features
+
+✨ **Wildlife Identification** - TensorFlow AI (1000+ species, ImageNet)  
+📍 **GPS Tracking** - Real-time location capture with visual status  
+🚨 **Poaching Detection** - YOLOv11 (72 classes: weapons, vehicles, humans)  
+🏥 **Injury Assessment** - YOLO COCO (80 classes for health monitoring)  
+👨‍💼 **Admin Dashboard** - Complete management system  
+💬 **AI Chat** - Wildlife assistant powered by Gemini & DeepSeek  
+🌱 **Flora Database** - Plant identification & uses  
+👥 **Community Forum** - User engagement & reporting  
+
+---
+
+## 🚀 Quick Deploy
+
+### **Option 1: One-Click Deployment (Recommended)**
+```powershell
+.\deploy.ps1
+```
+Choose your deployment method and follow the prompts!
+
+### **Option 2: Start Locally**
+```powershell
+.\START_ALL_SERVICES.ps1
+```
+
+### **Access Application**
+- **Frontend**: http://localhost:5000
+- **TensorFlow AI**: http://localhost:5001
+- **Poaching Detection**: http://localhost:5002
+- **Injury Detection**: http://localhost:5004
+
+---
+
+## 📚 Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [🚀 Quick Deploy](QUICK_DEPLOY.md) | 3-minute setup guide |
+| [📖 Full Deployment Guide](DEPLOYMENT_GUIDE.md) | Complete deployment documentation |
+| [🐙 GitHub Setup](GITHUB_SETUP.md) | Push to GitHub repository |
+| [🏗️ System Architecture](SYSTEM_ARCHITECTURE.md) | Technical documentation |
+| [🧪 Test Results](TEST_RESULTS_SUMMARY.md) | Performance evaluation |
 
 ---
 
 ## ✅ System Status
 
-**All Services**: 🟢 **RUNNING**  
-**Database**: 🟢 **CONNECTED** (26 animals, 12 identifications)  
-**AI Models**: 🟢 **OPERATIONAL** (TensorFlow + YOLOv11)
-
----
-
-## 🚀 Quick Start
-
-### Start All Services
-```powershell
-.\START.ps1
-```
-
-### Access Application
-**URL**: http://localhost:5000
+**All Services**: 🟢 **OPERATIONAL**  
+**Database**: 🟢 **CONNECTED** (PostgreSQL 13)  
+**AI Models**: 🟢 **LOADED** (TensorFlow + YOLOv11)  
+**GPS Tracking**: 🟢 **ENABLED**
 
 ---
 

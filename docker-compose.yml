@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13-alpine
+    container_name: wildguard-db
+    environment:
+      POSTGRES_DB: wild_guard_db
+      POSTGRES_USER: wildguard
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-wildguard_secure_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - wildguard-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wildguard -d wild_guard_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Main Application (Backend + AI Services)
+  app:
+    build: .
+    container_name: wildguard-app
+    ports:
+      - "5000:5000"  # Main backend
+      - "5001:5001"  # TensorFlow AI
+      - "5002:5002"  # Poaching detection
+      - "5004:5004"  # Injury detection
+    environment:
+      # Database
+      DATABASE_URL: postgresql://wildguard:${DB_PASSWORD:-wildguard_secure_password}@postgres:5432/wild_guard_db
+      
+      # AI Service URLs (internal Docker network)
+      TENSORFLOW_SERVICE_URL: http://localhost:5001
+      POACHING_SERVICE_URL: http://localhost:5002
+      INJURY_SERVICE_URL: http://localhost:5004
+      
+      # API Keys
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      INATURALIST_API_KEY: ${INATURALIST_API_KEY}
+      
+      # Session
+      SESSION_SECRET: ${SESSION_SECRET:-generate_your_secure_secret_here}
+      
+      # Environment
+      NODE_ENV: production
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:5000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount AI model directories (persistent storage)
+      - ai_models:/app/ai_models
+      - poaching_models:/app/Poaching_Detection/runs
+      - uploads:/app/uploads
+    networks:
+      - wildguard-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Optional: PgAdmin for Database Management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: wildguard-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@wildguard.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - wildguard-network
+    profiles:
+      - admin  # Only start with: docker-compose --profile admin up
+
+volumes:
+  postgres_data:
+    driver: local
+  ai_models:
+    driver: local
+  poaching_models:
+    driver: local
+  uploads:
+    driver: local
+
+networks:
+  wildguard-network:
+    driver: bridge
