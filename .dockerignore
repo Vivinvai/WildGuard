@@ -1,0 +1,60 @@
+# Git
+.git
+.gitignore
+.github
+
+# Dependencies
+node_modules
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Build outputs
+dist
+build
+*.egg-info
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Testing
+.coverage
+htmlcov
+.pytest_cache
+.ipynb_checkpoints
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Large files
+datasets
+Poaching_Detection/dataset
+Poaching_Detection/runs
+ai_models/mobilenet_v2
+
+# Temporary files
+tmp
+temp
+*.tmp
