@@ -174,6 +174,39 @@ export default function SatelliteMonitoring() {
                     </div>
                   )}
 
+                  {data.fires && data.fires.detected && (
+                    <div className="p-4 bg-orange-100 dark:bg-orange-950/30 rounded-lg border-l-4 border-orange-500">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-semibold text-orange-800 dark:text-orange-300">
+                            🔥 Active Fires Detected (NASA FIRMS)
+                          </p>
+                          <p className="text-sm text-orange-700 dark:text-orange-400 mt-1">
+                            {data.fires.count} fire location(s) in the area
+                          </p>
+                          {data.fires.recentFires && data.fires.recentFires.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              {data.fires.recentFires.slice(0, 3).map((fire: any, idx: number) => (
+                                <div key={idx} className="text-xs bg-orange-200 dark:bg-orange-900/30 p-2 rounded">
+                                  📍 {fire.latitude.toFixed(4)}, {fire.longitude.toFixed(4)} • 
+                                  Confidence: {fire.confidence} • 
+                                  Brightness: {fire.brightness.toFixed(0)}K • 
+                                  {fire.date}
+                                </div>
+                              ))}
+                              {data.fires.recentFires.length > 3 && (
+                                <p className="text-xs text-orange-600 dark:text-orange-500 mt-1">
+                                  +{data.fires.recentFires.length - 3} more fires detected
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-lg">
                     <p className="font-semibold mb-2">Forest Density: {data.vegetation.forestDensity}</p>
                     <p className="text-sm text-gray-700 dark:text-gray-300">

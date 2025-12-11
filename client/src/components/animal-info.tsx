@@ -17,6 +17,9 @@ export function AnimalInfo({ identification }: AnimalInfoProps) {
 
   const isEndangered = identification.conservationStatus.toLowerCase().includes('endangered') || 
                       identification.conservationStatus.toLowerCase().includes('critical');
+  
+  // Only show rescue center for endangered animals
+  const shouldShowRescueCenter = isEndangered;
 
   const getConservationStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -44,59 +47,72 @@ export function AnimalInfo({ identification }: AnimalInfoProps) {
     }
   };
 
+  const sectionBase = "rounded-xl border border-border/60 bg-white/80 dark:bg-slate-900/70 shadow-sm";
+  const mutedText = "text-sm text-muted-foreground leading-relaxed";
+
   return (
-    <Card className="fade-in shadow-lg border-0 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm" data-testid="animal-info-card">
-      <CardContent className="p-6">
-        <div className="bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 p-4 rounded-xl mb-6">
-          <h2 className="text-xl font-bold text-center mb-4 text-foreground">🌿 Species Identified</h2>
-        </div>
-        
-        <div className="flex items-start space-x-4 mb-6">
-          <div className="relative">
+    <Card className="fade-in shadow-lg border border-border/70 bg-white/90 dark:bg-slate-950/70 backdrop-blur" data-testid="animal-info-card">
+      <CardContent className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-start gap-4 pb-3 border-b border-border/50">
+          <div className="relative shrink-0">
             <img
               src={identification.imageUrl}
               alt={identification.speciesName}
               className="w-24 h-24 rounded-xl object-cover shadow-lg ring-2 ring-primary/20"
               data-testid="img-identified-animal"
             />
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center shadow-lg">
+            <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-secondary to-primary rounded-full flex items-center justify-center shadow-md">
               <span className="text-white text-sm font-bold">✓</span>
             </div>
           </div>
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent" data-testid="text-species-name">
-              {identification.speciesName}
-            </h3>
-            <p className="text-muted-foreground text-sm italic" data-testid="text-scientific-name">
-              {identification.scientificName}
-            </p>
-            <div className="flex items-center mt-2">
+          <div className="flex-1 space-y-2 min-w-0">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="text-2xl font-bold text-foreground truncate" data-testid="text-species-name">
+                  {identification.speciesName}
+                </h3>
+                <p className="text-muted-foreground text-sm italic truncate" data-testid="text-scientific-name">
+                  {identification.scientificName}
+                </p>
+              </div>
               <span
-                className={`px-4 py-2 text-xs font-bold rounded-full shadow-md ${getConservationStatusColor(identification.conservationStatus)}`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow ${getConservationStatusColor(identification.conservationStatus)}`}
                 data-testid="badge-conservation-status"
               >
                 {identification.conservationStatus}
               </span>
-              {identification.population && identification.population !== 'Unknown' && (
-                <span className="ml-2 text-xs text-muted-foreground" data-testid="text-population">
-                  Population: {identification.population}
-                </span>
-              )}
             </div>
-            <div className="mt-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-foreground">
-                  AI Confidence:
-                </span>
-                <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500"
-                    style={{ width: `${Math.round(identification.confidence * 100)}%` }}
-                  ></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+              <div className={`${sectionBase} px-4 py-3 min-h-[96px]`} data-testid="text-confidence">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">AI Confidence</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500"
+                      style={{ width: `${Math.min(Math.round(identification.confidence * 100), 99.9)}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-base font-semibold text-primary">
+                    {Math.min(Math.round(identification.confidence * 100), 99.9)}%
+                  </span>
                 </div>
-                <span className="text-sm font-bold text-primary">
-                  {Math.round(identification.confidence * 100)}%
-                </span>
+              </div>
+              <div className={`${sectionBase} px-4 py-3 min-h-[96px]`}>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Threats</p>
+                <p className="font-semibold text-foreground leading-normal mt-1">{identification.threats?.length || 0}</p>
+              </div>
+              <div className={`${sectionBase} px-4 py-3 min-h-[96px]`}>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Habitat</p>
+                <p className="font-semibold text-foreground leading-normal mt-1 whitespace-normal break-words" title={identification.habitat || 'Not recorded'}>
+                  {identification.habitat || 'Not recorded'}
+                </p>
+              </div>
+              <div className={`${sectionBase} px-4 py-3 min-h-[96px]`}
+                data-testid="text-population">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Population</p>
+                <p className="font-semibold text-foreground leading-normal mt-1 whitespace-normal break-words" title={identification.population || 'Not recorded'}>
+                  {identification.population && identification.population !== 'Unknown' ? identification.population : 'Not recorded'}
+                </p>
               </div>
             </div>
           </div>
@@ -104,52 +120,81 @@ export function AnimalInfo({ identification }: AnimalInfoProps) {
         
         {/* Location Section - Animal was seen here */}
         {identification.latitude != null && identification.longitude != null && (
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 p-4 rounded-xl border border-blue-200 dark:border-blue-800 mb-4">
-            <div className="flex items-start">
-              <MapPin className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-1">Animal was seen here</h4>
-                <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                  <p data-testid="text-location-coordinates">
-                    📍 Location: {identification.latitude.toFixed(6)}, {identification.longitude.toFixed(6)}
+          <div className={`${sectionBase} p-4`}> 
+            <div className="flex items-start gap-2">
+              <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div className="flex-1 space-y-1">
+                <h4 className="font-semibold text-foreground">Animal was seen here</h4>
+                <p className={mutedText} data-testid="text-location-coordinates">
+                  📍 {identification.latitude.toFixed(6)}, {identification.longitude.toFixed(6)}
+                </p>
+                {identification.locationName && (
+                  <p className="text-sm font-medium text-foreground" data-testid="text-location-name">
+                    {identification.locationName}
                   </p>
-                  {identification.locationName && (
-                    <p data-testid="text-location-name" className="font-medium">
-                      {identification.locationName}
-                    </p>
-                  )}
-                  <a 
-                    href={`https://www.google.com/maps?q=${identification.latitude},${identification.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline mt-2"
-                    data-testid="link-view-on-map"
-                  >
-                    <Navigation className="w-4 h-4 mr-1" />
-                    View on Map
-                  </a>
-                </div>
+                )}
+                <a 
+                  href={`https://www.google.com/maps?q=${identification.latitude},${identification.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                  data-testid="link-view-on-map"
+                >
+                  <Navigation className="w-4 h-4 mr-1" />
+                  View on Map
+                </a>
               </div>
             </div>
           </div>
         )}
         
         <div className="space-y-4">
-          <div>
-            <h4 className="font-medium mb-2">Habitat & Distribution</h4>
-            <p className="text-sm text-muted-foreground" data-testid="text-habitat">
-              {identification.habitat}
-            </p>
+          {identification.description && (
+            <div className={`${sectionBase} p-4`}>
+              <h4 className="font-semibold text-foreground mb-2">About this Species</h4>
+              <p className={mutedText} data-testid="text-description">
+                {identification.description}
+              </p>
+            </div>
+          )}
+          
+          {/* Conservation Status Section */}
+          <div className={`${sectionBase} p-4`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h4 className="font-semibold text-foreground">Conservation Status</h4>
+                {identification.population && identification.population !== 'Unknown' && (
+                  <p className="text-sm text-muted-foreground" data-testid="text-population-detail">
+                    Population: {identification.population}
+                  </p>
+                )}
+              </div>
+              <span
+                className={`px-4 py-2 text-sm font-bold rounded-full shadow ${getConservationStatusColor(identification.conservationStatus)}`}
+              >
+                {identification.conservationStatus}
+              </span>
+            </div>
           </div>
           
+          {/* Habitat & Distribution Section */}
+          {identification.habitat && (
+            <div className={`${sectionBase} p-4`}>
+              <h4 className="font-semibold text-foreground mb-2">🌍 Habitat & Distribution</h4>
+              <p className={mutedText} data-testid="text-habitat">
+                {identification.habitat}
+              </p>
+            </div>
+          )}
+          
           {identification.threats && identification.threats.length > 0 && (
-            <div>
-              <h4 className="font-medium mb-2">Conservation Threats</h4>
+            <div className={`${sectionBase} p-4`}>
+              <h4 className="font-semibold text-foreground mb-3">⚠️ Conservation Threats</h4>
               <div className="flex flex-wrap gap-2">
                 {identification.threats.map((threat, index) => (
                   <span
                     key={index}
-                    className="bg-muted px-2 py-1 text-xs rounded"
+                    className="bg-red-100 dark:bg-red-900/70 text-red-800 dark:text-red-200 px-3 py-1.5 text-xs font-medium rounded-full border border-red-200 dark:border-red-700"
                     data-testid={`badge-threat-${index}`}
                   >
                     {threat}
@@ -159,15 +204,32 @@ export function AnimalInfo({ identification }: AnimalInfoProps) {
             </div>
           )}
 
-          {/* Emergency/Rescue Center Section for Endangered Animals */}
-          {isEndangered && (
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 p-4 rounded-xl border border-orange-200 dark:border-orange-800 mb-4">
+          {/* Emergency/Rescue Center Section for ALL Animals */}
+          {shouldShowRescueCenter && (
+            <div className={`${sectionBase} p-4`}>
               <div className="flex items-center mb-3">
-                <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
-                <h4 className="font-semibold text-orange-800 dark:text-orange-200">Endangered Species Alert</h4>
+                {isEndangered ? (
+                  <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
+                ) : (
+                  <Shield className="w-5 h-5 text-green-600 mr-2" />
+                )}
+                <h4 className={`font-semibold ${
+                  isEndangered 
+                    ? 'text-orange-800 dark:text-orange-200'
+                    : 'text-green-800 dark:text-green-200'
+                }`}>
+                  {isEndangered ? 'Endangered Species Alert' : 'Wildlife Information & Assistance'}
+                </h4>
               </div>
-              <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
-                This species is {identification.conservationStatus.toLowerCase()}. If you've encountered an injured or distressed animal, find the nearest rescue center.
+              <p className={`text-sm mb-3 ${
+                isEndangered
+                  ? 'text-orange-700 dark:text-orange-300'
+                  : 'text-green-700 dark:text-green-300'
+              }`}>
+                {isEndangered 
+                  ? `⚠️ This species is ${identification.conservationStatus}. If you've encountered an injured or distressed animal, immediately contact the nearest rescue center.`
+                  : `🦁 Conservation Status: ${identification.conservationStatus}. If you spot an injured or distressed ${identification.speciesName}, find help below.`
+                }
               </p>
               
               {!showRescueCenter ? (
@@ -181,7 +243,7 @@ export function AnimalInfo({ identification }: AnimalInfoProps) {
                     }
                   }}
                   disabled={isLoading}
-                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                  className={isEndangered ? 'bg-orange-600 hover:bg-orange-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'}
                   data-testid="button-find-rescue-center"
                 >
                   <Navigation className="w-4 h-4 mr-2" />

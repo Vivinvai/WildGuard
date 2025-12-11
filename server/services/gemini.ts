@@ -8,6 +8,7 @@ export interface AnimalAnalysisResult {
   habitat: string;
   threats: string[];
   confidence: number;
+  description?: string;
 }
 
 export interface FloraAnalysisResult {
@@ -24,6 +25,9 @@ export interface FloraAnalysisResult {
 
 // DON'T DELETE THIS COMMENT - Based on javascript_gemini blueprint
 // Using Gemini 2.5 Flash for animal identification
+
+// Export for compatibility with multi-ai-verification
+export const analyzeAnimalImage = analyzeAnimalWithGemini;
 
 export async function analyzeAnimalWithGemini(imageBase64: string): Promise<AnimalAnalysisResult> {
   try {

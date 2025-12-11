@@ -19,6 +19,13 @@ import { analyzeAnimalImage } from './openai';
 import { analyzeFloraWithGemini } from './gemini';
 import { identifyAnimalFree, karnatakaWildlife } from './free-animal-id';
 import { crossVerifyAnimal, shouldUseCrossVerification } from './ai-cross-verification';
+import { 
+  isDeepSeekAvailable, 
+  identifyAnimalWithDeepSeek, 
+  identifyFloraWithDeepSeek,
+  wildlifeChatWithDeepSeek 
+} from './deepseek';
+import { verifyAnimalWithMultipleAI } from './multi-ai-verification';
 
 export type AIFeature = 
   | 'animal_identification'
@@ -43,37 +50,118 @@ export interface AIResult {
  */
 export class AIOrchestrator {
   /**
-   * Identify animal using GEMINI-FIRST strategy with CROSS-VERIFICATION
-   * Strategy: Use multiple AI providers to verify each other for higher accuracy
-   * Gemini AI (primary) + Cross-verification → Local AI → Educational
+   * Identify animal using ENHANCED MULTI-AI strategy
+   * NEW: MobileNet (1000+ ImageNet classes) → Database (26 animals, 40+ fields) → Multi-AI Cross-Verification
+   * Strategy: Computer Vision + Knowledge Base + AI Intelligence = Maximum Accuracy
    */
   async identifyAnimal(base64Image: string): Promise<AIResult> {
     const feature = 'animal_identification';
     
-    // SMART MODE: Use cross-verification for ~30% of requests (higher accuracy)
-    if (shouldUseCrossVerification()) {
-      console.log(`[${feature}] 🔬 CROSS-VERIFICATION MODE: Using multiple AI providers for consensus-based identification`);
+    // ENHANCED MODE: Multi-AI Verification with MobileNet + Database
+    // This uses ALL available providers for maximum accuracy
+    const USE_MULTI_AI = process.env.ENABLE_MULTI_AI_VERIFICATION === 'true' || shouldUseCrossVerification();
+    
+    if (USE_MULTI_AI) {
+      console.log(`[${feature}] 🔬 MULTI-AI VERIFICATION MODE:`);
+      console.log(`[${feature}]    1. MobileNet detects from 1000+ ImageNet classes`);
+      console.log(`[${feature}]    2. PostgreSQL enhances with 40+ identification fields`);
+      console.log(`[${feature}]    3. Cross-verify with Gemini, Claude, DeepSeek, OpenAI`);
+      console.log(`[${feature}]    4. Calculate consensus for final identification`);
+      
       try {
-        const verification = await crossVerifyAnimal(base64Image);
-        console.log(`[${feature}] ✅ Cross-verification complete: ${verification.finalResult.speciesName}`);
-        console.log(`[${feature}]    Providers: ${verification.providersUsed.join(', ')}`);
-        console.log(`[${feature}]    Consensus: ${verification.consensusLevel} (${(verification.confidence * 100).toFixed(1)}% confidence)`);
+        const verification = await verifyAnimalWithMultipleAI(base64Image);
         
+        console.log(`[${feature}] ✅ Multi-AI Verification complete!`);
+        console.log(`[${feature}]    Final: ${verification.finalSpecies}`);
+        console.log(`[${feature}]    Consensus: ${verification.consensusLevel} (${(verification.consensusScore * 100).toFixed(0)}%)`);
+        console.log(`[${feature}]    Providers: ${verification.providersUsed.join(', ')}`);
+        console.log(`[${feature}]    Database Enhanced: ${verification.databaseEnhanced ? 'YES' : 'NO'}`);
+        
+        // Convert to standard format
         return {
-          data: verification.finalResult,
+          data: {
+            speciesName: verification.finalSpecies,
+            scientificName: verification.finalScientificName,
+            conservationStatus: verification.conservationStatus,
+            confidence: verification.finalConfidence,
+            habitat: verification.habitat,
+            threats: verification.threats,
+            population: verification.population,
+            
+            // Enhanced fields from database
+            identificationTips: verification.identificationTips,
+            similarSpecies: verification.similarSpecies,
+            
+            // Verification metadata
+            verificationMethod: verification.verificationMethod,
+            consensusLevel: verification.consensusLevel,
+            providersUsed: verification.providersUsed,
+            databaseEnhanced: verification.databaseEnhanced,
+          },
           provider: 'cloud_ai',
-          confidence: verification.confidence,
-          method: `Multi-AI Verification (${verification.providersUsed.join(' + ')}) - ${verification.consensusLevel} consensus`,
+          confidence: verification.finalConfidence,
+          method: `Enhanced Multi-AI (${verification.providersUsed.length} providers, ${verification.consensusLevel} consensus, DB-enhanced)`,
         };
+        
       } catch (verificationError) {
-        console.log(`[${feature}] ⚠️ Cross-verification failed, falling back to standard mode:`, (verificationError as Error).message);
+        console.log(`[${feature}] ⚠️ Multi-AI verification failed:`, (verificationError as Error).message);
+        console.log(`[${feature}]    Falling back to standard cascade mode...`);
       }
     }
     
     // STANDARD MODE: Single provider cascade (faster)
-    // Tier 1: Gemini AI (PRIMARY - Most accurate for wildlife)
+    // Tier 1: Gemini AI (Google's BEST vision model for wildlife)
     try {
-      console.log(`[${feature}] 🌐 Tier 1: Attempting Gemini AI (Google's most accurate vision model)...`);
+      console.log(`[${feature}] 🌐 Tier 1: Attempting Gemini AI (Google's vision model - MOST ACCURATE)...`);
+      const data = await analyzeAnimalImage(base64Image);
+      console.log(`[${feature}] ✅ Gemini AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
+      return {
+        data,
+        provider: 'cloud_ai',
+        confidence: data.confidence,
+        method: 'Gemini 2.0 Flash Vision (Google Cloud AI)',
+      };
+    } catch (geminiError) {
+      console.log(`[${feature}] ⚠️ Gemini failed:`, (geminiError as Error).message);
+    }
+    
+    // Tier 2: TensorFlow + DeepSeek AI (Hybrid - Fallback when Gemini unavailable)
+    if (isDeepSeekAvailable()) {
+      try {
+        console.log(`[${feature}] 🎯 Tier 2: TensorFlow → DeepSeek AI (Hybrid Approach)...`);
+        
+        // Step 1: Use TensorFlow for visual detection
+        console.log(`[${feature}]   → Running TensorFlow visual detection...`);
+        const tfResult = await identifyAnimalLocally(base64Image);
+        console.log(`[${feature}]   → TensorFlow detected: ${tfResult.speciesName} (${(tfResult.confidence * 100).toFixed(1)}%)`);
+        
+        // Step 2: Enhance with DeepSeek knowledge
+        console.log(`[${feature}]   → Enhancing with DeepSeek AI knowledge...`);
+        const deepseekResult = await identifyAnimalWithDeepSeek(
+          {
+            species: tfResult.speciesName,
+            confidence: tfResult.confidence,
+            detectedClasses: [tfResult.speciesName], // Could add top 3 predictions
+          },
+          'Karnataka wildlife - provide detailed, accurate information'
+        );
+        
+        console.log(`[${feature}] ✅ Hybrid AI success: ${deepseekResult.species} (${(deepseekResult.confidence * 100).toFixed(1)}%)`);
+        return {
+          data: deepseekResult,
+          provider: 'cloud_ai',
+          confidence: deepseekResult.confidence,
+          method: 'TensorFlow Vision + DeepSeek Knowledge (Hybrid AI)',
+        };
+      } catch (deepseekError) {
+        console.log(`[${feature}] ⚠️ Hybrid AI failed:`, (deepseekError as Error).message);
+        console.log(`[${feature}]    Falling back to Local TensorFlow...`);
+      }
+    }
+    
+    // Tier 3: Local TensorFlow.js AI backup (when cloud unavailable)
+    try {
+      console.log(`[${feature}] 🌐 Tier 2: Attempting Gemini AI (Google's most accurate vision model)...`);
       const data = await analyzeAnimalImage(base64Image);
       console.log(`[${feature}] ✅ Gemini AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
       return {
@@ -86,9 +174,9 @@ export class AIOrchestrator {
       console.log(`[${feature}] ⚠️ Gemini failed:`, (geminiError as Error).message);
     }
     
-    // Tier 2: Local TensorFlow.js AI backup (when cloud unavailable)
+    // Tier 3: Local TensorFlow.js AI backup (when cloud unavailable)
     try {
-      console.log(`[${feature}] 🎯 Tier 2: Attempting Local TensorFlow.js AI (FREE, offline)...`);
+      console.log(`[${feature}] 🎯 Tier 3: Attempting Local TensorFlow.js AI (FREE, offline)...`);
       const data = await identifyAnimalLocally(base64Image);
       console.log(`[${feature}] ✅ Local AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
       return {

@@ -35,9 +35,9 @@ export const discoverAnimalsData: Omit<InsertDiscoverAnimal, 'viewCount' | 'feat
     imageUrl: "https://images.unsplash.com/photo-1615963244664-5b845b2025ee?w=800",
     
     videoUrls: [
-      "https://www.youtube.com/embed/XCBGJXCu4P8",  // BBC Earth Tiger documentary
-      "https://www.youtube.com/embed/BdLYGEZTcUM",  // National Geographic Tigers
-      "https://www.youtube.com/embed/2MXklbze5Zs"   // Tiger hunting behavior
+      "https://www.youtube.com/embed/iy2cnIwt-x8", // Tiger feature 1
+      "https://www.youtube.com/embed/ja4GNdU2vYc", // Tiger feature 2
+      "https://www.youtube.com/embed/8EXA3mB0Mtk"  // Tiger feature 3
     ],
     
     galleryImages: [
@@ -95,9 +95,8 @@ export const discoverAnimalsData: Omit<InsertDiscoverAnimal, 'viewCount' | 'feat
     imageUrl: "https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=800",
     
     videoUrls: [
-      "https://www.youtube.com/embed/FShE0VifCYs",  // BBC Earth Elephant Intelligence
-      "https://www.youtube.com/embed/TPbroUDQN9k",  // Elephant Families
-      "https://www.youtube.com/embed/FDxmQN3F5bI"   // Wild Karnataka Elephants
+      "https://www.youtube.com/embed/L-nwRCNTx5Y", // Elephant feature 1
+      "https://www.youtube.com/embed/p5LpCK0JxtA"  // Elephant feature 2
     ],
     
     galleryImages: [
@@ -155,9 +154,8 @@ export const discoverAnimalsData: Omit<InsertDiscoverAnimal, 'viewCount' | 'feat
     imageUrl: "https://images.unsplash.com/photo-1551969014-7d2c4cddf0b6?w=800",
     
     videoUrls: [
-      "https://www.youtube.com/embed/FShE0VifCYs",  // Leopard hunting techniques
-      "https://www.youtube.com/embed/axqOJbfFnAs",  // BBC Leopard documentary
-      "https://www.youtube.com/embed/NNJHc85ZRR0"   // Karnataka leopards
+      "https://www.youtube.com/embed/f5LnLLoISv8", // Leopard feature 1
+      "https://www.youtube.com/embed/Pb3gEdr_ti8"  // Leopard feature 2
     ],
     
     galleryImages: [

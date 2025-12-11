@@ -48,6 +48,7 @@ export const animalIdentifications = pgTable("animal_identifications", {
   population: text("population"),
   habitat: text("habitat").notNull(),
   threats: text("threats").array().notNull(),
+  description: text("description"),
   imageUrl: text("image_url").notNull(),
   confidence: real("confidence").notNull(),
   latitude: real("latitude"),
@@ -185,6 +186,36 @@ export const animalSightings = pgTable("animal_sightings", {
   verifiedByIdx: index("animal_sightings_verified_by_idx").on(table.verifiedBy),
 }));
 
+export const poachingAlerts = pgTable("poaching_alerts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  imageUrl: text("image_url").notNull(),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  locationName: text("location_name"),
+  threatLevel: text("threat_level").notNull(), // 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'
+  detectedObjects: jsonb("detected_objects").notNull().$type<Array<{
+    class: string;
+    confidence: number;
+    category: 'weapon' | 'vehicle' | 'human' | 'animal';
+  }>>(),
+  weaponsCount: real("weapons_count").notNull().default(0),
+  humansCount: real("humans_count").notNull().default(0),
+  vehiclesCount: real("vehicles_count").notNull().default(0),
+  animalsCount: real("animals_count").notNull().default(0),
+  alertMessage: text("alert_message").notNull(),
+  reviewed: boolean("reviewed").default(false).notNull(),
+  reviewedBy: varchar("reviewed_by").references(() => adminUsers.id, { onDelete: "set null" }),
+  reviewedAt: timestamp("reviewed_at"),
+  reportNotes: text("report_notes"),
+  actionTaken: text("action_taken"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  threatLevelIdx: index("poaching_alerts_threat_level_idx").on(table.threatLevel),
+  reviewedIdx: index("poaching_alerts_reviewed_idx").on(table.reviewed),
+  createdAtIdx: index("poaching_alerts_created_at_idx").on(table.createdAt),
+  locationIdx: index("poaching_alerts_location_idx").on(table.latitude, table.longitude),
+}));
+
 export const certificates = pgTable("certificates", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   sightingId: varchar("sighting_id").references(() => animalSightings.id, { onDelete: "cascade" }),
@@ -304,6 +335,24 @@ export const animalAdoptions = pgTable("animal_adoptions", {
   emailIdx: index("animal_adoptions_email_idx").on(table.email),
 }));
 
+export const donations = pgTable("donations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  amount: real("amount").notNull(),
+  message: text("message"),
+  paymentMethod: text("payment_method").notNull().default('card'), // 'card', 'upi', 'netbanking', 'wallet'
+  paymentStatus: text("payment_status").notNull().default('pending'), // 'pending', 'completed', 'failed'
+  transactionId: text("transaction_id"),
+  receiptNumber: text("receipt_number").unique(),
+  taxCertificateIssued: boolean("tax_certificate_issued").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  emailIdx: index("donations_email_idx").on(table.email),
+  createdAtIdx: index("donations_created_at_idx").on(table.createdAt),
+  paymentStatusIdx: index("donations_payment_status_idx").on(table.paymentStatus),
+}));
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -370,6 +419,14 @@ export const insertAnimalAdoptionSchema = createInsertSchema(animalAdoptions).om
   status: true,
 });
 
+export const insertDonationSchema = createInsertSchema(donations).omit({
+  id: true,
+  createdAt: true,
+  paymentStatus: true,
+  receiptNumber: true,
+  taxCertificateIssued: true,
+});
+
 export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
   id: true,
   createdAt: true,
@@ -384,6 +441,13 @@ export const insertCertificateSchema = createInsertSchema(certificates).omit({
 export const insertUserActivitySchema = createInsertSchema(userActivity).omit({
   id: true,
   timestamp: true,
+});
+
+export const insertPoachingAlertSchema = createInsertSchema(poachingAlerts).omit({
+  id: true,
+  createdAt: true,
+  reviewed: true,
+  reviewedAt: true,
 });
 
 // New AI Conservation Features
@@ -579,12 +643,17 @@ export type VolunteerApplication = typeof volunteerApplications.$inferSelect;
 export type InsertVolunteerApplication = z.infer<typeof insertVolunteerApplicationSchema>;
 export type AnimalAdoption = typeof animalAdoptions.$inferSelect;
 export type InsertAnimalAdoption = z.infer<typeof insertAnimalAdoptionSchema>;
+
+export type Donation = typeof donations.$inferSelect;
+export type InsertDonation = z.infer<typeof insertDonationSchema>;
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 export type Certificate = typeof certificates.$inferSelect;
 export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
 export type UserActivity = typeof userActivity.$inferSelect;
 export type InsertUserActivity = z.infer<typeof insertUserActivitySchema>;
+export type PoachingAlert = typeof poachingAlerts.$inferSelect;
+export type InsertPoachingAlert = z.infer<typeof insertPoachingAlertSchema>;
 export type SoundDetection = typeof soundDetections.$inferSelect;
 export type InsertSoundDetection = z.infer<typeof insertSoundDetectionSchema>;
 export type FootprintAnalysis = typeof footprintAnalyses.$inferSelect;

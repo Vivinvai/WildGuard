@@ -20,7 +20,10 @@ import Chat from "@/pages/chat";
 import WildlifeMap from "@/pages/map";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminPoachingAlerts from "@/pages/admin-poaching-alerts";
+import AnimalDetections from "@/pages/admin/animal-detections";
 import ReportSighting from "@/pages/report-sighting";
+import Donate from "@/pages/donate";
 import PoachingDetection from "@/pages/features/poaching-detection";
 import PopulationPrediction from "@/pages/features/population-prediction";
 import HealthAssessment from "@/pages/features/health-assessment";
@@ -62,8 +65,11 @@ function Router() {
         <Route path="/chat" component={Chat} />
         <Route path="/map" component={WildlifeMap} />
         <Route path="/report-sighting" component={ReportSighting} />
+        <Route path="/donate" component={Donate} />
         <Route path="/admin/login" component={AdminLogin} />
         <Route path="/admin/dashboard" component={AdminDashboard} />
+        <Route path="/admin/poaching-alerts" component={AdminPoachingAlerts} />
+        <Route path="/admin/animal-detections" component={AnimalDetections} />
         <Route path="/features/poaching-detection" component={PoachingDetection} />
         <Route path="/features/population-prediction" component={PopulationPrediction} />
         <Route path="/features/health-assessment" component={HealthAssessment} />

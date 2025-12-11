@@ -275,7 +275,7 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-52 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-xl">
                 <DropdownMenuItem asChild className="focus:bg-blue-50 dark:focus:bg-blue-950/50 cursor-pointer">
-                  <Link href="/discover" className="flex items-center space-x-3 px-3 py-2">
+                  <Link href="/community" className="flex items-center space-x-3 px-3 py-2">
                     <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     <span>NGOs & Volunteer</span>
                   </Link>
@@ -442,7 +442,7 @@ export function Header() {
                   <div className="border-t border-border dark:border-gray-800 pt-3 mt-2">
                     <p className="text-xs text-gray-500 dark:text-gray-400 px-3 mb-2 font-semibold">ACTIONS</p>
                     <Link 
-                      href="/discover" 
+                      href="/community" 
                       onClick={() => setMobileMenuOpen(false)}
                       className="p-3 rounded-lg transition-colors font-medium flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                     >

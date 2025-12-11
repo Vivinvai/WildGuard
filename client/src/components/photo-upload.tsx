@@ -13,11 +13,41 @@ interface PhotoUploadProps {
 
 export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<'checking' | 'enabled' | 'disabled' | 'denied'>('checking');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: recentIdentifications } = useQuery<AnimalIdentification[]>({
     queryKey: ["/api/recent-identifications"],
+  });
+
+  // Check location permission on mount
+  useState(() => {
+    if (navigator.geolocation) {
+      navigator.permissions?.query({ name: 'geolocation' as PermissionName })
+        .then(result => {
+          if (result.state === 'granted') {
+            setLocationStatus('enabled');
+          } else if (result.state === 'denied') {
+            setLocationStatus('denied');
+          } else {
+            setLocationStatus('disabled');
+          }
+          result.onchange = () => {
+            setLocationStatus(result.state === 'granted' ? 'enabled' : result.state === 'denied' ? 'denied' : 'disabled');
+          };
+        })
+        .catch(() => {
+          // Fallback: try to get location to check if it works
+          navigator.geolocation.getCurrentPosition(
+            () => setLocationStatus('enabled'),
+            () => setLocationStatus('denied'),
+            { timeout: 1000 }
+          );
+        });
+    } else {
+      setLocationStatus('denied');
+    }
   });
 
   const getLocationName = async (latitude: number, longitude: number): Promise<string | null> => {
@@ -41,16 +71,33 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
         console.log('Geolocation not supported');
+        setLocationStatus('denied');
+        toast({
+          title: "⚠️ Location Not Available",
+          description: "Your browser doesn't support location services. Identification will continue without GPS tracking.",
+          variant: "default",
+        });
         resolve(null);
         return;
       }
 
+      console.log('🔍 Requesting GPS location...');
+      
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
           
+          console.log(`✅ GPS location captured: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+          setLocationStatus('enabled');
+          
           const locationName = await getLocationName(latitude, longitude);
+          
+          toast({
+            title: "📍 Location Captured",
+            description: `GPS: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}${locationName ? ` • ${locationName}` : ''}`,
+            variant: "default",
+          });
           
           resolve({
             latitude,
@@ -59,10 +106,22 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
           });
         },
         (error) => {
-          console.log('Location permission denied or error:', error);
+          console.log('❌ Location permission denied or error:', error.message);
+          setLocationStatus('denied');
+          
+          toast({
+            title: "⚠️ Location Access Denied",
+            description: "Please enable location permissions in your browser settings to track animal sightings with GPS coordinates.",
+            variant: "destructive",
+          });
+          
           resolve(null);
         },
-        { timeout: 5000, enableHighAccuracy: true }
+        { 
+          timeout: 10000,
+          enableHighAccuracy: true,
+          maximumAge: 0
+        }
       );
     });
   };
@@ -72,20 +131,19 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
       const formData = new FormData();
       formData.append('image', file);
       
+      console.log('📸 Starting animal identification...');
       const location = await getLocation();
+      
       if (location) {
+        console.log(`✅ Including GPS data: ${location.latitude}, ${location.longitude}`);
         formData.append('latitude', location.latitude.toString());
         formData.append('longitude', location.longitude.toString());
         if (location.locationName) {
           formData.append('locationName', location.locationName);
+          console.log(`📍 Location name: ${location.locationName}`);
         }
       } else {
-        // Notify user that location tracking is unavailable
-        toast({
-          title: "Location Unavailable",
-          description: "Location tracking is disabled. Continuing with identification...",
-          variant: "default",
-        });
+        console.log('⚠️ No GPS data available - continuing without location');
       }
       
       const response = await fetch('/api/identify-animal', {
@@ -99,6 +157,7 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
       }
 
       const result = await response.json();
+      console.log('✅ Identification complete:', result.speciesName);
       return result;
     },
     onSuccess: (result: AnimalIdentification) => {
@@ -161,6 +220,48 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
 
   return (
     <div className="space-y-6">
+      {/* GPS Status Banner */}
+      {locationStatus !== 'checking' && (
+        <div className={`p-4 rounded-lg border ${
+          locationStatus === 'enabled' 
+            ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' 
+            : 'bg-orange-50 border-orange-200 dark:bg-orange-950 dark:border-orange-800'
+        }`}>
+          <div className="flex items-center gap-3">
+            {locationStatus === 'enabled' ? (
+              <>
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-green-800 dark:text-green-200">📍 GPS Tracking Enabled</p>
+                  <p className="text-xs text-green-600 dark:text-green-400">Your animal sightings will be tracked with precise location data</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-orange-800 dark:text-orange-200">⚠️ GPS Tracking Disabled</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400">
+                    {locationStatus === 'denied' 
+                      ? 'Location permissions denied. Please enable them in your browser settings.'
+                      : 'Click "Allow" when prompted to enable GPS tracking for accurate wildlife monitoring.'}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <Card>
         <CardContent className="p-6">
           <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 p-4 rounded-lg mb-6">

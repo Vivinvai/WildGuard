@@ -17,7 +17,7 @@ export default function Identify() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-10 space-y-8">
         <BackButton />
         {/* Hero Section */}
         <div className="text-center py-8 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100">
@@ -29,14 +29,14 @@ export default function Identify() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.4fr] gap-10 items-start">
           {/* Photo Upload Section */}
           <div className="space-y-6">
             <PhotoUpload onIdentificationResult={handleIdentificationResult} />
           </div>
 
           {/* Animal Info Card - shown after identification */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:sticky lg:top-6">
             {currentIdentification ? (
               <AnimalInfo identification={currentIdentification} />
             ) : (

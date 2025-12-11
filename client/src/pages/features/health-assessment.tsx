@@ -44,6 +44,25 @@ export default function HealthAssessment() {
       formData.append("image", file);
       formData.append("species", "Unknown");
 
+      // Try to get user location for admin tracking
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 5000,
+              enableHighAccuracy: true
+            });
+          });
+          
+          formData.append("latitude", position.coords.latitude.toString());
+          formData.append("longitude", position.coords.longitude.toString());
+          formData.append("locationName", "User Location");
+        } catch (geoError) {
+          console.log("Location not available:", geoError);
+          // Continue without location
+        }
+      }
+
       const response = await fetch("/api/features/health-assessment", {
         method: "POST",
         body: formData,

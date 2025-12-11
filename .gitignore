@@ -2,16 +2,33 @@
 .env
 .env.local
 .env.production
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnp
+.pnp.js
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 
 # Build Output
 dist/
 build/
+out/
+.next/
 
 # IDE
 .vscode/
@@ -23,19 +40,59 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+.AppleDouble
+.LSOverride
+Desktop.ini
 
 # Logs
 logs/
 *.log
+lerna-debug.log*
+.pnpm-debug.log*
 
 # Database
 *.sqlite
 *.db
+*.sqlite3
+postgres-data/
 
 # Temporary files
 tmp/
 temp/
 .cache/
+*.tmp
+
+# AI Models (Large files - store separately or use Git LFS)
+*.pt
+*.h5
+*.pb
+*.onnx
+*.tflite
+ai_models/mobilenet_v2/
+Injured Animals/Animal Injury/*.pt
+Poaching_Detection/best.pt
+Poaching_Detection/*.pt
+datasets/
+
+# Local data
+.local/
+migrations/
+attached_assets/
+
+# Test files
+test_*.py
+test-*.js
+test-*.ts
+*.test.js
+*.spec.js
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output
+
+# TypeScript
+*.tsbuildinfo
 
 # Replit
 .replit

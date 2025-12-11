@@ -15,6 +15,34 @@ export default function DiscoverPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedAnimal, setSelectedAnimal] = useState<DiscoverAnimal | null>(null);
 
+  const normalizeVideoUrl = (url: string) => {
+    try {
+      const parsed = new URL(url);
+
+      // Normalize YouTube share/watch links to embed format for reliable playback
+      if (parsed.hostname.includes("youtube.com")) {
+        // Handle watch?v=ID
+        if (parsed.pathname === "/watch" && parsed.searchParams.get("v")) {
+          const id = parsed.searchParams.get("v");
+          return `https://www.youtube.com/embed/${id}`;
+        }
+        // Handle already-embedded links, strip extra params
+        if (parsed.pathname.startsWith("/embed/")) {
+          return `https://www.youtube.com${parsed.pathname}`;
+        }
+      }
+
+      if (parsed.hostname === "youtu.be") {
+        const id = parsed.pathname.replace("/", "");
+        return `https://www.youtube.com/embed/${id}`;
+      }
+
+      return url;
+    } catch {
+      return url;
+    }
+  };
+
   // Fetch all animals
   const { data: animals = [], isLoading } = useQuery<DiscoverAnimal[]>({
     queryKey: ["/api/discover-animals"],
@@ -348,7 +376,7 @@ export default function DiscoverPage() {
                       {selectedAnimal.videoUrls.map((url, idx) => (
                         <div key={idx} className="aspect-video rounded-lg overflow-hidden shadow-lg" data-testid={`video-${idx}`}>
                           <iframe
-                            src={url}
+                            src={normalizeVideoUrl(url)}
                             title={`${selectedAnimal.speciesName} Video ${idx + 1}`}
                             className="w-full h-full"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

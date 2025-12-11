@@ -1,5 +1,8 @@
-// Satellite habitat monitoring using simulated Sentinel-2 NDVI data
-// In production, this would integrate with Google Earth Engine API
+// Satellite habitat monitoring using NASA FIRMS API and simulated Sentinel-2 NDVI data
+// Integrates real fire detection data from NASA for comprehensive habitat monitoring
+
+const NASA_FIRMS_API_KEY = process.env.NASA_FIRMS_API_KEY || '';
+const NASA_FIRMS_API_URL = 'https://firms.modaps.eosdis.nasa.gov/api/area/csv';
 
 export interface SatelliteAnalysisResult {
   location: {
@@ -19,6 +22,17 @@ export interface SatelliteAnalysisResult {
     severity: "none" | "low" | "medium" | "high" | "critical";
     areaAffected: number; // in hectares
     changeDetected: string;
+  };
+  fires: {
+    detected: boolean;
+    count: number;
+    recentFires: Array<{
+      latitude: number;
+      longitude: number;
+      brightness: number;
+      confidence: string;
+      date: string;
+    }>;
   };
   vegetation: {
     health: "excellent" | "good" | "fair" | "poor" | "critical";
@@ -72,6 +86,67 @@ function generateHistoricalNDVI(currentNDVI: number, months: number = 12): { dat
   return data;
 }
 
+// Fetch real fire data from NASA FIRMS API
+async function fetchNASAFireData(
+  lat: number,
+  lon: number,
+  days: number = 10
+): Promise<any[]> {
+  if (!NASA_FIRMS_API_KEY) {
+    console.warn('NASA FIRMS API key not configured, using simulated data');
+    return [];
+  }
+
+  try {
+    // Define area of interest (1 degree box around location)
+    const minLat = lat - 0.5;
+    const maxLat = lat + 0.5;
+    const minLon = lon - 0.5;
+    const maxLon = lon + 0.5;
+
+    // NASA FIRMS API endpoint
+    const url = `${NASA_FIRMS_API_URL}/${NASA_FIRMS_API_KEY}/VIIRS_SNPP_NRT/${minLat},${minLon},${maxLat},${maxLon}/${days}`;
+    
+    console.log(`🛰️ Fetching NASA FIRMS fire data for area: ${lat},${lon}`);
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'WildGuard-Conservation-System/1.0'
+      }
+    });
+
+    if (!response.ok) {
+      console.error(`NASA FIRMS API error: ${response.status}`);
+      return [];
+    }
+
+    const csvData = await response.text();
+    
+    // Parse CSV data
+    const lines = csvData.trim().split('\n');
+    if (lines.length <= 1) return []; // No fires detected
+    
+    const headers = lines[0].split(',');
+    const fires = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',');
+      const fireData: any = {};
+      headers.forEach((header, index) => {
+        fireData[header.trim()] = values[index]?.trim() || '';
+      });
+      fires.push(fireData);
+    }
+    
+    console.log(`🔥 Found ${fires.length} fires in the area`);
+    return fires;
+    
+  } catch (error) {
+    console.error('Error fetching NASA FIRMS data:', error);
+    return [];
+  }
+}
+
 export async function analyzeSatelliteData(
   locationName?: string,
   latitude?: number,
@@ -105,6 +180,19 @@ export async function analyzeSatelliteData(
     const previousNDVI = historicalData[historicalData.length - 6].value;
     const ndviChange = currentNDVI - previousNDVI;
 
+    // Fetch real NASA fire data
+    const nasaFires = await fetchNASAFireData(location.lat, location.lon, 10);
+    const fireDetected = nasaFires.length > 0;
+    
+    // Process fire data
+    const recentFires = nasaFires.slice(0, 10).map((fire: any) => ({
+      latitude: parseFloat(fire.latitude || fire.lat),
+      longitude: parseFloat(fire.longitude || fire.lon),
+      brightness: parseFloat(fire.bright_ti4 || fire.brightness || 0),
+      confidence: fire.confidence || 'unknown',
+      date: fire.acq_date || new Date().toISOString().split('T')[0]
+    }));
+
     // Determine vegetation health based on NDVI
     let vegHealth: "excellent" | "good" | "fair" | "poor" | "critical";
     if (currentNDVI > 0.7) vegHealth = "excellent";
@@ -127,6 +215,20 @@ export async function analyzeSatelliteData(
     // Generate alerts and recommendations
     const alerts: string[] = [];
     const recommendations: string[] = [];
+
+    if (fireDetected) {
+      alerts.push(`🔥 ${nasaFires.length} active fire(s) detected in area (NASA FIRMS data)`);
+      const highConfidenceFires = nasaFires.filter((f: any) => 
+        (f.confidence || '').toLowerCase() === 'high' || 
+        parseFloat(f.bright_ti4 || f.brightness || 0) > 330
+      );
+      if (highConfidenceFires.length > 0) {
+        alerts.push(`⚠️ ${highConfidenceFires.length} high-confidence fire alert(s)`);
+      }
+      recommendations.push("Immediate fire response team deployment recommended");
+      recommendations.push("Monitor fire spread using real-time satellite data");
+      recommendations.push("Evacuate wildlife if fires are spreading rapidly");
+    }
 
     if (deforestationDetected) {
       alerts.push(`Vegetation loss detected: ${(Math.abs(ndviChange) * 100).toFixed(1)}% NDVI decrease`);
@@ -165,6 +267,11 @@ export async function analyzeSatelliteData(
         changeDetected: deforestationDetected 
           ? `${(Math.abs(ndviChange) * 100).toFixed(1)}% vegetation loss over 6 months`
           : "No significant deforestation detected",
+      },
+      fires: {
+        detected: fireDetected,
+        count: nasaFires.length,
+        recentFires: recentFires,
       },
       vegetation: {
         health: vegHealth,

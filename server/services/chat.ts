@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import Anthropic from '@anthropic-ai/sdk';
 import { analyzeAnimalWithGemini } from "./gemini";
+import { chatWithDeepSeek, isDeepSeekAvailable } from "./deepseek";
+import { getLocalChatResponse, isLocalChatAvailable } from "./local-chat-bridge";
 
 /*
 <important_code_snippet_instructions>
@@ -63,7 +65,37 @@ Guidelines:
 
 User question: ${userMessage}`;
 
-  // Try OpenAI first if available
+  // Try Local Chat AI first (trained on 150+ wildlife questions)
+  try {
+    const localResponse = await getLocalChatResponse(userMessage);
+    if (localResponse) {
+      console.log("✅ Chat response from Local Wildlife AI");
+      return localResponse;
+    }
+  } catch (error) {
+    console.error("❌ Local chat AI failed:", error);
+  }
+
+  // Try DeepSeek second if available
+  if (isDeepSeekAvailable()) {
+    try {
+      const response = await chatWithDeepSeek([
+        {
+          role: "user",
+          content: systemPrompt
+        }
+      ], 300);
+
+      if (response) {
+        console.log("✅ Chat response generated using DeepSeek");
+        return response.trim();
+      }
+    } catch (error) {
+      console.error("❌ DeepSeek chat failed:", error);
+    }
+  }
+
+  // Try OpenAI second if available
   if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "default_key") {
     try {
       const response = await openai.chat.completions.create({

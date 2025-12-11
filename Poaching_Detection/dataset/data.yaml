@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 72
+names: ['Antelope', 'Badger', 'Bat', 'Bear', 'Bike', 'Binocular', 'Bison', 'Boar', 'Car', 'Cheetah', 'Chimpanzee', 'Coyote', 'Deer', 'Dog', 'Donkey', 'Duck', 'Eagle', 'Elephant', 'Flamingo', 'Fox', 'Giraffe', 'Goat', 'Goose', 'Gorilla', 'Hare', 'Hedgehog', 'Helicopter', 'Hippopotamus', 'Hornbill', 'Horse', 'Humming Bird', 'Hunter', 'Hyena', 'Jeep', 'Kangaroo', 'Knife', 'Koala', 'Leopard', 'Lion', 'Lizard', 'Mouse', 'Okapi', 'Orangutan', 'Otter', 'Owl', 'Ox', 'Panda', 'Parrot', 'Pig', 'Pigeon', 'Pistol', 'Porcupine', 'Possum', 'Raccoon', 'Reindeer', 'Rifle', 'Rinoceros', 'Rope', 'Sandpiper', 'Sheep', 'Snake', 'Sparrow', 'Squirrel', 'Tiger', 'Truck', 'Turkey', 'Van', 'Wolf', 'Wombat', 'Woodpecker', 'X-Bow', 'Zebra']
+
+roboflow:
+  workspace: final-year-project-d06xs
+  project: wildlife-monitoring-and-poaching-detection
+  version: 8
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/final-year-project-d06xs/wildlife-monitoring-and-poaching-detection/dataset/8

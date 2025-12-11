@@ -12,6 +12,7 @@ export interface AnimalAnalysisResult {
   habitat: string;
   threats: string[];
   confidence: number;
+  description?: string;
 }
 
 export async function analyzeAnimalImage(base64Image: string): Promise<AnimalAnalysisResult> {

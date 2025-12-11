@@ -1,0 +1,8 @@
+{
+  "validation_loss": 0.7600885629653931,
+  "validation_accuracy": 0.8055555820465088,
+  "top5_accuracy": 0.9370370507240295,
+  "num_classes": 90,
+  "training_samples": 4320,
+  "validation_samples": 1080
+}

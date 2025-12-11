@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Camera, MapPin, AlertTriangle, BookOpen } from "lucide-react";
+import { Camera, MapPin, AlertTriangle, Heart } from "lucide-react";
 
 export function QuickActions() {
   const handleEmergencyReport = () => {
@@ -41,14 +41,14 @@ export function QuickActions() {
             <AlertTriangle className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span className="hidden sm:inline text-xs font-medium">Emergency</span>
           </Button>
-          <Link href="/learn">
+          <Link href="/donate">
             <Button
               variant="ghost"
-              className="flex flex-col items-center space-y-1 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:bg-orange-100/50 dark:hover:bg-orange-900/50 transition-all duration-200 p-3 rounded-2xl group"
-              data-testid="button-learn"
+              className="flex flex-col items-center space-y-1 text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 hover:bg-pink-100/50 dark:hover:bg-pink-900/50 transition-all duration-200 p-3 rounded-2xl group"
+              data-testid="button-donate"
             >
-              <BookOpen className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="hidden sm:inline text-xs font-medium">Learn</span>
+              <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline text-xs font-medium">Donate</span>
             </Button>
           </Link>
         </div>

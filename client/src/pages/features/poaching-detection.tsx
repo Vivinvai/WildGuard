@@ -199,7 +199,7 @@ export default function PoachingDetection() {
                 AI Detection Results
               </CardTitle>
               <CardDescription>
-                Real-time threat analysis powered by Gemini AI
+                YOLOv11 object detection + Gemini AI vision analysis
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -273,6 +273,31 @@ export default function PoachingDetection() {
                     <p className="text-sm text-blue-700 dark:text-blue-400 whitespace-pre-wrap">{results.evidenceDescription}</p>
                   </div>
 
+                  {results.detections && (
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                      <div className="p-3 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/30 rounded-lg text-center border border-red-200 dark:border-red-800">
+                        <div className="text-2xl font-bold text-red-700 dark:text-red-300">{results.detections.weapons}</div>
+                        <div className="text-xs text-red-600 dark:text-red-400 font-medium">Weapons</div>
+                      </div>
+                      <div className="p-3 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 rounded-lg text-center border border-orange-200 dark:border-orange-800">
+                        <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">{results.detections.humans}</div>
+                        <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">Humans</div>
+                      </div>
+                      <div className="p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950/30 dark:to-yellow-900/30 rounded-lg text-center border border-yellow-200 dark:border-yellow-800">
+                        <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{results.detections.vehicles}</div>
+                        <div className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">Vehicles</div>
+                      </div>
+                      <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/30 rounded-lg text-center border border-green-200 dark:border-green-800">
+                        <div className="text-2xl font-bold text-green-700 dark:text-green-300">{results.detections.animals}</div>
+                        <div className="text-xs text-green-600 dark:text-green-400 font-medium">Animals</div>
+                      </div>
+                      <div className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30 rounded-lg text-center border border-purple-200 dark:border-purple-800">
+                        <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">{results.detections.total}</div>
+                        <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">Total</div>
+                      </div>
+                    </div>
+                  )}
+
                   {results.recommendations && results.recommendations.length > 0 && (
                     <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border-l-4 border-yellow-500 dark:border-yellow-600 rounded">
                       <h4 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-2 flex items-center gap-2">
@@ -306,12 +331,12 @@ export default function PoachingDetection() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Camera className="w-5 h-5 text-purple-600" />
-                Object Detection
+                Weapon & Object Detection
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Identifies humans, vehicles, weapons, and traps in camera footage using Gemini AI vision models
+                YOLOv11 model detects guns, knives, crossbows, vehicles, and humans near wildlife with 72-class precision
               </p>
             </CardContent>
           </Card>

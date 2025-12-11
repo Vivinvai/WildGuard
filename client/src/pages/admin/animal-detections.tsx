@@ -1,0 +1,460 @@
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Calendar, Activity, AlertTriangle, CheckCircle, Eye, Filter, Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+
+interface AnimalDetection {
+  id: string;
+  speciesName: string;
+  scientificName: string;
+  conservationStatus: string;
+  imageUrl: string;
+  confidence: number;
+  latitude: number | null;
+  longitude: number | null;
+  locationName: string | null;
+  createdAt: string;
+  description: string | null;
+  detectionType: 'health_assessment' | 'fauna_identification';
+  sighting: {
+    id: string;
+    animalStatus: string;
+    emergencyStatus: string;
+    description: string;
+    sightedAt: string;
+  } | null;
+}
+
+interface DetectionStats {
+  totalIdentifications: number;
+  totalSightings: number;
+  injuredAnimals: number;
+  criticalCases: number;
+  speciesBreakdown: Array<{ species: string; count: number }>;
+}
+
+export default function AnimalDetections() {
+  const [detections, setDetections] = useState<AnimalDetection[]>([]);
+  const [stats, setStats] = useState<DetectionStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'health' | 'fauna'>('all');
+  const [selectedDetection, setSelectedDetection] = useState<AnimalDetection | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchDetections();
+    fetchStats();
+  }, []);
+
+  const fetchDetections = async () => {
+    try {
+      const response = await fetch('/api/admin/animal-detections');
+      if (!response.ok) throw new Error('Failed to fetch detections');
+      
+      const data = await response.json();
+      setDetections(data.detections || []);
+    } catch (error) {
+      console.error('Error fetching detections:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load animal detections",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/admin/detection-stats');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'healthy': return 'bg-green-500';
+      case 'injured': return 'bg-red-500';
+      case 'sick': return 'bg-orange-500';
+      case 'in_danger': return 'bg-red-700';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getEmergencyColor = (status: string) => {
+    switch (status) {
+      case 'critical': return 'bg-red-700 text-white';
+      case 'urgent': return 'bg-orange-600 text-white';
+      case 'none': return 'bg-gray-300 text-gray-700';
+      default: return 'bg-gray-400 text-white';
+    }
+  };
+
+  const filteredDetections = detections.filter(d => {
+    if (filter === 'all') return true;
+    if (filter === 'health') return d.detectionType === 'health_assessment';
+    if (filter === 'fauna') return d.detectionType === 'fauna_identification';
+    return true;
+  });
+
+  const openInMaps = (lat: number, lng: number) => {
+    window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+  };
+
+  const handleReportToAuthorities = async (detection: AnimalDetection) => {
+    try {
+      // Generate report details
+      const reportDetails = {
+        detectionId: detection.id,
+        species: detection.speciesName,
+        scientificName: detection.scientificName,
+        location: detection.locationName || 'Unknown',
+        coordinates: detection.latitude && detection.longitude 
+          ? `${detection.latitude.toFixed(6)}, ${detection.longitude.toFixed(6)}`
+          : 'Not available',
+        status: detection.sighting?.animalStatus || 'Unknown',
+        emergencyLevel: detection.sighting?.emergencyStatus || 'none',
+        detectedAt: format(new Date(detection.createdAt), 'PPpp'),
+        conservationStatus: detection.conservationStatus,
+        confidence: `${(detection.confidence * 100).toFixed(1)}%`,
+      };
+
+      // Create report text
+      const reportText = `
+🚨 WILDLIFE ALERT REPORT
+
+Species: ${reportDetails.species} (${reportDetails.scientificName})
+Conservation Status: ${reportDetails.conservationStatus}
+Animal Status: ${reportDetails.status}
+Emergency Level: ${reportDetails.emergencyLevel}
+
+Location: ${reportDetails.location}
+Coordinates: ${reportDetails.coordinates}
+Detection Confidence: ${reportDetails.confidence}
+Detected At: ${reportDetails.detectedAt}
+
+Detection ID: ${reportDetails.detectionId}
+
+⚠️ This report was generated by Wild Rescue Guide AI Detection System.
+Please verify and take appropriate action.
+      `.trim();
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(reportText);
+
+      toast({
+        title: "Report Generated",
+        description: "Report details copied to clipboard. You can now share with authorities via email or messaging.",
+        variant: "default",
+      });
+
+      // In a real application, you might want to send this via email API
+      console.log('Report generated:', reportDetails);
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate report",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadReport = (detection: AnimalDetection) => {
+    try {
+      const reportData = {
+        detectionId: detection.id,
+        species: detection.speciesName,
+        scientificName: detection.scientificName,
+        conservationStatus: detection.conservationStatus,
+        location: detection.locationName || 'Unknown',
+        coordinates: {
+          latitude: detection.latitude,
+          longitude: detection.longitude,
+        },
+        status: detection.sighting?.animalStatus || 'Unknown',
+        emergencyLevel: detection.sighting?.emergencyStatus || 'none',
+        confidence: detection.confidence,
+        detectedAt: detection.createdAt,
+        imageUrl: detection.imageUrl,
+        description: detection.description,
+      };
+
+      const reportText = JSON.stringify(reportData, null, 2);
+      const blob = new Blob([reportText], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `wildlife-detection-${detection.id}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Report Downloaded",
+        description: `Detection report saved as wildlife-detection-${detection.id}.json`,
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download report",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-green-950/20 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              Animal Detection Tracking
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Monitor all identified animals and health assessments with location data
+            </p>
+          </div>
+          <Button variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export Data
+          </Button>
+        </div>
+
+        {/* Statistics Cards */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="border-2 border-green-200 dark:border-green-900/40">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Total Identifications
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  {stats.totalIdentifications}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-blue-200 dark:border-blue-900/40">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Total Sightings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                  {stats.totalSightings}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-orange-200 dark:border-orange-900/40">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Injured Animals
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                  {stats.injuredAnimals}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-red-200 dark:border-red-900/40">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Critical Cases
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+                  {stats.criticalCases}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Filters */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="w-5 h-5" />
+              Filter Detections
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex gap-3">
+            <Button
+              variant={filter === 'all' ? 'default' : 'outline'}
+              onClick={() => setFilter('all')}
+            >
+              All ({detections.length})
+            </Button>
+            <Button
+              variant={filter === 'health' ? 'default' : 'outline'}
+              onClick={() => setFilter('health')}
+            >
+              Health Assessments ({detections.filter(d => d.detectionType === 'health_assessment').length})
+            </Button>
+            <Button
+              variant={filter === 'fauna' ? 'default' : 'outline'}
+              onClick={() => setFilter('fauna')}
+            >
+              Fauna Identifications ({detections.filter(d => d.detectionType === 'fauna_identification').length})
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Detections List */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filteredDetections.map((detection) => (
+            <Card key={detection.id} className="border-2 border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-xl">{detection.speciesName}</CardTitle>
+                    <CardDescription className="mt-1">{detection.scientificName}</CardDescription>
+                  </div>
+                  <Badge variant={detection.detectionType === 'health_assessment' ? 'destructive' : 'default'}>
+                    {detection.detectionType === 'health_assessment' ? 'Health' : 'Fauna ID'}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Image */}
+                <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                  <img
+                    src={detection.imageUrl}
+                    alt={detection.speciesName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Detection Info */}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-gray-500 dark:text-gray-400">Confidence</p>
+                    <p className="font-semibold">{(detection.confidence * 100).toFixed(1)}%</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 dark:text-gray-400">Status</p>
+                    <Badge className={getStatusColor(detection.sighting?.animalStatus || 'unknown')}>
+                      {detection.sighting?.animalStatus || 'Unknown'}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Emergency Status */}
+                {detection.sighting?.emergencyStatus && detection.sighting.emergencyStatus !== 'none' && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30">
+                    <AlertTriangle className="w-5 h-5 text-red-600" />
+                    <span className="font-semibold text-red-700 dark:text-red-300">
+                      {detection.sighting.emergencyStatus.toUpperCase()} - Immediate Attention Required
+                    </span>
+                  </div>
+                )}
+
+                {/* Location */}
+                {detection.latitude && detection.longitude && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{detection.locationName || 'Location Available'}</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openInMaps(detection.latitude!, detection.longitude!)}
+                      className="w-full gap-2"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      View on Map ({detection.latitude.toFixed(4)}, {detection.longitude.toFixed(4)})
+                    </Button>
+                  </div>
+                )}
+
+                {/* Timestamp */}
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                  <Calendar className="w-4 h-4" />
+                  <span>
+                    Detected: {format(new Date(detection.createdAt), 'PPp')}
+                  </span>
+                </div>
+
+                {/* Conservation Status */}
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Conservation Status</p>
+                  <Badge variant={detection.conservationStatus.includes('Endangered') ? 'destructive' : 'secondary'}>
+                    {detection.conservationStatus}
+                  </Badge>
+                </div>
+
+                {/* Description */}
+                {detection.description && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+                    {detection.description}
+                  </p>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => handleReportToAuthorities(detection)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                  >
+                    <AlertTriangle className="w-4 h-4" />
+                    Report to Authorities
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDownloadReport(detection)}
+                    className="gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Report
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filteredDetections.length === 0 && (
+          <Card className="p-12">
+            <div className="text-center text-gray-500 dark:text-gray-400">
+              <Activity className="w-16 h-16 mx-auto mb-4 opacity-30" />
+              <p className="text-lg">No detections found</p>
+              <p className="text-sm mt-2">Animal detections will appear here once users start using the system</p>
+            </div>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}

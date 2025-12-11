@@ -33,9 +33,11 @@ export default function WildlifeMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap>(null);
   const markersRef = useRef<Map<number, LeafletMarker>>(new Map());
+  const userLocationMarkerRef = useRef<LeafletMarker>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCenter, setSelectedCenter] = useState<WildlifeCenter | null>(null);
   const [mapInitialized, setMapInitialized] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   // Map the shared data to the format expected by this component
   const wildlifeCenters: WildlifeCenter[] = wildlifeCentersData.map((center, index) => ({
@@ -60,13 +62,46 @@ export default function WildlifeMap() {
   useEffect(() => {
     if (typeof window === "undefined" || !mapRef.current || mapInitialized) return;
 
+    // Get user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.warn('Geolocation error:', error);
+          // Default to Karnataka, India
+          setUserLocation({
+            lat: 12.9716,
+            lng: 77.5946
+          });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      // Default to Karnataka, India if geolocation not supported
+      setUserLocation({
+        lat: 12.9716,
+        lng: 77.5946
+      });
+    }
+
     // Dynamically import Leaflet to handle SSR
     import('leaflet').then((L) => {
       if (mapInstanceRef.current) return; // Already initialized
 
       try {
-        // Initialize map
-        mapInstanceRef.current = L.map(mapRef.current!).setView([12.9716, 77.5946], 7);
+        // Initialize map (will be centered on user location when available)
+        const defaultLat = userLocation?.lat || 12.9716;
+        const defaultLng = userLocation?.lng || 77.5946;
+        mapInstanceRef.current = L.map(mapRef.current!).setView([defaultLat, defaultLng], 7);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap contributors'
@@ -106,10 +141,68 @@ export default function WildlifeMap() {
         }
         mapInstanceRef.current = null;
         markersRef.current.clear();
+        userLocationMarkerRef.current = null;
         setMapInitialized(false);
       }
     };
   }, []);
+
+  // Add user location marker when location is obtained
+  useEffect(() => {
+    if (!mapInitialized || !mapInstanceRef.current || !userLocation) return;
+
+    import('leaflet').then((L) => {
+      // Remove existing user location marker if any
+      if (userLocationMarkerRef.current && mapInstanceRef.current.hasLayer(userLocationMarkerRef.current)) {
+        mapInstanceRef.current.removeLayer(userLocationMarkerRef.current);
+      }
+
+      // Create custom icon for user location
+      const userLocationIcon = L.divIcon({
+        html: `
+          <div style="position: relative;">
+            <div style="
+              width: 20px;
+              height: 20px;
+              background: #3b82f6;
+              border: 3px solid white;
+              border-radius: 50%;
+              box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+              animation: pulse 2s infinite;
+            "></div>
+            <style>
+              @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+              }
+            </style>
+          </div>
+        `,
+        className: 'user-location-marker',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+      });
+
+      // Add user location marker
+      userLocationMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], { 
+        icon: userLocationIcon,
+        zIndexOffset: 1000 // Make sure it's above other markers
+      })
+        .bindPopup(`
+          <div style="text-align: center;">
+            <strong style="color: #3b82f6;">📍 Your Location</strong><br/>
+            <span style="font-size: 12px;">Lat: ${userLocation.lat.toFixed(4)}, Lng: ${userLocation.lng.toFixed(4)}</span>
+          </div>
+        `)
+        .addTo(mapInstanceRef.current);
+
+      // Center map on user location with a nice zoom level
+      mapInstanceRef.current.setView([userLocation.lat, userLocation.lng], 10, {
+        animate: true,
+        duration: 1
+      });
+    }).catch(console.error);
+  }, [mapInitialized, userLocation]);
 
   // Update marker visibility based on filter
   useEffect(() => {

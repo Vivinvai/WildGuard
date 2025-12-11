@@ -25,19 +25,25 @@ export function WildlifeMap() {
             longitude: position.coords.longitude,
           });
         },
-        () => {
-          // Default to San Francisco if geolocation fails
+        (error) => {
+          console.warn('Geolocation error:', error);
+          // Default to Karnataka, India if geolocation fails
           setUserLocation({
-            latitude: 37.7749,
-            longitude: -122.4194,
+            latitude: 12.9716,
+            longitude: 77.5946,
           });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     } else {
-      // Default to San Francisco if geolocation not supported
+      // Default to Karnataka, India if geolocation not supported
       setUserLocation({
-        latitude: 37.7749,
-        longitude: -122.4194,
+        latitude: 12.9716,
+        longitude: 77.5946,
       });
     }
   }, []);
@@ -75,15 +81,51 @@ export function WildlifeMap() {
 
         // Add user location marker
         const userIcon = L.divIcon({
-          html: '<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-pulse"></div>',
+          html: `
+            <div style="position: relative;">
+              <div style="
+                width: 18px;
+                height: 18px;
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                border: 3px solid white;
+                border-radius: 50%;
+                box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), 0 0 5px rgba(37, 99, 235, 0.8);
+              "></div>
+              <div style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 30px;
+                height: 30px;
+                background: rgba(59, 130, 246, 0.2);
+                border: 2px solid rgba(59, 130, 246, 0.3);
+                border-radius: 50%;
+                animation: ripple 2s infinite;
+              "></div>
+              <style>
+                @keyframes ripple {
+                  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                  100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+                }
+              </style>
+            </div>
+          `,
           className: 'custom-div-icon',
-          iconSize: [16, 16],
-          iconAnchor: [8, 8],
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
         });
 
         L.marker([userLocation.latitude, userLocation.longitude], { icon: userIcon })
           .addTo(map)
-          .bindPopup('Your Location');
+          .bindPopup(`
+            <div style="text-align: center; min-width: 120px;">
+              <strong style="color: #3b82f6;">📍 Your Location</strong><br/>
+              <span style="font-size: 11px; color: #666;">
+                ${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}
+              </span>
+            </div>
+          `);
 
         mapInstanceRef.current = map;
         markersRef.current = [];

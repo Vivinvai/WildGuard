@@ -15,9 +15,12 @@ import {
   type AdminUser, type InsertAdminUser,
   type Certificate, type InsertCertificate,
   type UserActivity, type InsertUserActivity,
-  wildlifeCentersData, botanicalGardensData, ngosData
+  type Donation, type InsertDonation,
+  wildlifeCentersData, botanicalGardensData, ngosData,
+  animalIdentifications
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
 import bcrypt from "bcryptjs";
 
 export interface IStorage {
@@ -94,6 +97,14 @@ export interface IStorage {
   
   createAnimalAdoption(adoption: InsertAnimalAdoption): Promise<AnimalAdoption>;
   getAnimalAdoptions(filters?: { animalId?: string; status?: string }): Promise<AnimalAdoption[]>;
+  
+  // Donations
+  createDonation(donation: InsertDonation): Promise<Donation>;
+  getAllDonations(): Promise<Donation[]>;
+  getDonationsByEmail(email: string): Promise<Donation[]>;
+  getDonationByReceipt(receiptNumber: string): Promise<Donation | undefined>;
+  updateDonationStatus(transactionId: string, status: string, paymentId?: string): Promise<Donation | undefined>;
+  getDonationStats(): Promise<{ totalAmount: number; totalDonations: number; averageDonation: number }>;
 }
 
 // DatabaseStorage temporarily disabled to avoid database connection issues
@@ -115,6 +126,7 @@ export class MemStorage implements IStorage {
   private deforestationAlerts: Map<string, DeforestationAlert> = new Map();
   private volunteerApplications: Map<string, VolunteerApplication> = new Map();
   private animalAdoptions: Map<string, AnimalAdoption> = new Map();
+  private donations: Map<string, Donation> = new Map();
   private isInitialized = false;
 
   constructor() {
@@ -317,6 +329,7 @@ export class MemStorage implements IStorage {
       population: identification.population || null,
       habitat: identification.habitat,
       threats: identification.threats,
+      description: identification.description || null,
       imageUrl: identification.imageUrl,
       confidence: identification.confidence,
       latitude: identification.latitude ?? null,
@@ -325,7 +338,34 @@ export class MemStorage implements IStorage {
       createdAt: new Date()
     };
     
+    // Save to both in-memory and database
     this.animalIdentifications.set(result.id, result);
+    
+    // Save to PostgreSQL database
+    try {
+      await db.insert(animalIdentifications).values({
+        id: result.id,
+        userId: result.userId,
+        speciesName: result.speciesName,
+        scientificName: result.scientificName,
+        conservationStatus: result.conservationStatus,
+        population: result.population,
+        habitat: result.habitat,
+        threats: result.threats,
+        description: result.description,
+        imageUrl: result.imageUrl,
+        confidence: result.confidence,
+        latitude: result.latitude,
+        longitude: result.longitude,
+        locationName: result.locationName,
+        createdAt: result.createdAt
+      });
+      console.log('✅ Saved identification to database:', result.speciesName);
+    } catch (dbError) {
+      console.error('❌ Failed to save to database:', dbError);
+      // Continue even if database fails - data is still in memory
+    }
+    
     return result;
   }
 
@@ -1247,6 +1287,70 @@ export class MemStorage implements IStorage {
     }
     
     return adoptions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  // Donation methods
+  async createDonation(donation: InsertDonation): Promise<Donation> {
+    const result: Donation = {
+      id: randomUUID(),
+      ...donation,
+      message: donation.message || null,
+      paymentMethod: donation.paymentMethod || 'card',
+      paymentStatus: donation.paymentStatus || 'completed',
+      transactionId: donation.transactionId || null,
+      receiptNumber: donation.receiptNumber || null,
+      taxCertificateIssued: false,
+      createdAt: new Date()
+    };
+    
+    this.donations.set(result.id, result);
+    return result;
+  }
+
+  async getAllDonations(): Promise<Donation[]> {
+    const donations = Array.from(this.donations.values());
+    return donations.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getDonationsByEmail(email: string): Promise<Donation[]> {
+    const donations = Array.from(this.donations.values()).filter(d => d.email === email);
+    return donations.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getDonationStats(): Promise<{ totalAmount: number; totalDonations: number; averageDonation: number }> {
+    const donations = Array.from(this.donations.values());
+    const totalDonations = donations.length;
+    const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+    const averageDonation = totalDonations > 0 ? totalAmount / totalDonations : 0;
+    
+    return {
+      totalAmount,
+      totalDonations,
+      averageDonation
+    };
+  }
+
+  async getDonationByReceipt(receiptNumber: string): Promise<Donation | undefined> {
+    for (const donation of Array.from(this.donations.values())) {
+      if (donation.receiptNumber === receiptNumber) {
+        return donation;
+      }
+    }
+    return undefined;
+  }
+
+  async updateDonationStatus(transactionId: string, status: string, paymentId?: string): Promise<Donation | undefined> {
+    for (const donation of Array.from(this.donations.values())) {
+      if (donation.transactionId === transactionId) {
+        donation.paymentStatus = status;
+        if (paymentId) {
+          donation.transactionId = paymentId;
+        }
+        this.donations.set(donation.id, donation);
+        return donation;
+      }
+    }
+    return undefined;
   }
 
   // Admin user management methods
