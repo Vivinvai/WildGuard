@@ -109,98 +109,28 @@ export class AIOrchestrator {
       }
     }
     
-    // STANDARD MODE: Single provider cascade (faster)
-    // Tier 1: Gemini AI (Google's BEST vision model for wildlife)
-    try {
-      console.log(`[${feature}] 🌐 Tier 1: Attempting Gemini AI (Google's vision model - MOST ACCURATE)...`);
-      const data = await analyzeAnimalImage(base64Image);
-      console.log(`[${feature}] ✅ Gemini AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
-      return {
-        data,
-        provider: 'cloud_ai',
-        confidence: data.confidence,
-        method: 'Gemini 2.0 Flash Vision (Google Cloud AI)',
-      };
-    } catch (geminiError) {
-      console.log(`[${feature}] ⚠️ Gemini failed:`, (geminiError as Error).message);
-    }
-    
-    // Tier 2: TensorFlow + DeepSeek AI (Hybrid - Fallback when Gemini unavailable)
-    if (isDeepSeekAvailable()) {
-      try {
-        console.log(`[${feature}] 🎯 Tier 2: TensorFlow → DeepSeek AI (Hybrid Approach)...`);
-        
-        // Step 1: Use TensorFlow for visual detection
-        console.log(`[${feature}]   → Running TensorFlow visual detection...`);
-        const tfResult = await identifyAnimalLocally(base64Image);
-        console.log(`[${feature}]   → TensorFlow detected: ${tfResult.speciesName} (${(tfResult.confidence * 100).toFixed(1)}%)`);
-        
-        // Step 2: Enhance with DeepSeek knowledge
-        console.log(`[${feature}]   → Enhancing with DeepSeek AI knowledge...`);
-        const deepseekResult = await identifyAnimalWithDeepSeek(
-          {
-            species: tfResult.speciesName,
-            confidence: tfResult.confidence,
-            detectedClasses: [tfResult.speciesName], // Could add top 3 predictions
-          },
-          'Karnataka wildlife - provide detailed, accurate information'
-        );
-        
-        console.log(`[${feature}] ✅ Hybrid AI success: ${deepseekResult.species} (${(deepseekResult.confidence * 100).toFixed(1)}%)`);
-        return {
-          data: deepseekResult,
-          provider: 'cloud_ai',
-          confidence: deepseekResult.confidence,
-          method: 'TensorFlow Vision + DeepSeek Knowledge (Hybrid AI)',
-        };
-      } catch (deepseekError) {
-        console.log(`[${feature}] ⚠️ Hybrid AI failed:`, (deepseekError as Error).message);
-        console.log(`[${feature}]    Falling back to Local TensorFlow...`);
-      }
-    }
-    
-    // Tier 3: Local TensorFlow.js AI backup (when cloud unavailable)
-    try {
-      console.log(`[${feature}] 🌐 Tier 2: Attempting Gemini AI (Google's most accurate vision model)...`);
-      const data = await analyzeAnimalImage(base64Image);
-      console.log(`[${feature}] ✅ Gemini AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
-      return {
-        data,
-        provider: 'cloud_ai',
-        confidence: data.confidence,
-        method: 'Gemini 2.0 Flash (Google Cloud AI)',
-      };
-    } catch (geminiError) {
-      console.log(`[${feature}] ⚠️ Gemini failed:`, (geminiError as Error).message);
-    }
-    
-    // Tier 3: Local TensorFlow.js AI backup (when cloud unavailable)
-    try {
-      console.log(`[${feature}] 🎯 Tier 3: Attempting Local TensorFlow.js AI (FREE, offline)...`);
-      const data = await identifyAnimalLocally(base64Image);
-      console.log(`[${feature}] ✅ Local AI success: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
-      return {
-        data,
-        provider: 'local_ai',
-        confidence: data.confidence,
-        method: 'TensorFlow.js MobileNet - Free Offline AI',
-      };
-    } catch (localError) {
-      console.log(`[${feature}] ⚠️ Local AI failed:`, (localError as Error).message);
-    }
-    
-    // Tier 3: Educational fallback (ALWAYS WORKS)
-    console.log(`[${feature}] 📚 Tier 3: Using educational database...`);
-    const animals = Object.values(karnatakaWildlife);
-    const educationalAnimal = animals[Math.floor(Math.random() * animals.length)];
-    const data = { ...educationalAnimal, confidence: 0.6 };
-    console.log(`[${feature}] ✅ Educational mode: ${data.speciesName}`);
+    // STANDARD MODE: TensorFlow ONLY for identification
+    // Using MobileNetV2 with enhanced tiger detection
+    console.log(`[${feature}] 🎯 FORCING TensorFlow MobileNetV2 - NO FALLBACKS...`);
+    const data = await identifyAnimalLocally(base64Image);
+    console.log(`[${feature}] ✅ TensorFlow Identified: ${data.speciesName} (${(data.confidence * 100).toFixed(1)}%)`);
     return {
       data,
-      provider: 'educational',
+      provider: 'local_ai',
       confidence: data.confidence,
-      method: 'Karnataka Wildlife Educational Database',
+      method: 'TensorFlow MobileNetV2 (Local Python Service)',
     };
+    
+    // REMOVED ALL FALLBACK LOGIC - TENSORFLOW ONLY!
+    // If TensorFlow fails, the error will propagate and user will see clear error message
+    
+    // OLD CODE BELOW - DISABLED (was causing random results without using TensorFlow)
+    /*
+    // ALL FALLBACK LOGIC REMOVED - TensorFlow ONLY MODE
+    // This code was never reached because we return early above
+    // But it was confusing the flow, so commenting it out entirely
+    // If you need multi-AI verification, set ENABLE_MULTI_AI_VERIFICATION=true in .env
+    */
   }
   
   /**

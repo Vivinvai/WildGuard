@@ -26,7 +26,7 @@ export interface InjuryDetectionResult {
   recommendations: string[];
 }
 
-const INJURY_YOLO_SERVICE_URL = 'http://localhost:5004';
+const INJURY_YOLO_SERVICE_URL = 'http://localhost:5005';
 
 /**
  * Check if YOLOv11 injury detection service is available
@@ -52,50 +52,72 @@ async function checkInjuryYoloService(): Promise<boolean> {
  */
 async function analyzeWithInjuryYolo(imageBase64: string): Promise<InjuryDetectionResult> {
   try {
+    console.log('🔵 Calling Gemini injury detection service...');
+    
     const response = await fetch(`${INJURY_YOLO_SERVICE_URL}/detect`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: imageBase64 }),
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!response.ok) {
-      throw new Error(`Injury YOLOv11 service error: ${response.status}`);
+      throw new Error(`Injury detection service error: ${response.status}`);
     }
 
     const data = await response.json();
     
-    // Handle response from generic COCO model (fallback mode)
+    console.log('📊 RAW RESPONSE FROM PYTHON SERVICE:');
+    console.log(JSON.stringify(data, null, 2));
+    
+    // Check if service returned success
+    if (!data.success) {
+      throw new Error(data.error || 'Detection failed');
+    }
+    
+    console.log('✅ Response validated, mapping data...');
+    console.log(`   Source: ${data.source}`);
+    console.log(`   Animal: ${data.animalDetected}`);
+    console.log(`   Status: ${data.healthStatus}`);
+    console.log(`   Injury: ${data.injuryDetails?.detected}`);
+    
+    // Map Gemini AI response to our format
     const healthStatusMap: Record<string, "healthy" | "injured" | "unknown"> = {
       "healthy": "healthy",
-      "minor_issues": "injured",
-      "moderate_concern": "injured",
+      "injured": "injured",
       "critical": "injured",
-      "emergency": "injured",
       "unknown": "unknown",
-      "no_animal_detected": "unknown",
     };
 
-    return {
-      healthStatus: healthStatusMap[data.healthStatus] || "unknown",
-      confidence: data.confidence || 0,
-      animalDetected: data.injuryDetails?.animals?.[0] || null,
+    const detectedInjury = data.injuryDetails?.detected || false;
+    const animalName = data.animalDetected || null;
+    const confidence = data.confidence || 0;
+    
+    const result = {
+      healthStatus: detectedInjury ? "injured" : (animalName ? "healthy" : "unknown"),
+      confidence: confidence,
+      animalDetected: animalName,
       injuryDetails: {
-        detected: data.detected || false,
-        description: data.injuryDetails?.injuries?.join('; ') || 'No injury analysis available',
-        severity: data.healthStatus === 'critical' || data.healthStatus === 'emergency' ? 'severe' :
-                  data.healthStatus === 'moderate_concern' ? 'moderate' :
-                  data.healthStatus === 'minor_issues' ? 'minor' : 'none',
+        detected: detectedInjury,
+        description: data.injuryDetails?.description || 'No detailed analysis available',
+        severity: data.injuryDetails?.severity || 'none',
       },
       detections: {
-        injured: data.healthStatus === 'injured' || data.healthStatus === 'critical' ? 1 : 0,
-        animals: data.injuryDetails?.animals?.length || 0,
-        total: data.injuryDetails?.animals?.length || 0,
+        injured: detectedInjury ? 1 : 0,
+        animals: data.detections?.animals || (animalName ? 1 : 0),
+        total: data.detections?.total || (animalName ? 1 : 0),
+      },
       location: { latitude: null, longitude: null },
       timestamp: new Date().toISOString(),
-      recommendations: data.injuryDetails?.recommendations || [],
+      recommendations: data.recommendations || [],
     };
+    
+    console.log('📤 FINAL RESULT TO FRONTEND:');
+    console.log(JSON.stringify(result, null, 2));
+    
+    return result;
   } catch (error) {
-    console.error('Injury YOLOv11 detection failed:', error);
+    console.error('❌ Injury detection service failed:', error);
     throw error;
   }
 }

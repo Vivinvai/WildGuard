@@ -17,7 +17,7 @@ export default function Gardens() {
   });
 
   return (
-    <div className="min-h-screen bg-background dark:bg-black">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -32,15 +32,15 @@ export default function Gardens() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="bg-green-100 dark:bg-green-950/30 p-4 rounded-full"
+              className="bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/50 dark:to-teal-900/50 p-4 rounded-full ring-2 ring-emerald-300 dark:ring-emerald-600 shadow-lg"
             >
-              <Leaf className="w-12 h-12 text-green-600 dark:text-green-400" />
+              <Leaf className="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
             </motion.div>
           </div>
-          <h1 className="text-4xl font-bold text-center text-foreground dark:text-white mb-2">
+          <h1 className="text-4xl font-bold text-center text-slate-800 dark:text-slate-100 mb-2">
             Botanical Gardens in Karnataka
           </h1>
-          <p className="text-center text-lg text-muted-foreground dark:text-gray-400">
+          <p className="text-center text-lg text-slate-600 dark:text-slate-200">
             Explore botanical gardens preserving India's rich plant diversity
           </p>
         </motion.section>
@@ -54,16 +54,16 @@ export default function Gardens() {
         >
           {isLoading && (
             <motion.div variants={motionConfig.variants.fadeInUp} className="col-span-full">
-              <Card className="p-6 bg-card dark:bg-gray-900 text-center shadow-lg">
-                <p className="text-muted-foreground dark:text-gray-400">Loading gardens...</p>
+              <Card className="p-6 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200 dark:border-slate-600 text-center shadow-xl">
+                <p className="text-slate-600 dark:text-slate-300">Loading gardens...</p>
               </Card>
             </motion.div>
           )}
           
           {!isLoading && gardens && gardens.length === 0 && (
             <motion.div variants={motionConfig.variants.fadeInUp} className="col-span-full">
-              <Card className="p-6 bg-card dark:bg-gray-900 text-center shadow-lg">
-                <p className="text-muted-foreground dark:text-gray-400">No botanical gardens found</p>
+              <Card className="p-6 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200 dark:border-slate-600 text-center shadow-xl">
+                <p className="text-slate-600 dark:text-slate-300">No botanical gardens found</p>
               </Card>
             </motion.div>
           )}
@@ -76,27 +76,27 @@ export default function Gardens() {
               transition={{ duration: 0.3 }}
             >
               <Card 
-                className="p-6 cursor-pointer bg-card dark:bg-gray-900 border-border dark:border-gray-800 shadow-lg hover:shadow-2xl dark:hover:border-green-600 transition-all duration-300 h-full"
+                className="p-6 cursor-pointer bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200 dark:border-slate-600 shadow-xl hover:shadow-2xl hover:border-red-400 dark:hover:border-red-500 hover:ring-2 hover:ring-red-200 dark:hover:ring-red-900/50 transition-all duration-300 h-full"
                 onClick={() => setSelectedGarden(garden)}
                 data-testid={`card-garden-${garden.id}`}
               >
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-bold text-xl text-foreground dark:text-white mb-2" data-testid="text-garden-name">
+                  <h3 className="font-bold text-xl text-slate-800 dark:text-slate-100 mb-2" data-testid="text-garden-name">
                     {garden.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground dark:text-gray-400">
+                  <p className="text-sm text-slate-600 dark:text-slate-300">
                     {garden.description}
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-1 text-amber-600 dark:text-amber-400">
+                <div className="flex items-center space-x-1 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-3 py-1 rounded-full w-fit ring-1 ring-amber-300 dark:ring-amber-700">
                   <Star className="w-4 h-4 fill-current" />
-                  <span className="text-sm font-medium">{garden.rating}</span>
+                  <span className="text-sm font-semibold">{garden.rating}</span>
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-start space-x-2 text-muted-foreground dark:text-gray-400">
+                  <div className="flex items-start space-x-2 text-slate-600 dark:text-slate-300">
                     <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span>{garden.phone}</span>
                   </div>

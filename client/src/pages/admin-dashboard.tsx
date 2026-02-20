@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Shield, AlertTriangle, FileCheck, TrendingUp, LogOut, MapPin, Calendar, User, Eye, Award, Download, Camera, ImageIcon, FileText, Printer } from "lucide-react";
@@ -32,6 +32,14 @@ interface IdentificationStats {
   endangeredSightings: number;
 }
 
+interface PoachingStats {
+  total: number;
+  critical: number;
+  high: number;
+  unreviewed: number;
+  today: number;
+}
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -53,6 +61,24 @@ export default function AdminDashboard() {
     refetchInterval: 8000,
     refetchOnWindowFocus: true,
   });
+
+  const { data: poachingStats, isLoading: poachingStatsLoading } = useQuery<PoachingStats>({
+    queryKey: ['/api/admin/poaching-stats'],
+    refetchInterval: 6000,
+    refetchOnWindowFocus: true,
+  });
+
+  // Show alert notification when critical poaching alerts detected
+  useEffect(() => {
+    if (poachingStats && poachingStats.critical > 0 && poachingStats.unreviewed > 0) {
+      toast({
+        title: "🚨 CRITICAL POACHING ALERT",
+        description: `${poachingStats.critical} critical threats detected! ${poachingStats.unreviewed} alerts need review.`,
+        variant: "destructive",
+        duration: 10000,
+      });
+    }
+  }, [poachingStats?.critical, poachingStats?.unreviewed]);
 
   const { data: emergencySightings = [], isLoading: emergencyLoading } = useQuery<AnimalSighting[]>({
     queryKey: ['/api/admin/emergency-sightings'],
@@ -230,6 +256,12 @@ Report End - Wild Guard Wildlife Conservation System
                     <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                     Live Sync
                   </span>
+                  {poachingStats && poachingStats.unreviewed > 0 && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full bg-red-500/15 text-red-600 dark:text-red-200 border border-red-400/30 animate-pulse">
+                      <AlertTriangle className="h-3 w-3" />
+                      {poachingStats.unreviewed} Alerts
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Karnataka Wildlife Operations Center</p>
               </div>
@@ -266,8 +298,12 @@ Report End - Wild Guard Wildlife Conservation System
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold">View →</div>
-              <p className="text-xs text-red-100 mt-2">Monitor threats</p>
+              <div className="text-4xl font-bold">
+                {poachingStatsLoading ? '...' : poachingStats?.unreviewed || 0}
+              </div>
+              <p className="text-xs text-red-100 mt-2">
+                {poachingStatsLoading ? 'Loading...' : `${poachingStats?.critical || 0} Critical | ${poachingStats?.high || 0} High`}
+              </p>
             </CardContent>
           </Card>
 
@@ -358,6 +394,10 @@ Report End - Wild Guard Wildlife Conservation System
             <TabsTrigger value="identifications" className="gap-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white">
               <Camera className="h-4 w-4" />
               AI Identifications ({identifications.length})
+            </TabsTrigger>
+            <TabsTrigger value="poaching" className="gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white">
+              <Shield className="h-4 w-4" />
+              Poaching Threats {poachingStats?.unreviewed ? `(${poachingStats.unreviewed})` : ''}
             </TabsTrigger>
             <TabsTrigger value="report" className="gap-2 data-[state=active]:bg-green-600 data-[state=active]:text-white">
               <FileText className="h-4 w-4" />
@@ -496,6 +536,130 @@ Report End - Wild Guard Wildlife Conservation System
                     </Card>
                   ))}
                 </div>
+              </>
+            )}
+          </TabsContent>
+
+          {/* Poaching Threats Tab */}
+          <TabsContent value="poaching" className="space-y-4">
+            {poachingStatsLoading ? (
+              <div className="text-center py-12">Loading poaching threat data...</div>
+            ) : !poachingStats ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 dark:text-gray-400">No poaching statistics available</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <Card className="border-red-200 dark:border-red-800 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm text-red-700 dark:text-red-300 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        Total Alerts
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold text-red-600 dark:text-red-400">{poachingStats.total}</div>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">All time</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-red-300 dark:border-red-700 bg-gradient-to-br from-red-100 to-rose-100 dark:from-red-900/40 dark:to-rose-900/40">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm text-red-800 dark:text-red-200 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 animate-pulse" />
+                        Critical Threats
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold text-red-700 dark:text-red-300">{poachingStats.critical}</div>
+                      <p className="text-xs text-red-700 dark:text-red-300 mt-1">Immediate action</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm text-orange-700 dark:text-orange-300 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        High Priority
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold text-orange-600 dark:text-orange-400">{poachingStats.high}</div>
+                      <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">Urgent response</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-yellow-200 dark:border-yellow-800 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
+                        <Eye className="h-4 w-4" />
+                        Needs Review
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold text-yellow-600 dark:text-yellow-400">{poachingStats.unreviewed}</div>
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">Pending action</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="border-2 border-red-300 dark:border-red-700">
+                  <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/50 dark:to-rose-950/50">
+                    <CardTitle className="flex items-center gap-2 text-red-900 dark:text-red-100">
+                      <Shield className="h-6 w-6" />
+                      Poaching Detection Overview
+                    </CardTitle>
+                    <CardDescription className="text-red-700 dark:text-red-300">
+                      AI-powered threat monitoring with YOLO v11 object detection
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-900/30 dark:to-rose-900/30 rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Today's Alerts</p>
+                          <p className="text-2xl font-bold text-red-600 dark:text-red-400">{poachingStats.today}</p>
+                        </div>
+                        <AlertTriangle className="h-12 w-12 text-red-500 dark:text-red-400" />
+                      </div>
+
+                      <div className="pt-4">
+                        <Button
+                          onClick={() => setLocation("/admin/poaching-alerts")}
+                          className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold py-6 text-lg shadow-lg"
+                        >
+                          <Shield className="h-5 w-5 mr-2" />
+                          View All Poaching Alerts →
+                        </Button>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4 mt-6">
+                        <div className="p-4 border border-red-200 dark:border-red-800 rounded-lg">
+                          <h4 className="font-semibold text-red-900 dark:text-red-100 mb-2">Detection System</h4>
+                          <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                            <li>✓ YOLOv11 Object Detection</li>
+                            <li>✓ 24+ Weapon Types</li>
+                            <li>✓ Human Activity Detection</li>
+                            <li>✓ Vehicle Identification</li>
+                          </ul>
+                        </div>
+                        <div className="p-4 border border-orange-200 dark:border-orange-800 rounded-lg">
+                          <h4 className="font-semibold text-orange-900 dark:text-orange-100 mb-2">Response Actions</h4>
+                          <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                            <li>✓ Real-time Alert System</li>
+                            <li>✓ Location Tracking</li>
+                            <li>✓ Evidence Storage</li>
+                            <li>✓ Status Management</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </>
             )}
           </TabsContent>

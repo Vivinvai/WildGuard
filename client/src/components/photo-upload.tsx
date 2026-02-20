@@ -206,16 +206,37 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
   });
 
   const getConservationStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'critically endangered':
-        return 'conservation-critical';
-      case 'endangered':
-        return 'conservation-endangered';
-      case 'vulnerable':
-        return 'conservation-vulnerable';
-      default:
-        return 'conservation-stable';
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('critically endangered') || statusLower.includes('critical')) {
+      return 'conservation-critical';
     }
+    if (statusLower.includes('endangered')) {
+      return 'conservation-endangered';
+    }
+    if (statusLower.includes('vulnerable')) {
+      return 'conservation-vulnerable';
+    }
+    if (statusLower.includes('least concern')) {
+      return 'conservation-stable';
+    }
+    return 'conservation-stable';
+  };
+
+  const getConservationStatusBadgeColor = (status: string) => {
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('critically endangered') || statusLower.includes('critical')) {
+      return 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/40 dark:text-red-200 dark:border-red-700';
+    }
+    if (statusLower.includes('endangered')) {
+      return 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/40 dark:text-orange-200 dark:border-orange-700';
+    }
+    if (statusLower.includes('vulnerable')) {
+      return 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-200 dark:border-yellow-700';
+    }
+    if (statusLower.includes('least concern')) {
+      return 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/40 dark:text-green-200 dark:border-green-700';
+    }
+    return 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800/40 dark:text-gray-200 dark:border-gray-700';
   };
 
   return (
@@ -262,11 +283,11 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
         </div>
       )}
 
-      <Card>
+      <Card className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200 dark:border-slate-600 shadow-xl">
         <CardContent className="p-6">
-          <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 p-4 rounded-lg mb-6">
-            <h2 className="text-2xl font-bold mb-2 text-foreground">🦌 Identify Wildlife</h2>
-            <p className="text-muted-foreground">
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/50 dark:to-teal-900/50 p-4 rounded-lg mb-6 border border-emerald-200 dark:border-emerald-700">
+            <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-slate-100">🦌 Identify Wildlife</h2>
+            <p className="text-slate-600 dark:text-slate-300">
               Upload a photo to get instant AI-powered species identification and conservation status.
             </p>
           </div>
@@ -274,63 +295,65 @@ export function PhotoUpload({ onIdentificationResult }: PhotoUploadProps) {
           {!isProcessing ? (
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer ${
-                isDragActive ? 'drag-over' : 'border-border'
+              className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 cursor-pointer min-h-[280px] flex flex-col items-center justify-center ${
+                isDragActive 
+                  ? 'border-emerald-500 dark:border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 scale-[1.02]' 
+                  : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-slate-50 dark:hover:bg-slate-700/30'
               }`}
               data-testid="upload-area"
             >
               <input {...getInputProps()} data-testid="input-file-upload" />
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-20 h-20 mx-auto mb-5 bg-gradient-to-br from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-foreground">Drop your photo here</h3>
-              <p className="text-muted-foreground mb-4">or click to browse your files</p>
-              <Button className="bg-gradient-to-r from-primary to-secondary text-white font-semibold px-6 py-2 rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105" data-testid="button-choose-photo">
+              <h3 className="text-xl font-bold mb-2 text-slate-800 dark:text-slate-100">Drop your photo here</h3>
+              <p className="text-slate-600 dark:text-slate-300 mb-5 text-base">or click to browse your files</p>
+              <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-500 dark:to-teal-500 text-white font-bold px-8 py-3 rounded-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5" data-testid="button-choose-photo">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 Choose Photo
               </Button>
-              <p className="text-xs text-muted-foreground mt-2">Supports JPG, PNG up to 10MB</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 font-medium">Supports JPG, PNG up to 10MB</p>
             </div>
           ) : (
             <div className="text-center py-8" data-testid="processing-state">
               <div className="relative w-16 h-16 mx-auto mb-4">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse"></div>
-                <div className="absolute inset-2 bg-background rounded-full"></div>
-                <div className="absolute inset-4 bg-gradient-to-r from-primary to-secondary rounded-full animate-spin"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-600 rounded-full animate-pulse"></div>
+                <div className="absolute inset-2 bg-white dark:bg-slate-800 rounded-full"></div>
+                <div className="absolute inset-4 bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-600 rounded-full animate-spin"></div>
               </div>
-              <p className="text-foreground font-medium">🔍 Analyzing your photo with AI...</p>
-              <p className="text-sm text-muted-foreground mt-1">This may take a few moments</p>
+              <p className="text-slate-800 dark:text-slate-100 font-medium">🔍 Analyzing your photo with AI...</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">This may take a few moments</p>
             </div>
           )}
 
           {recentIdentifications && recentIdentifications.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Recent Identifications</h3>
+              <h3 className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-3">Recent Identifications</h3>
               <div className="space-y-2">
                 {recentIdentifications.slice(0, 2).map((identification) => (
                   <div
                     key={identification.id}
-                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
+                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors"
                     data-testid={`recent-identification-${identification.id}`}
                     onClick={() => onIdentificationResult(identification)}
                   >
                     <img
                       src={identification.imageUrl}
                       alt={identification.speciesName}
-                      className="w-12 h-12 rounded-lg object-cover"
+                      className="w-12 h-12 rounded-lg object-cover shadow-sm"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{identification.speciesName}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm font-medium truncate text-slate-800 dark:text-slate-100">{identification.speciesName}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         {new Date(identification.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className={`text-xs font-medium ${getConservationStatusColor(identification.conservationStatus)}`}>
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-md border ${getConservationStatusBadgeColor(identification.conservationStatus)}`}>
                       {identification.conservationStatus}
                     </span>
                   </div>

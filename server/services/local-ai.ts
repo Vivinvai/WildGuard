@@ -25,11 +25,16 @@ export async function warmupLocalAI(): Promise<void> {
  */
 export async function identifyAnimalLocally(base64Image: string): Promise<AnimalAnalysisResult> {
   try {
-    console.log('🎯 Using Python TensorFlow for animal identification (FREE, offline)');
+    console.log('🎯 LOCAL AI: Using Python TensorFlow for animal identification');
     const imageBuffer = Buffer.from(base64Image, 'base64');
-    return await identifyAnimalWithTensorFlow(imageBuffer);
+    console.log(`📸 Image size: ${imageBuffer.length} bytes`);
+    
+    const result = await identifyAnimalWithTensorFlow(imageBuffer);
+    console.log(`✅ LOCAL AI SUCCESS: ${result.speciesName}`);
+    return result;
   } catch (error) {
     console.error('❌ Python TensorFlow identification failed:', error);
+    console.error('   Error details:', (error as Error).message);
     throw new Error(`Local AI failed: ${(error as Error).message}`);
   }
 }

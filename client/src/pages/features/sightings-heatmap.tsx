@@ -105,18 +105,20 @@ export default function SightingsHeatmap() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:from-gray-900 dark:via-gray-800 dark:to-orange-950/20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-24">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <MapPin className="w-12 h-12 text-orange-600 dark:text-orange-400" />
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 dark:from-orange-400 dark:to-amber-400 bg-clip-text text-transparent">
+            <div className="bg-gradient-to-br from-red-100 to-orange-100 dark:from-red-900/50 dark:to-orange-900/50 p-4 rounded-full ring-2 ring-red-300 dark:ring-red-600 shadow-lg">
+              <MapPin className="w-12 h-12 text-red-600 dark:text-red-400" />
+            </div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-400 dark:to-orange-400 bg-clip-text text-transparent">
               Wildlife Sightings Heatmap
             </h1>
           </div>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+          <p className="text-xl text-slate-600 dark:text-slate-200 max-w-3xl mx-auto">
             Real-time visualization of wildlife sightings across Karnataka to identify biodiversity hotspots and migration patterns
           </p>
         </div>
@@ -124,40 +126,40 @@ export default function SightingsHeatmap() {
         {/* Statistics Cards */}
         {data && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card className="border-orange-200 dark:border-orange-900/40">
+            <Card className="border-2 border-red-200 dark:border-red-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-lg hover:shadow-xl hover:ring-2 hover:ring-red-200 dark:hover:ring-red-900/50 transition-all">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total Sightings</p>
-                  <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Total Sightings</p>
+                  <p className="text-4xl font-bold text-red-600 dark:text-red-400">
                     {data.totalSightings}
                   </p>
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-orange-200 dark:border-orange-900/40">
+            <Card className="border-2 border-orange-200 dark:border-orange-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-lg hover:shadow-xl hover:ring-2 hover:ring-orange-200 dark:hover:ring-orange-900/50 transition-all">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Active Locations</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Active Locations</p>
                   <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
                     {data.activeSightings}
                   </p>
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-orange-200 dark:border-orange-900/40">
+            <Card className="border-2 border-amber-200 dark:border-amber-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-lg hover:shadow-xl hover:ring-2 hover:ring-amber-200 dark:hover:ring-amber-900/50 transition-all">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Species Tracked</p>
-                  <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Species Tracked</p>
+                  <p className="text-4xl font-bold text-amber-600 dark:text-amber-400">
                     {sortedSpeciesBreakdown.length}
                   </p>
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-orange-200 dark:border-orange-900/40">
+            <Card className="border-2 border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-lg hover:shadow-xl hover:ring-2 hover:ring-emerald-200 dark:hover:ring-emerald-900/50 transition-all">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">
                     {selectedSpecies === "all" ? "All" : "Filtered"}
                   </p>
                   <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
@@ -172,13 +174,13 @@ export default function SightingsHeatmap() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            <Card className="border-2 border-orange-200 dark:border-orange-900/40 shadow-xl">
+            <Card className="border-2 border-red-200 dark:border-red-600 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-xl hover:ring-2 hover:ring-red-200 dark:hover:ring-red-900/50 transition-all">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-100">
+                  <Filter className="w-5 h-5 text-red-600 dark:text-red-400" />
                   Filter Options
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-600 dark:text-slate-300">
                   Customize heatmap view by species
                 </CardDescription>
               </CardHeader>
@@ -239,10 +241,10 @@ export default function SightingsHeatmap() {
 
             {/* Species Breakdown */}
             {sortedSpeciesBreakdown.length > 0 && (
-              <Card className="border-2 border-orange-200 dark:border-orange-900/40 shadow-xl">
+              <Card className="border-2 border-orange-200 dark:border-orange-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-xl hover:shadow-2xl transition-all">
                 <CardHeader>
-                  <CardTitle className="text-lg">Species Distribution</CardTitle>
-                  <CardDescription>Top species by sighting count</CardDescription>
+                  <CardTitle className="text-lg text-slate-800 dark:text-slate-100">Species Distribution</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-300">Top species by sighting count</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -277,10 +279,10 @@ export default function SightingsHeatmap() {
 
           {/* Main Heatmap Section */}
           <div className="lg:col-span-2 space-y-6">
-            <Card className="border-2 border-orange-200 dark:border-orange-900/40 shadow-xl">
+            <Card className="border-2 border-orange-200 dark:border-orange-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-xl hover:shadow-2xl transition-all">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapIcon className="w-5 h-5" />
+                <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-100">
+                  <MapIcon className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                   Biodiversity Hotspots Map
                   {selectedSpecies !== "all" && (
                     <Badge variant="secondary" className="ml-2">
@@ -288,7 +290,7 @@ export default function SightingsHeatmap() {
                     </Badge>
                   )}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-600 dark:text-slate-300">
                   Sighting locations across Karnataka • Color indicates activity level
                 </CardDescription>
               </CardHeader>
@@ -397,10 +399,10 @@ export default function SightingsHeatmap() {
 
             {/* Recent Sightings */}
             {filteredData.length > 0 && (
-              <Card className="border-2 border-orange-200 dark:border-orange-900/40 shadow-xl">
+              <Card className="border-2 border-orange-200 dark:border-orange-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-xl hover:shadow-2xl transition-all">
                 <CardHeader>
-                  <CardTitle>Recent Sightings</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-slate-800 dark:text-slate-100">Recent Sightings</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-300">
                     Latest wildlife observations{selectedSpecies !== "all" ? ` of ${selectedSpecies}` : " from the field"}
                   </CardDescription>
                 </CardHeader>

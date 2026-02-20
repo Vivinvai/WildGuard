@@ -22,7 +22,7 @@ export interface PoachingAnalysisResult {
   };
 }
 
-const YOLO_SERVICE_URL = 'http://localhost:5002';
+const YOLO_SERVICE_URL = 'http://localhost:5003';
 
 /**
  * Check if YOLOv11 poaching detection service is available

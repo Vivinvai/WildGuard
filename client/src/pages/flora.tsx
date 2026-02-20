@@ -84,7 +84,7 @@ export default function Flora() {
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-black">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -99,13 +99,13 @@ export default function Flora() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="bg-green-100 dark:bg-green-950/30 p-4 rounded-full"
+              className="bg-emerald-100 dark:bg-emerald-900/50 p-4 rounded-full"
             >
-              <Leaf className="w-12 h-12 text-green-600 dark:text-green-400" />
+              <Leaf className="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
             </motion.div>
           </div>
-          <h1 className="text-4xl font-bold text-foreground dark:text-white mb-2">Flora Identification</h1>
-          <p className="text-lg text-muted-foreground dark:text-gray-400">
+          <h1 className="text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2">Flora Identification</h1>
+          <p className="text-lg text-slate-600 dark:text-slate-200">
             Upload a photo to identify plant species using AI
           </p>
         </motion.section>
@@ -118,15 +118,15 @@ export default function Flora() {
           className="grid grid-cols-1 lg:grid-cols-2 gap-8"
         >
           <motion.div variants={motionConfig.variants.fadeInUp}>
-            <Card className="p-6 bg-card dark:bg-gray-900 border-border dark:border-gray-800 shadow-lg hover:shadow-2xl transition-shadow duration-300">
-              <h2 className="text-xl font-semibold mb-4 text-foreground dark:text-white">Upload Plant Photo</h2>
+            <Card className="p-6 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200 dark:border-slate-600 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+              <h2 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-100">Upload Plant Photo</h2>
               
               <div
                 {...getRootProps()}
                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
                   isDragActive 
-                    ? 'border-green-500 bg-green-50 dark:bg-green-950/20' 
-                    : 'border-border dark:border-gray-700 bg-muted/30 dark:bg-gray-800/30 hover:bg-muted/50 dark:hover:bg-gray-800/50'
+                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30' 
+                    : 'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
                 data-testid="dropzone-flora"
               >
@@ -135,15 +135,15 @@ export default function Flora() {
                 {!selectedImage && (
                   <div className="space-y-4">
                     <div className="flex justify-center">
-                      <div className="bg-primary/10 dark:bg-green-900/20 p-4 rounded-full">
-                        <Upload className="w-8 h-8 text-primary dark:text-green-400" />
+                        <div className="bg-emerald-500/10 dark:bg-emerald-600/20 p-4 rounded-full">
+                          <Upload className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <p className="text-lg font-medium text-foreground dark:text-white">
-                        {isDragActive ? 'Drop your photo here' : 'Drag & drop or click to upload'}
-                      </p>
-                      <p className="text-sm text-muted-foreground dark:text-gray-500 mt-1">
+                      <div>
+                        <p className="text-lg font-medium text-slate-800 dark:text-slate-100">
+                          {isDragActive ? 'Drop your photo here' : 'Drag & drop or click to upload'}
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                         Supports: JPG, PNG, WEBP (max 10MB)
                       </p>
                     </div>

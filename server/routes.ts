@@ -1840,10 +1840,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Health Assessment API - YOLOv11 Only (No Cloud AI)
   app.post("/api/features/health-assessment", upload.single('image'), async (req, res) => {
     try {
+      console.log("📥 Health assessment request received");
+      
       if (!req.file) {
+        console.error("❌ No image file provided");
         return res.status(400).json({ error: "Image file required" });
       }
 
+      console.log(`📸 Image received: ${req.file.size} bytes, type: ${req.file.mimetype}`);
       const imageBase64 = req.file.buffer.toString('base64');
       
       // Parse location data from request
@@ -1851,45 +1855,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const longitude = req.body.longitude ? parseFloat(req.body.longitude) : undefined;
       const locationName = req.body.locationName || undefined;
       
-      // Use YOLOv11 Detection ONLY
+      console.log(`📍 Location: ${latitude ? `${latitude}, ${longitude}` : 'Not provided'}`);
+      
+      // Use Gemini AI + YOLO Detection
       try {
-        console.log("🔬 Running YOLOv11 animal detection...");
+        console.log("🔬 Starting Gemini AI + YOLO injury detection...");
         const { detectInjuredAnimals } = await import("./services/injury-detection");
         const yoloResult = await detectInjuredAnimals(imageBase64, latitude, longitude);
-        console.log(`✅ YOLOv11: ${yoloResult.animalDetected || 'No animal'} detected`);
+        console.log(`✅ Detection complete: ${yoloResult.animalDetected || 'No animal'} - ${yoloResult.healthStatus}`);
         
         if (yoloResult && yoloResult.animalDetected) {
           const isInjured = yoloResult.injuryDetails?.detected || false;
           const needsAttention = isInjured;
           
+          // Format response to match frontend expectations
           const responseData = {
             animalIdentified: yoloResult.animalDetected,
             overallHealthStatus: isInjured ? 'injured' : 'healthy',
             confidence: yoloResult.confidence,
             
+            // Include injuryStatus from Gemini
+            injuryStatus: yoloResult.injuryStatus || {
+              status: isInjured ? 'Confirmed Injury' : 'No Injury Detected',
+              confidence: yoloResult.confidence
+            },
+            
+            // Include detectionConditions from Gemini
+            detectionConditions: yoloResult.injuryDetails?.detectionConditions || [],
+            
             visualSymptoms: {
-              injuries: isInjured ? ['Injury detected - requires attention'] : ['No visible injuries'],
+              injuries: isInjured ? [yoloResult.injuryDetails.description] : ['No visible injuries'],
               malnutrition: false,
               skinConditions: [],
               abnormalBehavior: []
             },
             
             detectedConditions: isInjured ? 
-              ['⚠️ Animal is injured'] : 
+              [`⚠️ Injury detected: ${yoloResult.injuryDetails.severity} severity`] : 
               ['✅ Animal appears healthy'],
             
-            severity: isInjured ? 'Injured - Needs Attention' : 'Healthy - No Intervention Required',
+            severity: yoloResult.injuryDetails.description,
             
-            treatmentRecommendations: isInjured ? [
-              '🚨 INJURED ANIMAL DETECTED',
-              'Contact wildlife veterinarian immediately',
-              'Do not approach the animal',
-              'Keep location under observation'
-            ] : [
-              '✅ Animal appears healthy',
-              'No immediate action required',
-              'Continue normal monitoring'
-            ],
+            treatmentRecommendations: yoloResult.recommendations.length > 0 ? 
+              yoloResult.recommendations : 
+              isInjured ? [
+                '🚨 INJURED ANIMAL DETECTED',
+                'Contact wildlife veterinarian immediately',
+                'Do not approach the animal',
+                'Keep location under observation'
+              ] : [
+                '✅ Animal appears healthy',
+                'No immediate action required',
+                'Continue normal monitoring'
+              ],
             
             veterinaryAlertRequired: needsAttention,
             followUpRequired: needsAttention,
@@ -1897,11 +1915,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             detailedAnalysis: `Animal: ${yoloResult.animalDetected}
 Status: ${isInjured ? '⚠️ INJURED - Needs Attention' : '✅ HEALTHY - No Intervention Required'}
 Confidence: ${(yoloResult.confidence * 100).toFixed(1)}%
+Severity: ${yoloResult.injuryDetails.severity}
 
-${isInjured ? '🚨 This animal requires veterinary care. Contact wildlife rescue immediately.' : '✅ No visible injuries detected. Animal appears to be in normal condition.'}`,
+${yoloResult.injuryDetails.description}`,
             
             yoloDetection: {
-              model: "YOLOv11n",
+              model: "YOLOv11n + Gemini AI",
               timestamp: new Date().toISOString()
             }
           };

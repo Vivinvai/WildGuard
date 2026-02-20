@@ -176,7 +176,7 @@ export default function Community() {
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gray-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center mb-12">

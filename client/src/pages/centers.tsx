@@ -28,7 +28,7 @@ export default function Centers() {
   }));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <BackButton />

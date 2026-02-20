@@ -5,7 +5,7 @@
 
 import fetch from 'node-fetch';
 
-const TENSORFLOW_SERVICE_URL = process.env.TENSORFLOW_SERVICE_URL || 'http://localhost:5001';
+const TENSORFLOW_SERVICE_URL = process.env.TENSORFLOW_SERVICE_URL || 'http://localhost:5004';
 
 export interface LocalChatResponse {
   answer: string | null;

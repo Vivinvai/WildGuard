@@ -100,10 +100,10 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-emerald-950 dark:to-teal-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-900 dark:via-teal-900 dark:to-cyan-900 text-white py-20">
+      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 dark:from-slate-800 dark:via-emerald-900 dark:to-slate-800 text-white py-20 border-b-2 border-emerald-300 dark:border-emerald-600">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDItNC00LTRzLTQgMi00IDRjMCAyIDIgNCA0IDRzNC0yIDQtNHptMCAwYzAtMiAyLTQgNC00czQgMiA0IDRjMCAyLTIgNC00IDRzLTQtMi00LTR6bS0yMCAwYzAtMiAyLTQgNC00czQgMiA0IDRjMCAyLTIgNC00IDRzLTQtMi00LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
         
         <div className="container mx-auto px-4 relative z-10">
@@ -128,7 +128,7 @@ export default function DiscoverPage() {
                   placeholder="Search for tigers, elephants, leopards..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 py-6 text-lg rounded-full border-2 border-white/30 bg-white/95 dark:bg-gray-900/95 shadow-2xl focus:border-white transition-all"
+                  className="pl-12 pr-4 py-6 text-lg rounded-full border-2 border-white/30 bg-white dark:bg-slate-800 dark:text-slate-100 shadow-2xl focus:border-white dark:focus:border-emerald-400 transition-all"
                   data-testid="input-discover-search"
                 />
               </div>
@@ -140,16 +140,16 @@ export default function DiscoverPage() {
       {/* Featured Animals Carousel */}
       {featuredAnimals.length > 0 && (
         <div className="container mx-auto px-4 -mt-12 relative z-20 mb-12">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+          <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl p-8 border-2 border-slate-200 dark:border-slate-600">
             <div className="flex items-center gap-3 mb-6">
               <Heart className="w-6 h-6 text-red-500 fill-red-500" />
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Animals</h2>
+              <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Featured Animals</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {featuredAnimals.map((animal) => (
                 <Card
                   key={animal.id}
-                  className="group hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
+                  className="group bg-gradient-to-br from-white to-slate-50 dark:from-slate-700 dark:to-slate-800 border-2 border-slate-200 dark:border-slate-600 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
                   onClick={() => handleAnimalClick(animal)}
                   data-testid={`card-featured-animal-${animal.id}`}
                 >
@@ -179,9 +179,9 @@ export default function DiscoverPage() {
                       </div>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">{animal.speciesName}</h3>
-                      <p className="text-sm italic text-gray-600 dark:text-gray-400 mb-2">{animal.scientificName}</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{animal.shortDescription}</p>
+                      <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 mb-1">{animal.speciesName}</h3>
+                      <p className="text-sm italic text-slate-600 dark:text-slate-300 mb-2">{animal.scientificName}</p>
+                      <p className="text-sm text-slate-700 dark:text-slate-200 line-clamp-2">{animal.shortDescription}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -194,8 +194,8 @@ export default function DiscoverPage() {
       {/* Filter Categories */}
       <div className="container mx-auto px-4 mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <Filter className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-          <h3 className="font-semibold text-gray-900 dark:text-white">Filter by Category:</h3>
+          <Filter className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+          <h3 className="font-semibold text-slate-800 dark:text-slate-100">Filter by Category:</h3>
         </div>
         <div className="flex flex-wrap gap-3">
           <Button

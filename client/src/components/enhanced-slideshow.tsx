@@ -128,7 +128,7 @@ export function EnhancedSlideshow() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="relative w-full aspect-[16/9] overflow-hidden rounded-3xl shadow-2xl"
+        className="relative w-full aspect-[16/9] overflow-hidden rounded-3xl shadow-2xl ring-4 ring-red-400/40 dark:ring-orange-500/30 border-2 border-orange-300 dark:border-red-500/50"
         data-testid="enhanced-slideshow"
       >
         <AnimatePresence initial={false} custom={direction} mode="wait">
@@ -140,9 +140,9 @@ export function EnhancedSlideshow() {
             animate="center"
             exit="exit"
             transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.5 },
-              scale: { duration: 0.5 },
+              x: { type: "spring", stiffness: 400, damping: 40, mass: 0.8 },
+              opacity: { duration: 0.4, ease: "easeInOut" },
+              scale: { duration: 0.4, ease: "easeOut" },
             }}
             className="absolute inset-0"
           >
@@ -155,8 +155,8 @@ export function EnhancedSlideshow() {
                 data-testid={`slide-image-${currentSlide}`}
               />
               
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
             </div>
           </motion.div>
         </AnimatePresence>
@@ -172,13 +172,13 @@ export function EnhancedSlideshow() {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
+              transition={{ delay: 0.4, duration: 0.5, ease: "easeOut" }}
               className="inline-block mb-3"
             >
-              <span className={`px-4 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border ${
+              <span className={`px-4 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border-2 shadow-lg ${
                 currentAnimal.conservation === "Critically Endangered"
-                  ? "bg-red-500/20 border-red-400/50 text-red-100"
-                  : "bg-orange-500/20 border-orange-400/50 text-orange-100"
+                  ? "bg-red-500/30 border-red-400/70 text-red-100 ring-2 ring-red-300/50"
+                  : "bg-orange-500/30 border-orange-400/70 text-orange-100 ring-2 ring-orange-300/50"
               }`}>
                 {currentAnimal.conservation}
               </span>
@@ -187,7 +187,7 @@ export function EnhancedSlideshow() {
             <motion.h2
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
+              transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
               className="text-3xl md:text-5xl font-bold mb-3 text-white drop-shadow-2xl"
             >
               {currentAnimal.title}
@@ -196,7 +196,7 @@ export function EnhancedSlideshow() {
             <motion.p
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
+              transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
               className="text-base md:text-lg text-gray-100 drop-shadow-lg max-w-xl leading-relaxed"
             >
               {currentAnimal.description}
@@ -209,7 +209,7 @@ export function EnhancedSlideshow() {
             variant="ghost"
             size="icon"
             onClick={() => setIsPlaying(!isPlaying)}
-            className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white transition-all"
+            className="h-10 w-10 rounded-full bg-red-500/20 backdrop-blur-md border-2 border-red-400/40 text-white hover:bg-red-500/30 hover:border-red-400/60 hover:text-white hover:scale-110 transition-all shadow-lg"
             data-testid="button-play-pause"
           >
             {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -220,7 +220,7 @@ export function EnhancedSlideshow() {
           variant="ghost"
           size="icon"
           onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white hover:scale-110 transition-all z-10"
+          className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-orange-500/20 backdrop-blur-md border-2 border-orange-400/50 text-white hover:bg-orange-500/30 hover:border-orange-400/70 hover:text-white hover:scale-110 transition-all z-10 shadow-lg"
           data-testid="button-prev-slide"
         >
           <ChevronLeft className="h-6 w-6" />
@@ -230,13 +230,13 @@ export function EnhancedSlideshow() {
           variant="ghost"
           size="icon"
           onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:text-white hover:scale-110 transition-all z-10"
+          className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-orange-500/20 backdrop-blur-md border-2 border-orange-400/50 text-white hover:bg-orange-500/30 hover:border-orange-400/70 hover:text-white hover:scale-110 transition-all z-10 shadow-lg"
           data-testid="button-next-slide"
         >
           <ChevronRight className="h-6 w-6" />
         </Button>
 
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 bg-black/30 backdrop-blur-md rounded-full px-4 py-2.5 z-10">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 bg-black/40 backdrop-blur-md rounded-full px-4 py-2.5 z-10 border border-red-400/30">
           {animalSlides.map((_, index) => (
             <button
               key={index}
@@ -249,8 +249,8 @@ export function EnhancedSlideshow() {
               <div
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? "w-8 bg-gradient-to-r from-green-400 to-orange-400"
-                    : "w-1.5 bg-white/40 group-hover:bg-white/70 group-hover:w-4"
+                    ? "w-8 bg-gradient-to-r from-red-400 via-orange-400 to-red-400"
+                    : "w-1.5 bg-white/40 group-hover:bg-orange-400/80 group-hover:w-4"
                 }`}
               />
             </button>
@@ -259,7 +259,7 @@ export function EnhancedSlideshow() {
 
         <motion.div
           key={`progress-${currentSlide}`}
-          className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-green-400 via-orange-400 to-green-400 z-10"
+          className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-red-500 z-10"
           initial={{ width: "0%" }}
           animate={{ width: isPlaying ? "100%" : "0%" }}
           transition={{ duration: 5, ease: "linear" }}

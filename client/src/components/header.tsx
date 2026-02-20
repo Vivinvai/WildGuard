@@ -25,7 +25,7 @@ export function Header() {
   const [location] = useLocation();
 
   return (
-    <header className="bg-card border-b border-border shadow-lg sticky top-0 z-50 backdrop-blur-sm bg-card/95">
+    <header className="bg-white border-b border-slate-200 dark:bg-slate-800 dark:border-slate-700 shadow-lg sticky top-0 z-50 backdrop-blur-sm bg-white/95 dark:bg-slate-800/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/home" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
@@ -227,33 +227,6 @@ export function Header() {
                     <div>
                       <div className="font-medium">Habitat Health</div>
                       <div className="text-xs text-gray-500">NASA fire monitoring</div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="focus:bg-purple-50 dark:focus:bg-purple-950/50 cursor-pointer">
-                  <Link href="/features/sound-detection" className="flex items-center space-x-3 px-3 py-2">
-                    <Volume2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    <div>
-                      <div className="font-medium">Sound Detection</div>
-                      <div className="text-xs text-gray-500">Bioacoustic analysis</div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="focus:bg-amber-50 dark:focus:bg-amber-950/50 cursor-pointer">
-                  <Link href="/features/footprint-recognition" className="flex items-center space-x-3 px-3 py-2">
-                    <Footprints className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <div>
-                      <div className="font-medium">Footprint Recognition</div>
-                      <div className="text-xs text-gray-500">Track identification</div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="focus:bg-blue-50 dark:focus:bg-blue-950/50 cursor-pointer">
-                  <Link href="/features/partial-image-enhancement" className="flex items-center space-x-3 px-3 py-2">
-                    <ImagePlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <div>
-                      <div className="font-medium">Image Enhancement</div>
-                      <div className="text-xs text-gray-500">Blurry image analysis</div>
                     </div>
                   </Link>
                 </DropdownMenuItem>

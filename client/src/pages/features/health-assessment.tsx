@@ -7,11 +7,31 @@ import { Label } from "@/components/ui/label";
 import { Heart, Upload, AlertTriangle, CheckCircle2, Camera, Activity, Stethoscope } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+interface InjuryStatus {
+  status: string;
+  confidence: number;
+}
+
+interface ResultsData {
+  animalIdentified?: string;
+  overallHealthStatus: string;
+  confidence: number;
+  injuryStatus?: InjuryStatus;
+  detectedConditions?: string[];
+  detectionConditions?: string[];
+  visualSymptoms?: any;
+  detailedAnalysis?: string;
+  severity?: string;
+  treatmentRecommendations?: string[];
+  veterinaryAlertRequired?: boolean;
+  followUpRequired?: boolean;
+}
+
 export default function HealthAssessment() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<ResultsData | null>(null);
   const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,6 +58,7 @@ export default function HealthAssessment() {
     }
 
     setAnalyzing(true);
+    setResults(null); // Clear previous results
     
     try {
       const formData = new FormData();
@@ -63,30 +84,38 @@ export default function HealthAssessment() {
         }
       }
 
+      console.log("Sending health assessment request...");
       const response = await fetch("/api/features/health-assessment", {
         method: "POST",
         body: formData,
       });
 
+      console.log("Response status:", response.status);
+      
       if (!response.ok) {
-        throw new Error("Analysis failed");
+        const errorText = await response.text();
+        console.error("Server error:", errorText);
+        throw new Error(`Server returned ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
+      console.log("Health assessment response:", data);
+      
       setResults(data);
 
       toast({
-        title: "Assessment Complete",
-        description: `Health status: ${data.overallHealthStatus}`,
+        title: "✅ Assessment Complete",
+        description: `Health status: ${data.overallHealthStatus || 'analyzed'}`,
         variant: data.overallHealthStatus === "emergency" || data.overallHealthStatus === "critical" ? "destructive" : "default",
       });
     } catch (error) {
       console.error("Health assessment error:", error);
       toast({
         title: "Assessment Failed",
-        description: "Failed to analyze animal health. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to analyze animal health. Please try again.",
         variant: "destructive",
       });
+      setResults(null);
     } finally {
       setAnalyzing(false);
     }
@@ -126,13 +155,15 @@ export default function HealthAssessment() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-green-950/20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-24">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Heart className="w-12 h-12 text-green-600 dark:text-green-400" />
+            <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50 p-4 rounded-full ring-2 ring-green-300 dark:ring-green-600 shadow-lg">
+              <Heart className="w-12 h-12 text-green-600 dark:text-green-400" />
+            </div>
             <h1 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
               Automatic Health Assessment
             </h1>
@@ -143,13 +174,13 @@ export default function HealthAssessment() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <Card className="border-2 border-green-200 dark:border-green-900/40 shadow-xl">
+          <Card className="border-2 border-green-200 dark:border-green-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-xl hover:shadow-2xl transition-all">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-100">
+                <Upload className="w-5 h-5 text-green-600 dark:text-green-400" />
                 Upload Animal Image
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-slate-600 dark:text-slate-300">
                 Upload a clear photo of the animal for AI health analysis
               </CardDescription>
             </CardHeader>
@@ -198,13 +229,13 @@ export default function HealthAssessment() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 border-green-200 dark:border-green-900/40 shadow-xl">
+          <Card className="border-2 border-green-200 dark:border-green-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-xl hover:shadow-2xl transition-all">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Stethoscope className="w-5 h-5" />
+              <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-100">
+                <Stethoscope className="w-5 h-5 text-green-600 dark:text-green-400" />
                 Health Assessment Results
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-slate-600 dark:text-slate-300">
                 AI-powered veterinary analysis and recommendations
               </CardDescription>
             </CardHeader>
@@ -232,17 +263,53 @@ export default function HealthAssessment() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Confidence</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Assessment Confidence</p>
                         <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{Math.round(results.confidence * 100)}%</p>
                       </div>
                     </div>
                   </div>
+
+                  {results.injuryStatus && (
+                    <div className="p-4 rounded-lg border-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Injury Status</p>
+                          <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                            {results.injuryStatus.status}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Injury Confidence</p>
+                          <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                            {Math.round(results.injuryStatus.confidence * 100)}%
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {results.animalIdentified && (
                     <div className="p-3 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
                       <p className="text-sm text-blue-800 dark:text-blue-300">
                         <strong>Species:</strong> {results.animalIdentified}
                       </p>
+                    </div>
+                  )}
+
+                  {results.detectionConditions && results.detectionConditions.length > 0 && (
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2">
+                        <Activity className="w-4 h-4" />
+                        Detection Conditions Observed:
+                      </h4>
+                      <div className="space-y-2">
+                        {results.detectionConditions.map((condition: string, idx: number) => (
+                          <div key={idx} className="flex items-start gap-2">
+                            <span className="text-purple-600 dark:text-purple-400 font-bold mt-0.5">•</span>
+                            <p className="text-sm text-purple-700 dark:text-purple-300">{condition}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -358,43 +425,43 @@ export default function HealthAssessment() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border border-gray-200 dark:border-gray-700">
+          <Card className="border-2 border-green-200 dark:border-green-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-lg hover:shadow-xl transition-all">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-100">
                 <Heart className="w-5 h-5 text-green-600" />
                 Injury Detection
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 AI identifies visible wounds, fractures, limping, and physical trauma using advanced computer vision analysis
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border border-gray-200 dark:border-gray-700">
+          <Card className="border-2 border-blue-200 dark:border-blue-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-lg hover:shadow-xl transition-all">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-600" />
+              <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-100">
+                <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 Disease Screening
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 Detects signs of malnutrition, skin conditions, parasites, and common wildlife diseases from visual symptoms
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border border-gray-200 dark:border-gray-700">
+          <Card className="border-2 border-purple-200 dark:border-purple-900/50 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-lg hover:shadow-xl transition-all">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-slate-800 dark:text-slate-100">
                 <Stethoscope className="w-5 h-5 text-purple-600" />
                 Treatment Guidance
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 Provides veterinary recommendations, urgency assessment, and guidance for wildlife rehabilitation centers
               </p>
             </CardContent>

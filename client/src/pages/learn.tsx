@@ -35,7 +35,7 @@ export default function Learn() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <BackButton />
@@ -53,11 +53,11 @@ export default function Learn() {
             >
               <Shield className="w-8 h-8 text-primary mr-3" />
             </motion.div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
               Learn About Conservation
             </h1>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-slate-600 dark:text-slate-200 max-w-3xl mx-auto">
             Discover conservation success stories, learn protection methods, and understand how technology helps wildlife.
           </p>
         </motion.section>
@@ -67,12 +67,12 @@ export default function Learn() {
           initial="hidden"
           animate={introSection.isVisible ? "visible" : "hidden"}
           variants={motionConfig.variants.scaleIn}
-          className="bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 rounded-2xl p-8 mb-12"
+          className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-8 mb-12 border-2 border-emerald-200 dark:border-emerald-600 shadow-xl"
         >
           <div className="text-center">
-            <Shield className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h2 className="text-3xl font-bold mb-4">🌍 Wildlife Protection – Why It Matters</h2>
-            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+            <Shield className="w-12 h-12 text-emerald-600 dark:text-emerald-400 mx-auto mb-4" />
+            <h2 className="text-3xl font-bold mb-4 text-slate-800 dark:text-slate-100">🌍 Wildlife Protection – Why It Matters</h2>
+            <p className="text-lg text-slate-600 dark:text-slate-200 max-w-4xl mx-auto">
               Wildlife protection means caring for animals, plants, and their natural habitats so they don't disappear forever. 
               Every species plays an important role in keeping our planet balanced.
             </p>

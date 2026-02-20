@@ -44,9 +44,9 @@
 
 ### **Option 2: Local Development**
 ```powershell
-.\START_ALL_SERVICES.ps1
+.\startup_scripts\START_ALL_SERVICES.ps1
 ```
-Access at http://localhost:5000
+Access at http://localhost:5001
 
 ### **Option 3: Docker**
 ```bash
